@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <model name="regolith_plane">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <heightmap>
+            <uri>materials/textures/heightmap.png</uri>
+            <size>100 100 5</size>
+            <pos>0 0 0</pos>
+          </heightmap>
+        </geometry>
+        <surface>
+          <bounce>
+            <restitution_coefficient>0.15</restitution_coefficient>
+            <threshold>0</threshold>
+          </bounce>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <heightmap>
+            <texture>
+              <diffuse>materials/textures/diffuse.png</diffuse>
+              <normal>materials/textures/diffuse.png</normal>
+              <size>100</size>
+            </texture>
+            <blend>
+              <min_height>0</min_height>
+              <fade_dist>0</fade_dist>
+            </blend>
+            <uri>materials/textures/heightmap.png</uri>
+            <size>100 100 5</size>
+            <pos>0 0 0</pos>
+          </heightmap>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
