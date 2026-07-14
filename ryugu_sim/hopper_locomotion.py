@@ -129,8 +129,28 @@ class HopperLocomotion(Node):
         elif self.state == self.LAUNCH:
             if self.state_timer == 0:
                 self.get_logger().info(f"2. IGNITION (amplitude={self.launch_amplitude:.2f} rad, distance-scaled forward hop to target)")
-                                # Because the robot is leaning forward, this fires it diagonally!
-                self.set_joints(-self.launch_amplitude, self.launch_amplitude)
+                # Found 2026-07-15: firing all 3 legs to the SAME absolute
+                # target (the old set_joints(-amp, amp) call) made leg 0
+                # sweep a much larger angle than legs 1/2 within the same
+                # fixed 0.2s window, because CROUCH leaves leg 0 bent much
+                # further (1.2/-1.2) than legs 1/2 (0.2/-0.2) for the
+                # intentional forward lean. Unequal angular travel in a fixed
+                # time means unequal per-leg thrust at liftoff -- a real net
+                # torque impulse on the chassis at the exact moment it leaves
+                # the ground, which is what was causing the robot to start
+                # tumbling immediately on every jump. Fix: apply the same
+                # DELTA (launch_amplitude) from each leg's own crouch
+                # baseline instead of the same absolute target, so every leg
+                # travels an equal angular distance -- balanced thrust
+                # magnitude -- while the crouch lean still shapes the
+                # resulting diagonal thrust *direction* via each leg's
+                # differing final position.
+                self.pubs['hip_joint_0'].publish(Float64(data=1.2 - self.launch_amplitude))
+                self.pubs['knee_joint_0'].publish(Float64(data=-1.2 + self.launch_amplitude))
+                self.pubs['hip_joint_1'].publish(Float64(data=0.2 - self.launch_amplitude))
+                self.pubs['knee_joint_1'].publish(Float64(data=-0.2 + self.launch_amplitude))
+                self.pubs['hip_joint_2'].publish(Float64(data=0.2 - self.launch_amplitude))
+                self.pubs['knee_joint_2'].publish(Float64(data=-0.2 + self.launch_amplitude))
 
             self.state_timer += 1
             if self.state_timer >= 2: # 0.2 seconds (2 * 0.1s tick)

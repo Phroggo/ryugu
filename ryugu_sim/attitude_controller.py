@@ -76,6 +76,29 @@ class AttitudeController(Node):
         self.target_yaw = 0.0
         self.max_rw_speed = 1396.0 # rad/s (H_max = 0.377 Nms / I = 0.00027 kgm^2)
         self.in_flight = False
+        self.last_imu_time = None
+
+        # Found 2026-07-15 (live telemetry: /scout_1/rw_y_joint_cmd_vel swinging
+        # -193 -> +27 -> -206 rad/s across consecutive ~1s samples while the
+        # body genuinely tumbled at 1.5-3 rad/s "as soon as the jump started").
+        # Root cause: Kp_tilt=300 on a bounded error term commands target
+        # velocities the RW motor cannot remotely reach -- the RW joint's
+        # torque ceiling is only 0.015 Nm (Research_Paper.md SS3.2, real Maxon
+        # EC20 "Continuous" spec), which caps wheel angular acceleration at
+        # ~55.6 rad/s^2 (0.015 / 0.00027 kgm^2). Reaching a 300 rad/s target
+        # would take 5+ seconds; the outer loop instead recomputes a brand
+        # new (often oppositely-signed) target every ~10ms IMU tick, so the
+        # low-level JointController sits permanently torque-saturated and the
+        # only thing that actually matters physically is the *sign* of the
+        # commanded velocity. That sign was flipping essentially every tick
+        # -- chattering -- rather than holding steady for the clean
+        # accelerate-then-decelerate bang-bang correction the paper's own
+        # kinematic model assumes (t ~= 1.07s to correct 90 deg at constant
+        # alpha=2.727 rad/s^2, SS3.2). Slew-limiting the *commanded target* to
+        # this same physical acceleration ceiling forces the sign to hold for
+        # a physically sensible duration instead of chattering, without
+        # changing the real torque budget the paper specifies.
+        self.max_wheel_accel = 50.0 # rad/s^2, conservative vs the 55.6 physical ceiling
 
     def jump_callback(self, msg):
         if msg.data:
@@ -135,9 +158,19 @@ class AttitudeController(Node):
             cmd_x = self.cmd_vel['x'] * 0.9
             cmd_y = self.cmd_vel['y'] * 0.9
 
-        self.cmd_vel['x'] = cmd_x
-        self.cmd_vel['y'] = cmd_y
-        self.cmd_vel['z'] = cmd_z
+        now = self.get_clock().now()
+        if self.last_imu_time is None:
+            dt = 0.01
+        else:
+            dt = (now - self.last_imu_time).nanoseconds / 1e9
+            dt = min(max(dt, 0.0), 0.05)  # guard against clock jumps/dropped ticks
+        self.last_imu_time = now
+
+        max_delta = self.max_wheel_accel * dt
+        for axis, target in (('x', cmd_x), ('y', cmd_y), ('z', cmd_z)):
+            delta = target - self.cmd_vel[axis]
+            delta = max(-max_delta, min(max_delta, delta))
+            self.cmd_vel[axis] += delta
 
         max_speed = max(abs(self.cmd_vel['x']), abs(self.cmd_vel['y']), abs(self.cmd_vel['z']))
         if max_speed > self.max_rw_speed:
