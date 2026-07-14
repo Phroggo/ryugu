@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64, Bool
+from std_msgs.msg import Float64, Bool, String
 from nav_msgs.msg import Odometry
 import random
 import time
@@ -62,12 +62,41 @@ class SwarmManager(Node):
                 "pos_x": 0.0,
                 "pos_y": 0.0,
                 "landed": True,
+                # Short human-readable status for the swarm dashboard GUI --
+                # kept in sync at each decision point below, not derived
+                # after the fact, so it always matches what actually happened
+                # this tick.
+                "activity": "Booting up...",
+                # %/tick, positive while charging (RECHARGE) negative while
+                # draining (every other role) -- for the dashboard's
+                # charge/discharge rate readout.
+                "power_rate": 0.0,
             } for agent in self.agents
         }
-        
+
         # Publishers for the Drill Actuator
         self.drill_pubs = {
             agent: self.create_publisher(Float64, f'/{agent}/cmd_drill', 10)
+            for agent in self.agents
+        }
+
+        # Status publishers for the swarm dashboard GUI (swarm_gui.py) -- role
+        # and battery were previously only ever printed to the log, with no
+        # way for an external monitor to read current state.
+        self.role_pubs = {
+            agent: self.create_publisher(String, f'/{agent}/status_role', 10)
+            for agent in self.agents
+        }
+        self.activity_pubs = {
+            agent: self.create_publisher(String, f'/{agent}/status_activity', 10)
+            for agent in self.agents
+        }
+        self.battery_pubs = {
+            agent: self.create_publisher(Float64, f'/{agent}/status_battery', 10)
+            for agent in self.agents
+        }
+        self.power_rate_pubs = {
+            agent: self.create_publisher(Float64, f'/{agent}/status_power_rate', 10)
             for agent in self.agents
         }
         
@@ -114,11 +143,16 @@ class SwarmManager(Node):
             role = self.state[agent]["role"]
             if role == "RECHARGE":
                 self.state[agent]["battery"] = min(100.0, self.state[agent]["battery"] + SOLAR_CHARGE_RATE)
+                self.state[agent]["activity"] = f"Recharging ({self.state[agent]['battery']:.0f}%)..."
+                # Positive = charging, for the dashboard's power-rate readout.
+                self.state[agent]["power_rate"] = SOLAR_CHARGE_RATE
             else:
                 drain = BATTERY_DRAIN_BY_ROLE.get(role, 0.05)
                 if role == "SAMPLER" and self.state[agent]["drill_deployed"]:
                     drain += DRILL_ACTIVE_EXTRA_DRAIN
                 self.state[agent]["battery"] = max(0.0, self.state[agent]["battery"] - drain)
+                # Negative = discharging.
+                self.state[agent]["power_rate"] = -drain
 
             if self.state[agent]["battery"] < 15.0 and role != "RECHARGE":
                 self.get_logger().warn(f"🔋 {agent} BMS Alert! Ni-MH cells critical ({self.state[agent]['battery']:.1f}%). Fleeing to sunlight.")
@@ -149,6 +183,7 @@ class SwarmManager(Node):
             role = self.state[agent]["role"]
             
             if role == "SCOUT":
+                self.state[agent]["activity"] = "Scanning regolith for anomalies..."
                 # Simulate Lidar scanning for anomalies
                 if random.random() < 0.15:
                     x, y = random.uniform(-50, 50), random.uniform(-50, 50)
@@ -170,9 +205,11 @@ class SwarmManager(Node):
                         self.drill_pubs[agent].publish(Float64(data=-0.1)) # Extend drill down
                         self.state[agent]["drill_deployed"] = True
                         self.state[agent]["has_sample"] = True
+                        self.state[agent]["activity"] = "Deploying core sampler drill..."
                         self.metrics.data["samples_extracted"] += 1
                     else:
                         self.get_logger().info(f"🚁 {agent} en route to anomaly ({dist_to_target:.1f}m remaining, landed={self.state[agent]['landed']})...")
+                        self.state[agent]["activity"] = f"En route to anomaly ({dist_to_target:.0f}m remaining)"
                 else:
                     if self.state[agent]["drill_deployed"]:
                         self.get_logger().info(f"⛏️ {agent} retracting Core Sampler Drill...")
@@ -183,6 +220,8 @@ class SwarmManager(Node):
                     self.get_logger().info(
                         f"🧪 {agent} stowing core in carousel tube "
                         f"({self.state[agent]['sample_count']}/{SAMPLE_CAROUSEL_CAPACITY})...")
+                    self.state[agent]["activity"] = (
+                        f"Stowing core sample ({self.state[agent]['sample_count']}/{SAMPLE_CAROUSEL_CAPACITY})...")
 
                     carousel_full = self.state[agent]["sample_count"] >= SAMPLE_CAROUSEL_CAPACITY
                     if not carousel_full and self.anomaly_queue:
@@ -199,6 +238,7 @@ class SwarmManager(Node):
                             self.get_logger().info(
                                 f"📤 {agent} broadcasting {self.state[agent]['sample_count']} "
                                 f"stored core(s) to {relay}...")
+                            self.state[agent]["activity"] = f"Broadcasting samples to {relay}..."
                             self.state[agent]["role"] = "SCOUT"
                             self.state[agent]["sample_count"] = 0
                         elif carousel_full:
@@ -206,14 +246,18 @@ class SwarmManager(Node):
                                 f"📦 {agent} carousel full ({SAMPLE_CAROUSEL_CAPACITY}/"
                                 f"{SAMPLE_CAROUSEL_CAPACITY}) and no RELAY available -- "
                                 f"holding samples, standing by as SCOUT.")
+                            self.state[agent]["activity"] = "Carousel full, no relay -- standing by"
                             self.state[agent]["role"] = "SCOUT"
                             self.state[agent]["sample_count"] = 0
-                        
+
             elif role == "RELAY":
                 # Simulate transmitting data to orbiter
                 if self.metrics.data["samples_extracted"] > self.metrics.data["data_transmitted"]:
                     self.get_logger().info(f"🛰️ {agent} transmitting scientific packet to Hayabusa2 orbiter!")
+                    self.state[agent]["activity"] = "Transmitting scientific packet to orbiter..."
                     self.metrics.data["data_transmitted"] += 1
+                else:
+                    self.state[agent]["activity"] = "Standing by as relay"
 
         # 4. Sampler Dispatch
         if self.anomaly_queue:
@@ -223,6 +267,13 @@ class SwarmManager(Node):
                 self.state[scout]["role"] = "SAMPLER"
                 self._dispatch_sampler(scout, target)
                 break
+
+        # 5. Publish status for the swarm dashboard GUI
+        for agent in self.agents:
+            self.role_pubs[agent].publish(String(data=self.state[agent]["role"]))
+            self.activity_pubs[agent].publish(String(data=self.state[agent]["activity"]))
+            self.battery_pubs[agent].publish(Float64(data=self.state[agent]["battery"]))
+            self.power_rate_pubs[agent].publish(Float64(data=self.state[agent]["power_rate"]))
 
     def _dispatch_sampler(self, agent, target):
         """Send an agent already in the SAMPLER role toward a target anomaly.

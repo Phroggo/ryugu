@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
+from launch.actions import ExecuteProcess, TimerAction
 from launch_ros.actions import Node
 
 def generate_launch_description():
@@ -32,7 +32,36 @@ def generate_launch_description():
         output='screen'
     )
 
-    nodes = [gazebo, spawner, swarm_manager]
+    # Swarm status dashboard (role/activity per bot, leg/drill/RW telemetry,
+    # attitude gyro indicator) -- see swarm_gui.py.
+    swarm_gui = Node(
+        package='ryugu_sim',
+        executable='swarm_gui',
+        name='swarm_gui_node',
+        output='screen'
+    )
+
+    # Auto window layout: sim window at the left 3/4 of the screen, dashboard
+    # docked at the right 1/4, so the user doesn't have to manually arrange
+    # them every launch. Runs after a delay so both windows have actually
+    # appeared (Gazebo's GUI window in particular takes a few seconds).
+    # wmctrl -e format is "gravity,x,y,width,height"; screen assumed 1920x1080
+    # (this machine's actual resolution -- there's no clean way to query the
+    # target display's resolution from inside a ROS 2 launch action, so this
+    # is hardcoded rather than dynamically detected).
+    layout_windows = TimerAction(
+        period=10.0,
+        actions=[ExecuteProcess(
+            cmd=['bash', '-c',
+                 'wmctrl -r "Gazebo Sim" -b remove,maximized_vert,maximized_horz; '
+                 'wmctrl -r "Gazebo Sim" -e 0,0,0,1440,1080; '
+                 'wmctrl -r "Ryugu Swarm Dashboard" -b remove,maximized_vert,maximized_horz; '
+                 'wmctrl -r "Ryugu Swarm Dashboard" -e 0,1440,0,480,1080'],
+            output='screen'
+        )]
+    )
+
+    nodes = [gazebo, spawner, swarm_manager, swarm_gui, layout_windows]
     
     # Add Locomotion, Attitude, Landing Controller, and Bridge for a single agent
     for agent in ["scout_1"]:
