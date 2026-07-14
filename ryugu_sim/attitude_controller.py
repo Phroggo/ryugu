@@ -39,6 +39,7 @@ class AttitudeController(Node):
             
         self.create_subscription(Imu, f'/{self.robot_name}/imu', self.imu_callback, 10)
         self.create_subscription(Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
+        self.create_subscription(Bool, f'/{self.robot_name}/landed', self.landed_callback, 10)
         self.create_subscription(Float64, f'/{self.robot_name}/target_yaw', self.target_yaw_callback, 10)
         
         # We track our commanded speeds since Gazebo velocity controller achieves them near instantly
@@ -65,6 +66,23 @@ class AttitudeController(Node):
         if msg.data:
             self.in_flight = True
             self.get_logger().info(f'[{self.robot_name}] Jump initiated. Flight mode active.')
+
+    def landed_callback(self, msg):
+        """Found 2026-07-14: this subscription didn't exist at all, so
+        in_flight was set True on launch and NEVER reset -- roll/pitch
+        correction ran forever after landing, using a PID that's already
+        prone to oscillating at large tumble angles (see Kp/Kd note above).
+        Live-observed: robot kept spinning (wz=4.1 rad/s) minutes after
+        touchdown, fighting landing_controller's own self-righting attempts.
+        Once grounded, landing_controller owns orientation correction (via
+        leg-based self-righting); this controller has no business still
+        commanding RW torque toward target_roll/target_pitch=0 at that point.
+        """
+        if msg.data and self.in_flight:
+            self.in_flight = False
+            self.integral_roll = 0.0
+            self.integral_pitch = 0.0
+            self.get_logger().info(f'[{self.robot_name}] Landed — pitch/roll correction stopped, RWs handed off to yaw-hold only.')
 
     def target_yaw_callback(self, msg):
         self.target_yaw = msg.data
