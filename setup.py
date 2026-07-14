@@ -45,6 +45,7 @@ setup(
             'spawner = ryugu_sim.spawner:main',
             'hopper_locomotion = ryugu_sim.hopper_locomotion:main',
             'landing_controller = ryugu_sim.landing_controller:main',
+            'swarm_gui = ryugu_sim.swarm_gui:main',
         ],
     },
 )
