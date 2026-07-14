@@ -47,5 +47,61 @@
       <uri>model://skydome</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
+
+    <!-- ══════════ WORLD BOUNDARY (invisible containment) ══════════
+         Ryugu's gravity (0.000114 m/s^2) is weak enough that a jump with
+         enough velocity could genuinely exceed escape velocity (~0.32 m/s,
+         computed from g and Ryugu's ~450m mean radius) and never come back
+         down - and horizontally, the regolith heightmap terrain is only
+         100x100m, so a bot drifting past its edge would fall off the
+         modeled world into empty space. Both are physically real risks
+         given how little energy this environment needs to send something
+         flying, not just theoretical. Four invisible walls plus a ceiling
+         (collision-only, no <visual>, so nothing renders) fully enclose the
+         100x100m play area - physically prevents both cases regardless of
+         how any given jump/self-righting impulse is tuned, rather than
+         relying on getting the thrust math exactly right. Placed just
+         inside the actual terrain extent (49m, vs. the heightmap's 50m
+         half-size) so nothing can drift past the edge of the modeled
+         ground first. Ceiling at 100m is far above any realistic jump
+         apex under current physics (largest observed so far: ~5.6m). -->
+    <model name="world_boundary">
+      <static>true</static>
+      <link name="wall_pos_x">
+        <pose>49 0 40 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>2 104 120</size></box></geometry>
+          <surface><bounce><restitution_coefficient>0.15</restitution_coefficient><threshold>0</threshold></bounce></surface>
+        </collision>
+      </link>
+      <link name="wall_neg_x">
+        <pose>-49 0 40 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>2 104 120</size></box></geometry>
+          <surface><bounce><restitution_coefficient>0.15</restitution_coefficient><threshold>0</threshold></bounce></surface>
+        </collision>
+      </link>
+      <link name="wall_pos_y">
+        <pose>0 49 40 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>104 2 120</size></box></geometry>
+          <surface><bounce><restitution_coefficient>0.15</restitution_coefficient><threshold>0</threshold></bounce></surface>
+        </collision>
+      </link>
+      <link name="wall_neg_y">
+        <pose>0 -49 40 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>104 2 120</size></box></geometry>
+          <surface><bounce><restitution_coefficient>0.15</restitution_coefficient><threshold>0</threshold></bounce></surface>
+        </collision>
+      </link>
+      <link name="ceiling">
+        <pose>0 0 100 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>104 104 2</size></box></geometry>
+          <surface><bounce><restitution_coefficient>0.15</restitution_coefficient><threshold>0</threshold></bounce></surface>
+        </collision>
+      </link>
+    </model>
   </world>
 </sdf>
