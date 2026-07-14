@@ -18,70 +18,264 @@
         </inertia>
       </inertial>
 
-      <!-- Main hull (dark metallic) -->
+      <!-- Main hull - brushed aluminum structural panel -->
       <visual name="hull_visual">
         <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
         <material>
-          <ambient>0.18 0.18 0.22 1</ambient>
-          <diffuse>0.18 0.18 0.22 1</diffuse>
+          <ambient>0.3 0.31 0.35 1</ambient>
+          <diffuse>0.3 0.31 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.28</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="seam_front">
+        <pose>0.0995 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.001 0.196 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="seam_back">
+        <pose>-0.0995 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.001 0.196 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="seam_left">
+        <pose>0 0.0995 0.02 0 0 0</pose>
+        <geometry><box><size>0.196 0.001 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="seam_right">
+        <pose>0 -0.0995 0.02 0 0 0</pose>
+        <geometry><box><size>0.196 0.001 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="hull_bolt_0">
+        <pose>0.099 0.085 0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_1">
+        <pose>0.099 -0.085 0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_2">
+        <pose>0.099 0.085 -0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_3">
+        <pose>0.099 -0.085 -0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_4">
+        <pose>0.099 0 0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_5">
+        <pose>0.099 0 -0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
 
       <!-- ── MLI thermal blankets ── -->
 
       <visual name="mli_top">
-        <pose>0 0 0.101 0 0 0</pose>
-        <geometry><box><size>0.19 0.19 0.002</size></box></geometry>
+        <pose>0 0 0.1015 0 0 0</pose>
+        <geometry><box><size>0.196 0.196 0.003</size></box></geometry>
         <material>
-          <ambient>0.85 0.75 0.3 1</ambient>
-          <diffuse>0.85 0.75 0.3 1</diffuse>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="mli_bottom">
-        <pose>0 0 -0.101 0 0 0</pose>
-        <geometry><box><size>0.19 0.19 0.002</size></box></geometry>
+        <pose>0 0 -0.1015 0 0 0</pose>
+        <geometry><box><size>0.196 0.196 0.003</size></box></geometry>
         <material>
-          <ambient>0.85 0.75 0.3 1</ambient>
-          <diffuse>0.85 0.75 0.3 1</diffuse>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="mli_front">
-        <pose>0.101 0 0 0 0 0</pose>
-        <geometry><box><size>0.002 0.19 0.19</size></box></geometry>
+        <pose>0.1015 0 0 0 0 0</pose>
+        <geometry><box><size>0.003 0.196 0.196</size></box></geometry>
         <material>
-          <ambient>0.8 0.8 0.85 1</ambient>
-          <diffuse>0.8 0.8 0.85 1</diffuse>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="mli_back">
-        <pose>-0.101 0 0 0 0 0</pose>
-        <geometry><box><size>0.002 0.19 0.19</size></box></geometry>
+        <pose>-0.1015 0 0 0 0 0</pose>
+        <geometry><box><size>0.003 0.196 0.196</size></box></geometry>
         <material>
-          <ambient>0.8 0.8 0.85 1</ambient>
-          <diffuse>0.8 0.8 0.85 1</diffuse>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="mli_left">
-        <pose>0 0.101 0 0 0 0</pose>
-        <geometry><box><size>0.19 0.002 0.19</size></box></geometry>
+        <pose>0 0.1015 0 0 0 0</pose>
+        <geometry><box><size>0.196 0.003 0.196</size></box></geometry>
         <material>
-          <ambient>0.85 0.75 0.3 1</ambient>
-          <diffuse>0.85 0.75 0.3 1</diffuse>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="mli_right">
-        <pose>0 -0.101 0 0 0 0</pose>
-        <geometry><box><size>0.19 0.002 0.19</size></box></geometry>
+        <pose>0 -0.1015 0 0 0 0</pose>
+        <geometry><box><size>0.196 0.003 0.196</size></box></geometry>
         <material>
-          <ambient>0.8 0.8 0.85 1</ambient>
-          <diffuse>0.8 0.8 0.85 1</diffuse>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
 
@@ -91,125 +285,325 @@
         <pose>-0.0925 -0.0925 -0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_1">
         <pose>-0.0925 -0.0925 0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_2">
         <pose>-0.0925 0.0925 -0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_3">
         <pose>-0.0925 0.0925 0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_4">
         <pose>0.0925 -0.0925 -0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_5">
         <pose>0.0925 -0.0925 0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_6">
         <pose>0.0925 0.0925 -0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="bracket_7">
         <pose>0.0925 0.0925 0.0925 0 0 0</pose>
         <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
         <material>
-          <ambient>0.15 0.15 0.15 1</ambient>
-          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
 
       <!-- ── Antenna ── -->
 
-      <!-- Antenna mast -->
+      <!-- UHF whip antenna: dark anodized mast, small flat-plate patch
+           antenna instead of a glossy sphere tip (a bright white ball read
+           as a toy topper - real whip antennas taper to a plain dark tip) -->
       <visual name="antenna_mast">
-        <pose>0.06 0.06 0.125 0 0 0</pose>
-        <geometry><cylinder><radius>0.004</radius><length>0.05</length></cylinder></geometry>
+        <pose>0.06 0.06 0.122 0 0 0</pose>
+        <geometry><cylinder><radius>0.0035</radius><length>0.044</length></cylinder></geometry>
         <material>
-          <ambient>0.6 0.6 0.6 1</ambient>
-          <diffuse>0.6 0.6 0.6 1</diffuse>
+          <ambient>0.12 0.12 0.13 1</ambient>
+          <diffuse>0.12 0.12 0.13 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="antenna_base_collar">
+        <pose>0.06 0.06 0.101 0 0 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.006</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="antenna_tip">
-        <pose>0.06 0.06 0.155 0 0 0</pose>
-        <geometry><sphere><radius>0.008</radius></sphere></geometry>
+        <pose>0.06 0.06 0.1445 0 0 0</pose>
+        <geometry><cylinder><radius>0.0015</radius><length>0.001</length></cylinder></geometry>
         <material>
-          <ambient>0.9 0.9 0.9 1</ambient>
-          <diffuse>0.9 0.9 0.9 1</diffuse>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.6</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
-      <visual name="antenna_dish">
-        <pose>0.06 0.06 0.148 0.3 0 0</pose>
-        <geometry><cylinder><radius>0.015</radius><length>0.002</length></cylinder></geometry>
+      <!-- S-Band patch antenna (flat plate, per Research_Paper.md §4.2) -->
+      <visual name="antenna_patch">
+        <pose>-0.04 -0.06 0.101 0 0 0.4</pose>
+        <geometry><box><size>0.03 0.03 0.003</size></box></geometry>
         <material>
-          <ambient>0.85 0.85 0.85 1</ambient>
-          <diffuse>0.85 0.85 0.85 1</diffuse>
+          <ambient>0.5 0.51 0.55 1</ambient>
+          <diffuse>0.5 0.51 0.55 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.6</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
+      <visual name="antenna_patch_frame">
+        <pose>-0.04 -0.06 0.0995 0 0 0.4</pose>
+        <geometry><box><size>0.034 0.034 0.001</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Comms status LED at the antenna base -->
+      <visual name="comms_led">
+        <pose>0.06 0.048 0.101 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.4 0.8 1</ambient>
+          <diffuse>0.0 0.4 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="comms_led_light">
+        <pose>0.06 0.048 0.101 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
 
       <!-- ── Cameras ── -->
 
+      <!-- Nav-cam floodlights (real spotlights, forward-facing) -->
+
+      <light type="spot" name="headlight_left">
+        <pose>0.11 0.06 0.03 0 0 0</pose>
+        <diffuse>1.0 0.98 0.9 1</diffuse>
+        <specular>1.0 0.98 0.9 1</specular>
+        <intensity>6.0</intensity>
+        <direction>1 0 0</direction>
+        <attenuation>
+          <range>1.2</range>
+          <constant>0.1</constant>
+          <linear>1.0</linear>
+          <quadratic>1.5</quadratic>
+        </attenuation>
+        <spot>
+          <inner_angle>0.4</inner_angle>
+          <outer_angle>0.7</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+
+      <light type="spot" name="headlight_right">
+        <pose>0.11 -0.06 0.03 0 0 0</pose>
+        <diffuse>1.0 0.98 0.9 1</diffuse>
+        <specular>1.0 0.98 0.9 1</specular>
+        <intensity>6.0</intensity>
+        <direction>1 0 0</direction>
+        <attenuation>
+          <range>1.2</range>
+          <constant>0.1</constant>
+          <linear>1.0</linear>
+          <quadratic>1.5</quadratic>
+        </attenuation>
+        <spot>
+          <inner_angle>0.4</inner_angle>
+          <outer_angle>0.7</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="headlight_left_lens">
+        <pose>0.113 0.06 0.03 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.006</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.9 0.8 1</ambient>
+          <diffuse>0.9 0.9 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 1.0 0.9 1</emissive>
+        </material>
+      </visual>
+      <visual name="headlight_right_lens">
+        <pose>0.113 -0.06 0.03 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.006</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.9 0.8 1</ambient>
+          <diffuse>0.9 0.9 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 1.0 0.9 1</emissive>
+        </material>
+      </visual>
       <!-- Navigation camera -->
       <visual name="camera_body">
         <pose>0.105 0 0.02 0 0 0</pose>
         <geometry><box><size>0.015 0.025 0.025</size></box></geometry>
         <material>
-          <ambient>0.1 0.1 0.1 1</ambient>
-          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="camera_lens">
         <pose>0.114 0 0.02 0 1.5708 0</pose>
         <geometry><cylinder><radius>0.008</radius><length>0.003</length></cylinder></geometry>
         <material>
-          <ambient>0.05 0.05 0.2 1</ambient>
-          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Science camera (bottom-mounted, downward-facing) -->
@@ -217,57 +611,93 @@
         <pose>0 -0.04 -0.105 0 0 0</pose>
         <geometry><box><size>0.02 0.02 0.015</size></box></geometry>
         <material>
-          <ambient>0.1 0.1 0.1 1</ambient>
-          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="sci_camera_lens">
         <pose>0 -0.04 -0.114 0 0 0</pose>
         <geometry><cylinder><radius>0.007</radius><length>0.003</length></cylinder></geometry>
         <material>
-          <ambient>0.05 0.05 0.2 1</ambient>
-          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
-      <!-- Stereo hazard-avoidance cameras (small, flanking the nav camera --
+      <!-- Stereo hazard-avoidance cameras (small, flanking the nav camera -
            real rovers/hoppers pair a wide nav cam with a small stereo set
            for local depth/obstacle sensing, e.g. Perseverance's Hazcams) -->
       <visual name="hazcam_left_body">
         <pose>0.100 0.035 0.02 0 0 0</pose>
         <geometry><box><size>0.008 0.012 0.012</size></box></geometry>
         <material>
-          <ambient>0.1 0.1 0.1 1</ambient>
-          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="hazcam_left_lens">
         <pose>0.107 0.035 0.02 0 1.5708 0</pose>
         <geometry><cylinder><radius>0.004</radius><length>0.002</length></cylinder></geometry>
         <material>
-          <ambient>0.05 0.05 0.2 1</ambient>
-          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="hazcam_right_body">
         <pose>0.100 -0.035 0.02 0 0 0</pose>
         <geometry><box><size>0.008 0.012 0.012</size></box></geometry>
         <material>
-          <ambient>0.1 0.1 0.1 1</ambient>
-          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="hazcam_right_lens">
         <pose>0.107 -0.035 0.02 0 1.5708 0</pose>
         <geometry><cylinder><radius>0.004</radius><length>0.002</length></cylinder></geometry>
         <material>
-          <ambient>0.05 0.05 0.2 1</ambient>
-          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
 
@@ -277,45 +707,75 @@
         <pose>-0.102 -0.06 0.03 0 0 0</pose>
         <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
         <material>
-          <ambient>0.4 0.4 0.45 1</ambient>
-          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="louver_1">
         <pose>-0.102 -0.03 0.03 0 0 0</pose>
         <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
         <material>
-          <ambient>0.4 0.4 0.45 1</ambient>
-          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="louver_2">
         <pose>-0.102 0.0 0.03 0 0 0</pose>
         <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
         <material>
-          <ambient>0.4 0.4 0.45 1</ambient>
-          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="louver_3">
         <pose>-0.102 0.03 0.03 0 0 0</pose>
         <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
         <material>
-          <ambient>0.4 0.4 0.45 1</ambient>
-          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="louver_4">
         <pose>-0.102 0.06 0.03 0 0 0</pose>
         <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
         <material>
-          <ambient>0.4 0.4 0.45 1</ambient>
-          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
 
@@ -323,7 +783,7 @@
 
       <visual name="led_0">
         <pose>-0.06 0.102 -0.06 0 0 0</pose>
-        <geometry><sphere><radius>0.004</radius></sphere></geometry>
+        <geometry><sphere><radius>0.007</radius></sphere></geometry>
         <material>
           <ambient>0.0 0.8 0.0 1</ambient>
           <diffuse>0.0 0.8 0.0 1</diffuse>
@@ -332,9 +792,23 @@
         </material>
       </visual>
 
+      <light type="point" name="led_0_light">
+        <pose>-0.06 0.102 -0.06 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <visual name="led_1">
         <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
-        <geometry><sphere><radius>0.004</radius></sphere></geometry>
+        <geometry><sphere><radius>0.007</radius></sphere></geometry>
         <material>
           <ambient>0.0 0.4 0.8 1</ambient>
           <diffuse>0.0 0.4 0.8 1</diffuse>
@@ -343,9 +817,23 @@
         </material>
       </visual>
 
+      <light type="point" name="led_1_light">
+        <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <visual name="led_2">
         <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
-        <geometry><sphere><radius>0.004</radius></sphere></geometry>
+        <geometry><sphere><radius>0.007</radius></sphere></geometry>
         <material>
           <ambient>0.8 0.6 0.0 1</ambient>
           <diffuse>0.8 0.6 0.0 1</diffuse>
@@ -354,6 +842,20 @@
         </material>
       </visual>
 
+      <light type="point" name="led_2_light">
+        <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
+        <diffuse>1.0 0.8 0.0 1</diffuse>
+        <specular>1.0 0.8 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
 
       <!-- Internal visuals removed to prevent clipping -->
 
@@ -364,29 +866,122 @@
         <pose>0 0 0 0 1.5707963267948966 0</pose>
         <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
         <material>
-          <ambient>0.25 0.25 0.25 1</ambient>
-          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="rw_housing_y">
         <pose>0 0 0 1.5707963267948966 0 0</pose>
         <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
         <material>
-          <ambient>0.25 0.25 0.25 1</ambient>
-          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="rw_housing_z">
         <pose>0 0 0 0 0 0</pose>
         <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
         <material>
-          <ambient>0.25 0.25 0.25 1</ambient>
-          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
+      <visual name="rw_led_x">
+        <pose>0.066 0 0 0 1.5708 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.5 1.0 1</ambient>
+          <diffuse>0.0 0.5 1.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="rw_led_x_light">
+        <pose>0.066 0 0 0 1.5708 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="rw_led_y">
+        <pose>0 0.066 0 1.5708 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.5 1.0 1</ambient>
+          <diffuse>0.0 0.5 1.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="rw_led_y_light">
+        <pose>0 0.066 0 1.5708 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="rw_led_z">
+        <pose>0 0 0.066 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.5 1.0 1</ambient>
+          <diffuse>0.0 0.5 1.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="rw_led_z_light">
+        <pose>0 0 0.066 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
 
       <!-- ── Drill mounting turret ── -->
 
@@ -395,20 +990,58 @@
         <pose>0 0 -0.1125 0 0 0</pose>
         <geometry><cylinder><radius>0.028</radius><length>0.035</length></cylinder></geometry>
         <material>
-          <ambient>0.15 0.15 0.18 1</ambient>
-          <diffuse>0.15 0.15 0.18 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="drill_turret_plate">
         <pose>0 0 -0.10200000000000001 0 0 0</pose>
         <geometry><box><size>0.06 0.06 0.004</size></box></geometry>
         <material>
-          <ambient>0.22 0.22 0.25 1</ambient>
-          <diffuse>0.22 0.22 0.25 1</diffuse>
+          <ambient>0.25 0.25 0.28 1</ambient>
+          <diffuse>0.25 0.25 0.28 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.6</metalness>
+              <roughness>0.4</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
+      <!-- Science/sampler status LED -->
+      <visual name="drill_led">
+        <pose>0.024 0.024 -0.10300000000000001 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.8 0.6 0.0 1</ambient>
+          <diffuse>0.8 0.6 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 0.8 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="drill_led_light">
+        <pose>0.024 0.024 -0.10300000000000001 0 0 0</pose>
+        <diffuse>1.0 0.8 0.0 1</diffuse>
+        <specular>1.0 0.8 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
 
       <!-- ── Chassis collision ── -->
       <collision name="collision">
@@ -418,7 +1051,7 @@
       <!-- ── IMU sensor ── -->
       <!-- No explicit <topic> override: an explicit "imu" topic is treated as a
            literal, unscoped gz-transport topic name, so it published to global
-           /imu on every spawned instance -- ros_gz_bridge was listening on the
+           /imu on every spawned instance - ros_gz_bridge was listening on the
            per-entity-scoped /model/<name>/imu, which never matched, so IMU data
            silently never reached attitude_controller.py or landing_controller.py
            (found 2026-07-14: their state machines never progressed past FLIGHT
@@ -438,7 +1071,7 @@
     <!-- Was "ignition-gazebo-imu-system" / "ignition::gazebo::systems::Imu" (old
          v6/Citadel-era naming). This machine has both the old v6 and current v8
          (Harmonic) IMU plugin libraries installed side-by-side, and gz-sim
-         silently loaded the old v6 one instead of erroring -- a real version
+         silently loaded the old v6 one instead of erroring - a real version
          mismatch against the v8 engine everything else here runs on (physics,
          odometry, joint controllers all already used gz-sim8/"gz::sim::systems"
          naming). That mismatch is the root cause of "Unknown message type"
@@ -447,7 +1080,7 @@
          "working" and the topic existing. Found & fixed 2026-07-14. -->
     <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
 
-    <!-- Real position/velocity feedback -- previously nonexistent, which is why
+    <!-- Real position/velocity feedback - previously nonexistent, which is why
          swarm_manager.py had to literally assume the robot was always at the origin
          when computing distance/yaw to a target, and why monitor_height.py/
          monitor_joints.py (which expect this) were dead code. -->
@@ -472,9 +1105,15 @@
       <visual name="panel_surface">
         <geometry><box><size>0.18 0.18 0.005</size></box></geometry>
         <material>
-          <ambient>0.05 0.08 0.35 1</ambient>
-          <diffuse>0.05 0.08 0.35 1</diffuse>
+          <ambient>0.03 0.05 0.22 1</ambient>
+          <diffuse>0.03 0.05 0.22 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Solar cell grid lines -->
@@ -482,45 +1121,75 @@
         <pose>0 0 0.003 0 0 0</pose>
         <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
         <material>
-          <ambient>0.7 0.7 0.7 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="cell_grid_h2">
         <pose>0 0.045 0.003 0 0 0</pose>
         <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
         <material>
-          <ambient>0.7 0.7 0.7 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="cell_grid_h3">
         <pose>0 -0.045 0.003 0 0 0</pose>
         <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
         <material>
-          <ambient>0.7 0.7 0.7 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="cell_grid_v1">
         <pose>0.045 0 0.003 0 0 0</pose>
         <geometry><box><size>0.001 0.18 0.001</size></box></geometry>
         <material>
-          <ambient>0.7 0.7 0.7 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="cell_grid_v2">
         <pose>-0.045 0 0.003 0 0 0</pose>
         <geometry><box><size>0.001 0.18 0.001</size></box></geometry>
         <material>
-          <ambient>0.7 0.7 0.7 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
     </link>
@@ -546,6 +1215,12 @@
           <ambient>0.35 0.1 0.1 1</ambient>
           <diffuse>0.35 0.1 0.1 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
     </link>
@@ -572,6 +1247,12 @@
           <ambient>0.1 0.35 0.1 1</ambient>
           <diffuse>0.1 0.35 0.1 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
     </link>
@@ -598,6 +1279,12 @@
           <ambient>0.1 0.1 0.35 1</ambient>
           <diffuse>0.1 0.1 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
     </link>
@@ -610,7 +1297,7 @@
 
     <!-- ══════════ DRILL (prismatic, underneath chassis) ══════════ -->
     <!-- Rest pose (joint value 0) tucks the shaft's center 0.03m *above* the
-         chassis bottom face, inside the drill_turret housing above -- so at
+         chassis bottom face, inside the drill_turret housing above - so at
          rest the shaft's bottom edge sits just past the turret's lower rim
          (mostly hidden) instead of the old pose, which hung the entire
          0.1m shaft fully exposed below the chassis even when "retracted". -->
@@ -630,6 +1317,12 @@
           <ambient>0.6 0.6 0.6 1</ambient>
           <diffuse>0.6 0.6 0.6 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="drill_bit">
@@ -639,6 +1332,12 @@
           <ambient>0.8 0.8 0.8 1</ambient>
           <diffuse>0.8 0.8 0.8 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <visual name="drill_collar">
@@ -648,6 +1347,12 @@
           <ambient>0.3 0.3 0.35 1</ambient>
           <diffuse>0.3 0.3 0.35 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
     </link>
@@ -660,7 +1365,7 @@
         <limit><lower>-0.1</lower><upper>0.0</upper></limit>
         <!-- Spring-to-rest at 0 (fully retracted/flush with chassis) so the drill
              doesn't passively drift/dangle under flight or landing shocks when
-             uncommanded -- it was previously unconstrained and had no actuator at
+             uncommanded - it was previously unconstrained and had no actuator at
              all, which is why it looked detached from the body. -->
         <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.05</spring_stiffness><damping>0.01</damping></dynamics>
       </axis>
@@ -681,9 +1386,31 @@
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
         <material>
-          <ambient>0.2 0.2 0.22 1</ambient>
-          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <ambient>0.12 0.12 0.14 1</ambient>
+          <diffuse>0.12 0.12 0.14 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.35</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.0185 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Hip motor housing -->
@@ -691,9 +1418,15 @@
         <pose>0 0 0.01 0 0 0</pose>
         <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
         <material>
-          <ambient>0.12 0.12 0.15 1</ambient>
-          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Hip actuator status LED (emissive sphere + a real point light so
@@ -701,7 +1434,7 @@
            colored-but-unlit surface) -->
       <visual name="hip_led_0">
         <pose>0.026 0 0.01 0 0 0</pose>
-        <geometry><sphere><radius>0.0025</radius></sphere></geometry>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
         <material>
           <ambient>0.0 0.8 0.0 1</ambient>
           <diffuse>0.0 0.8 0.0 1</diffuse>
@@ -710,6 +1443,20 @@
         </material>
       </visual>
 
+      <light type="point" name="hip_led_0_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -739,9 +1486,31 @@
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
         <material>
-          <ambient>0.35 0.35 0.38 1</ambient>
-          <diffuse>0.35 0.35 0.38 1</diffuse>
+          <ambient>0.32 0.33 0.37 1</ambient>
+          <diffuse>0.32 0.33 0.37 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.65</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.013500000000000002 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Knee motor housing -->
@@ -749,19 +1518,57 @@
         <pose>0 0 0.005 0 0 0</pose>
         <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
         <material>
-          <ambient>0.12 0.12 0.15 1</ambient>
-          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
+      <!-- Knee actuator status LED -->
+      <visual name="knee_led_0">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="knee_led_0_light">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <!-- Foot pad -->
       <visual name="foot_0">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry><sphere><radius>0.02</radius></sphere></geometry>
         <material>
-          <ambient>0.5 0.5 0.5 1</ambient>
-          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <ambient>0.4 0.41 0.43 1</ambient>
+          <diffuse>0.4 0.41 0.43 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.4</metalness>
+              <roughness>0.6</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Foot proximity/contact sensor lens -->
@@ -772,6 +1579,12 @@
           <ambient>0.05 0.05 0.15 1</ambient>
           <diffuse>0.05 0.05 0.15 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <collision name="collision">
@@ -808,9 +1621,31 @@
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
         <material>
-          <ambient>0.2 0.2 0.22 1</ambient>
-          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <ambient>0.12 0.12 0.14 1</ambient>
+          <diffuse>0.12 0.12 0.14 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.35</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.0185 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Hip motor housing -->
@@ -818,9 +1653,15 @@
         <pose>0 0 0.01 0 0 0</pose>
         <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
         <material>
-          <ambient>0.12 0.12 0.15 1</ambient>
-          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Hip actuator status LED (emissive sphere + a real point light so
@@ -828,7 +1669,7 @@
            colored-but-unlit surface) -->
       <visual name="hip_led_1">
         <pose>0.026 0 0.01 0 0 0</pose>
-        <geometry><sphere><radius>0.0025</radius></sphere></geometry>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
         <material>
           <ambient>0.0 0.8 0.0 1</ambient>
           <diffuse>0.0 0.8 0.0 1</diffuse>
@@ -837,6 +1678,20 @@
         </material>
       </visual>
 
+      <light type="point" name="hip_led_1_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -866,9 +1721,31 @@
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
         <material>
-          <ambient>0.35 0.35 0.38 1</ambient>
-          <diffuse>0.35 0.35 0.38 1</diffuse>
+          <ambient>0.32 0.33 0.37 1</ambient>
+          <diffuse>0.32 0.33 0.37 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.65</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.013500000000000002 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Knee motor housing -->
@@ -876,19 +1753,57 @@
         <pose>0 0 0.005 0 0 0</pose>
         <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
         <material>
-          <ambient>0.12 0.12 0.15 1</ambient>
-          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
+      <!-- Knee actuator status LED -->
+      <visual name="knee_led_1">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="knee_led_1_light">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <!-- Foot pad -->
       <visual name="foot_1">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry><sphere><radius>0.02</radius></sphere></geometry>
         <material>
-          <ambient>0.5 0.5 0.5 1</ambient>
-          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <ambient>0.4 0.41 0.43 1</ambient>
+          <diffuse>0.4 0.41 0.43 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.4</metalness>
+              <roughness>0.6</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Foot proximity/contact sensor lens -->
@@ -899,6 +1814,12 @@
           <ambient>0.05 0.05 0.15 1</ambient>
           <diffuse>0.05 0.05 0.15 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <collision name="collision">
@@ -935,9 +1856,31 @@
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
         <material>
-          <ambient>0.2 0.2 0.22 1</ambient>
-          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <ambient>0.12 0.12 0.14 1</ambient>
+          <diffuse>0.12 0.12 0.14 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.35</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.0185 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Hip motor housing -->
@@ -945,9 +1888,15 @@
         <pose>0 0 0.01 0 0 0</pose>
         <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
         <material>
-          <ambient>0.12 0.12 0.15 1</ambient>
-          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Hip actuator status LED (emissive sphere + a real point light so
@@ -955,7 +1904,7 @@
            colored-but-unlit surface) -->
       <visual name="hip_led_2">
         <pose>0.026 0 0.01 0 0 0</pose>
-        <geometry><sphere><radius>0.0025</radius></sphere></geometry>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
         <material>
           <ambient>0.0 0.8 0.0 1</ambient>
           <diffuse>0.0 0.8 0.0 1</diffuse>
@@ -964,6 +1913,20 @@
         </material>
       </visual>
 
+      <light type="point" name="hip_led_2_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -993,9 +1956,31 @@
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
         <material>
-          <ambient>0.35 0.35 0.38 1</ambient>
-          <diffuse>0.35 0.35 0.38 1</diffuse>
+          <ambient>0.32 0.33 0.37 1</ambient>
+          <diffuse>0.32 0.33 0.37 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.65</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.013500000000000002 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Knee motor housing -->
@@ -1003,19 +1988,57 @@
         <pose>0 0 0.005 0 0 0</pose>
         <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
         <material>
-          <ambient>0.12 0.12 0.15 1</ambient>
-          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
+      <!-- Knee actuator status LED -->
+      <visual name="knee_led_2">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="knee_led_2_light">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
       <!-- Foot pad -->
       <visual name="foot_2">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry><sphere><radius>0.02</radius></sphere></geometry>
         <material>
-          <ambient>0.5 0.5 0.5 1</ambient>
-          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <ambient>0.4 0.41 0.43 1</ambient>
+          <diffuse>0.4 0.41 0.43 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.4</metalness>
+              <roughness>0.6</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <!-- Foot proximity/contact sensor lens -->
@@ -1026,6 +2049,12 @@
           <ambient>0.05 0.05 0.15 1</ambient>
           <diffuse>0.05 0.05 0.15 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
         </material>
       </visual>
       <collision name="collision">
