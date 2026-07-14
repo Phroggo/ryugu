@@ -332,18 +332,6 @@
         </material>
       </visual>
 
-      <light type="point" name="led_0_light">
-        <pose>-0.06 0.102 -0.06 0 0 0</pose>
-        <diffuse>0.0 1.0 0.0 1</diffuse>
-        <specular>0.0 1.0 0.0 1</specular>
-        <attenuation>
-          <range>0.06</range>
-          <constant>0.2</constant>
-          <linear>5</linear>
-          <quadratic>20</quadratic>
-        </attenuation>
-        <cast_shadows>false</cast_shadows>
-      </light>
       <visual name="led_1">
         <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
         <geometry><sphere><radius>0.004</radius></sphere></geometry>
@@ -355,18 +343,6 @@
         </material>
       </visual>
 
-      <light type="point" name="led_1_light">
-        <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
-        <diffuse>0.0 0.5 1.0 1</diffuse>
-        <specular>0.0 0.5 1.0 1</specular>
-        <attenuation>
-          <range>0.06</range>
-          <constant>0.2</constant>
-          <linear>5</linear>
-          <quadratic>20</quadratic>
-        </attenuation>
-        <cast_shadows>false</cast_shadows>
-      </light>
       <visual name="led_2">
         <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
         <geometry><sphere><radius>0.004</radius></sphere></geometry>
@@ -378,18 +354,6 @@
         </material>
       </visual>
 
-      <light type="point" name="led_2_light">
-        <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
-        <diffuse>1.0 0.8 0.0 1</diffuse>
-        <specular>1.0 0.8 0.0 1</specular>
-        <attenuation>
-          <range>0.06</range>
-          <constant>0.2</constant>
-          <linear>5</linear>
-          <quadratic>20</quadratic>
-        </attenuation>
-        <cast_shadows>false</cast_shadows>
-      </light>
 
       <!-- Internal visuals removed to prevent clipping -->
 
@@ -746,18 +710,6 @@
         </material>
       </visual>
 
-      <light type="point" name="hip_led_0_light">
-        <pose>0.026 0 0.01 0 0 0</pose>
-        <diffuse>0.0 1.0 0.0 1</diffuse>
-        <specular>0.0 1.0 0.0 1</specular>
-        <attenuation>
-          <range>0.06</range>
-          <constant>0.2</constant>
-          <linear>5</linear>
-          <quadratic>20</quadratic>
-        </attenuation>
-        <cast_shadows>false</cast_shadows>
-      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -885,18 +837,6 @@
         </material>
       </visual>
 
-      <light type="point" name="hip_led_1_light">
-        <pose>0.026 0 0.01 0 0 0</pose>
-        <diffuse>0.0 1.0 0.0 1</diffuse>
-        <specular>0.0 1.0 0.0 1</specular>
-        <attenuation>
-          <range>0.06</range>
-          <constant>0.2</constant>
-          <linear>5</linear>
-          <quadratic>20</quadratic>
-        </attenuation>
-        <cast_shadows>false</cast_shadows>
-      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -1024,18 +964,6 @@
         </material>
       </visual>
 
-      <light type="point" name="hip_led_2_light">
-        <pose>0.026 0 0.01 0 0 0</pose>
-        <diffuse>0.0 1.0 0.0 1</diffuse>
-        <specular>0.0 1.0 0.0 1</specular>
-        <attenuation>
-          <range>0.06</range>
-          <constant>0.2</constant>
-          <linear>5</linear>
-          <quadratic>20</quadratic>
-        </attenuation>
-        <cast_shadows>false</cast_shadows>
-      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
