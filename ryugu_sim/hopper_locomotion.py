@@ -19,6 +19,24 @@ class HopperLocomotion(Node):
         
         self.state = self.IDLE
         self.state_timer = 0
+        # Launch joint amplitude (rad), scaled per-jump by requested distance
+        # in jump_target_callback. Defaults to the previously-hardcoded value
+        # (full ±1.0 rad) for any code path that skips scaling (e.g. idle
+        # recovery hops).
+        self.launch_amplitude = 1.0
+
+        # Idle-on-ground self-recovery: if landed with no jump command for this
+        # many ticks (10Hz -> 300 ticks = 30s), self-initiate a small hop via
+        # legs rather than sitting dead. 30s comfortably exceeds a SAMPLER's
+        # typical drill/retract dwell (~4-6s across two 2s swarm_tick cycles),
+        # so it won't interrupt drilling; it's a fallback for a SCOUT that
+        # never rolls an anomaly and would otherwise idle forever. Known
+        # simplification: this doesn't check battery/RECHARGE role (hopper
+        # has no visibility into swarm_manager state), so a RECHARGE-role
+        # agent could still get a small recovery nudge if idle that long.
+        self.idle_ticks = 0
+        self.IDLE_RECOVERY_TICKS = 300
+        self.RECOVERY_AMPLITUDE = 0.5
         
         # Publishers for Joint Position Controllers
         self.joints = ['hip_joint_0', 'knee_joint_0', 'hip_joint_1', 'knee_joint_1', 'hip_joint_2', 'knee_joint_2']
@@ -40,9 +58,10 @@ class HopperLocomotion(Node):
 
     def landed_callback(self, msg):
         if msg.data and self.state == self.FLIGHT:
-            self.get_logger().info(f"[{self.robot_name}] Landing controller reported LANDED. Initiating next jump instantly!")
-            self.state = self.CROUCH
+            self.get_logger().info(f"[{self.robot_name}] Landing controller reported LANDED. Settling to IDLE.")
+            self.state = self.IDLE
             self.state_timer = 0
+            self.idle_ticks = 0
 
     def jump_target_callback(self, msg):
         if self.state != self.IDLE:
@@ -51,13 +70,26 @@ class HopperLocomotion(Node):
             
         distance = msg.data
         g = 0.000114 # Ryugu gravity
-        v_req = math.sqrt(distance * g)
-        
-        self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s")
+        v_req = math.sqrt(max(distance, 0.0) * g)
+
+        # Scale launch amplitude around the reference calibration point: a 5m
+        # target at full +/-1.0 rad amplitude (0.2s) was verified to reach
+        # apex ~5.57m (see HANDOFF.md). Previously v_req was computed and
+        # logged but never actually used -- every jump fired an identical
+        # fixed impulse regardless of requested distance. Clamped to
+        # [0.3, 2.5] rad: floor keeps short hops from failing to lift off,
+        # ceiling stays well inside the +/-3.14 rad joint limit and avoids
+        # slamming the controller's torque cap on long-distance requests.
+        v_ref = math.sqrt(5.0 * g)
+        scale = (v_req / v_ref) if v_ref > 0 else 1.0
+        self.launch_amplitude = max(0.3, min(2.5, scale))
+
+        self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s. Launch amplitude: {self.launch_amplitude:.2f} rad")
         self.get_logger().info(f"[{self.robot_name}] Initiating Tri-Pedal Jump Sequence!")
         
         self.state = self.CROUCH
         self.state_timer = 0
+        self.idle_ticks = 0
 
     def set_joints(self, hip_val, knee_val):
         for j in self.joints:
@@ -67,6 +99,18 @@ class HopperLocomotion(Node):
                 self.pubs[j].publish(Float64(data=knee_val))
 
     def tick(self):
+        if self.state == self.IDLE:
+            self.idle_ticks += 1
+            if self.idle_ticks >= self.IDLE_RECOVERY_TICKS:
+                self.get_logger().info(
+                    f"[{self.robot_name}] 🦵 Idle {self.idle_ticks/10:.0f}s with no jump command "
+                    f"-- self-initiating recovery hop (legs).")
+                self.launch_amplitude = self.RECOVERY_AMPLITUDE
+                self.state = self.CROUCH
+                self.state_timer = 0
+                self.idle_ticks = 0
+            return
+
         if self.state == self.CROUCH:
             if self.state_timer == 0:
                 self.get_logger().info("1. Crouching (Compressing Legs & Orienting to Target)")
@@ -84,9 +128,9 @@ class HopperLocomotion(Node):
 
         elif self.state == self.LAUNCH:
             if self.state_timer == 0:
-                self.get_logger().info("2. IGNITION (Fast directional forward hop to target)")
-                                # Symmetric max thrust. Because the robot is leaning forward, this fires it diagonally!
-                self.set_joints(-1.0, 1.0)
+                self.get_logger().info(f"2. IGNITION (amplitude={self.launch_amplitude:.2f} rad, distance-scaled forward hop to target)")
+                                # Because the robot is leaning forward, this fires it diagonally!
+                self.set_joints(-self.launch_amplitude, self.launch_amplitude)
 
             self.state_timer += 1
             if self.state_timer >= 2: # 0.2 seconds (2 * 0.1s tick)

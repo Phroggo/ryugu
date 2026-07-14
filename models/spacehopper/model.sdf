@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" ?>
 <sdf version="1.8">
   <model name="spacehopper">
     <!-- Ryugu's gravity (0.000114 m/s^2) produces velocities small enough that DART's
@@ -6,19 +6,19 @@
          freezing it in the air. Must stay awake for micro-gravity hops to ever land. -->
     <allow_auto_disable>false</allow_auto_disable>
 
-
+    <!-- ══════════ BASE CHASSIS ══════════ -->
     <link name="base_link">
       <pose>0 0 0.25 0 0 0</pose>
       <inertial>
         <mass>1.35</mass>
         <inertia>
-          <ixx>0.0089994375</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
-          <iyy>0.0089994375</iyy><iyz>0.0</iyz>
-          <izz>0.0089994375</izz>
+          <ixx>0.009000</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.009000</iyy><iyz>0</iyz>
+          <izz>0.009000</izz>
         </inertia>
       </inertial>
 
-
+      <!-- Main hull (dark metallic) -->
       <visual name="hull_visual">
         <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
         <material>
@@ -28,7 +28,7 @@
         </material>
       </visual>
 
-
+      <!-- ── MLI thermal blankets ── -->
 
       <visual name="mli_top">
         <pose>0 0 0.101 0 0 0</pose>
@@ -85,7 +85,7 @@
         </material>
       </visual>
 
-
+      <!-- ── Structural corner brackets ── -->
 
       <visual name="bracket_0">
         <pose>-0.0925 -0.0925 -0.0925 0 0 0</pose>
@@ -160,9 +160,9 @@
         </material>
       </visual>
 
+      <!-- ── Antenna ── -->
 
-
-
+      <!-- Antenna mast -->
       <visual name="antenna_mast">
         <pose>0.06 0.06 0.125 0 0 0</pose>
         <geometry><cylinder><radius>0.004</radius><length>0.05</length></cylinder></geometry>
@@ -191,9 +191,9 @@
         </material>
       </visual>
 
+      <!-- ── Cameras ── -->
 
-
-
+      <!-- Navigation camera -->
       <visual name="camera_body">
         <pose>0.105 0 0.02 0 0 0</pose>
         <geometry><box><size>0.015 0.025 0.025</size></box></geometry>
@@ -212,7 +212,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Science camera (bottom-mounted, downward-facing) -->
       <visual name="sci_camera_body">
         <pose>0 -0.04 -0.105 0 0 0</pose>
         <geometry><box><size>0.02 0.02 0.015</size></box></geometry>
@@ -231,8 +231,47 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
+      <!-- Stereo hazard-avoidance cameras (small, flanking the nav camera --
+           real rovers/hoppers pair a wide nav cam with a small stereo set
+           for local depth/obstacle sensing, e.g. Perseverance's Hazcams) -->
+      <visual name="hazcam_left_body">
+        <pose>0.100 0.035 0.02 0 0 0</pose>
+        <geometry><box><size>0.008 0.012 0.012</size></box></geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="hazcam_left_lens">
+        <pose>0.107 0.035 0.02 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.004</radius><length>0.002</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.05 0.2 1</ambient>
+          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="hazcam_right_body">
+        <pose>0.100 -0.035 0.02 0 0 0</pose>
+        <geometry><box><size>0.008 0.012 0.012</size></box></geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="hazcam_right_lens">
+        <pose>0.107 -0.035 0.02 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.004</radius><length>0.002</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.05 0.2 1</ambient>
+          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
 
-
+      <!-- ── Thermal louvers ── -->
 
       <visual name="louver_0">
         <pose>-0.102 -0.06 0.03 0 0 0</pose>
@@ -280,7 +319,7 @@
         </material>
       </visual>
 
-
+      <!-- ── Status LEDs ── -->
 
       <visual name="led_0">
         <pose>-0.06 0.102 -0.06 0 0 0</pose>
@@ -292,6 +331,19 @@
           <emissive>0.0 1.0 0.0 1</emissive>
         </material>
       </visual>
+
+      <light type="point" name="led_0_light">
+        <pose>-0.06 0.102 -0.06 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <attenuation>
+          <range>0.06</range>
+          <constant>0.2</constant>
+          <linear>5</linear>
+          <quadratic>20</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
       <visual name="led_1">
         <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
         <geometry><sphere><radius>0.004</radius></sphere></geometry>
@@ -302,6 +354,19 @@
           <emissive>0.0 0.5 1.0 1</emissive>
         </material>
       </visual>
+
+      <light type="point" name="led_1_light">
+        <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <attenuation>
+          <range>0.06</range>
+          <constant>0.2</constant>
+          <linear>5</linear>
+          <quadratic>20</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
       <visual name="led_2">
         <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
         <geometry><sphere><radius>0.004</radius></sphere></geometry>
@@ -313,11 +378,24 @@
         </material>
       </visual>
 
+      <light type="point" name="led_2_light">
+        <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
+        <diffuse>1.0 0.8 0.0 1</diffuse>
+        <specular>1.0 0.8 0.0 1</specular>
+        <attenuation>
+          <range>0.06</range>
+          <constant>0.2</constant>
+          <linear>5</linear>
+          <quadratic>20</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
 
+      <!-- Internal visuals removed to prevent clipping -->
 
+      <!-- ── Reaction wheel housings ── -->
 
-
-
+      <!-- RW protective housings -->
       <visual name="rw_housing_x">
         <pose>0 0 0 0 1.5707963267948966 0</pose>
         <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
@@ -346,33 +424,85 @@
         </material>
       </visual>
 
+      <!-- ── Drill mounting turret ── -->
 
+      <!-- ── Drill mounting turret (fixed housing, shaft retracts up into it) ── -->
+      <visual name="drill_turret">
+        <pose>0 0 -0.1125 0 0 0</pose>
+        <geometry><cylinder><radius>0.028</radius><length>0.035</length></cylinder></geometry>
+        <material>
+          <ambient>0.15 0.15 0.18 1</ambient>
+          <diffuse>0.15 0.15 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="drill_turret_plate">
+        <pose>0 0 -0.10200000000000001 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.004</size></box></geometry>
+        <material>
+          <ambient>0.22 0.22 0.25 1</ambient>
+          <diffuse>0.22 0.22 0.25 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      <!-- ── Chassis collision ── -->
       <collision name="collision">
         <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
       </collision>
 
-
+      <!-- ── IMU sensor ── -->
+      <!-- No explicit <topic> override: an explicit "imu" topic is treated as a
+           literal, unscoped gz-transport topic name, so it published to global
+           /imu on every spawned instance -- ros_gz_bridge was listening on the
+           per-entity-scoped /model/<name>/imu, which never matched, so IMU data
+           silently never reached attitude_controller.py or landing_controller.py
+           (found 2026-07-14: their state machines never progressed past FLIGHT
+           because they're entirely IMU-driven). Omitting <topic> lets gz-sim
+           auto-generate the properly scoped per-entity default topic, matching
+           how the joint controllers and odometry publisher already behave.
+           launch.py's bridge config was updated to match the auto-generated name. -->
       <sensor name="imu_sensor" type="imu">
         <always_on>1</always_on>
         <update_rate>100</update_rate>
         <visualize>true</visualize>
-        <topic>imu</topic>
       </sensor>
 
-
+      <!-- LIDAR removed to prevent performance stuttering -->
     </link>
 
-    <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu" />
+    <!-- Was "ignition-gazebo-imu-system" / "ignition::gazebo::systems::Imu" (old
+         v6/Citadel-era naming). This machine has both the old v6 and current v8
+         (Harmonic) IMU plugin libraries installed side-by-side, and gz-sim
+         silently loaded the old v6 one instead of erroring -- a real version
+         mismatch against the v8 engine everything else here runs on (physics,
+         odometry, joint controllers all already used gz-sim8/"gz::sim::systems"
+         naming). That mismatch is the root cause of "Unknown message type"
+         warnings from ros_gz_bridge and why IMU data never actually reached
+         attitude_controller.py/landing_controller.py despite the sensor
+         "working" and the topic existing. Found & fixed 2026-07-14. -->
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
 
+    <!-- Real position/velocity feedback -- previously nonexistent, which is why
+         swarm_manager.py had to literally assume the robot was always at the origin
+         when computing distance/yaw to a target, and why monitor_height.py/
+         monitor_joints.py (which expect this) were dead code. -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>scout_1/odom</odom_frame>
+      <robot_base_frame>scout_1</robot_base_frame>
+      <odom_publish_frequency>20</odom_publish_frequency>
+      <dimensions>3</dimensions>
+    </plugin>
 
+    <!-- ══════════ SOLAR PANEL ARRAY (fixed to chassis top) ══════════ -->
     <link name="solar_panel">
       <pose>0 0 0.355 0 0 0</pose>
       <inertial>
         <mass>0.15</mass>
         <inertia>
-          <ixx>0.0004049999999999999</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
-          <iyy>0.0004049999999999999</iyy><iyz>0.0</iyz>
-          <izz>0.0008099999999999998</izz>
+          <ixx>0.000405</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000405</iyy><iyz>0</iyz>
+          <izz>0.000810</izz>
         </inertia>
       </inertial>
       <visual name="panel_surface">
@@ -383,7 +513,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Solar cell grid lines -->
       <visual name="cell_grid_h1">
         <pose>0 0 0.003 0 0 0</pose>
         <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
@@ -435,15 +565,15 @@
       <child>solar_panel</child>
     </joint>
 
-
+    <!-- ══════════ REACTION WHEELS (inside chassis) ══════════ -->
     <link name="rw_x">
       <pose>0 0 0.25 0 1.5707963267948966 0</pose>
       <inertial>
         <mass>0.15</mass>
         <inertia>
-          <ixx>0.00014024999999999997</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
-          <iyy>0.00014024999999999997</iyy><iyz>0.0</iyz>
-          <izz>0.00027</izz>
+          <ixx>0.000140</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000140</iyy><iyz>0</iyz>
+          <izz>0.000270</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -467,9 +597,9 @@
       <inertial>
         <mass>0.15</mass>
         <inertia>
-          <ixx>0.00014024999999999997</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
-          <iyy>0.00014024999999999997</iyy><iyz>0.0</iyz>
-          <izz>0.00027</izz>
+          <ixx>0.000140</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000140</iyy><iyz>0</iyz>
+          <izz>0.000270</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -493,9 +623,9 @@
       <inertial>
         <mass>0.15</mass>
         <inertia>
-          <ixx>0.00014024999999999997</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
-          <iyy>0.00014024999999999997</iyy><iyz>0.0</iyz>
-          <izz>0.00027</izz>
+          <ixx>0.000140</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000140</iyy><iyz>0</iyz>
+          <izz>0.000270</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -514,15 +644,20 @@
       <axis><xyz expressed_in="__model__">0 0 1</xyz></axis>
     </joint>
 
-
+    <!-- ══════════ DRILL (prismatic, underneath chassis) ══════════ -->
+    <!-- Rest pose (joint value 0) tucks the shaft's center 0.03m *above* the
+         chassis bottom face, inside the drill_turret housing above -- so at
+         rest the shaft's bottom edge sits just past the turret's lower rim
+         (mostly hidden) instead of the old pose, which hung the entire
+         0.1m shaft fully exposed below the chassis even when "retracted". -->
     <link name="drill_link">
-      <pose>0 0 0.09999999999999999 0 0 0</pose>
+      <pose>0 0 0.18 0 0 0</pose>
       <inertial>
         <mass>0.25</mass>
         <inertia>
-          <ixx>0.0002225</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
-          <iyy>0.0002225</iyy><iyz>0.0</iyz>
-          <izz>2.875e-05</izz>
+          <ixx>0.000222</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000222</iyy><iyz>0</iyz>
+          <izz>0.000028</izz>
         </inertia>
       </inertial>
       <visual name="drill_shaft">
@@ -559,10 +694,15 @@
       <axis>
         <xyz>0 0 1</xyz>
         <limit><lower>-0.1</lower><upper>0.0</upper></limit>
+        <!-- Spring-to-rest at 0 (fully retracted/flush with chassis) so the drill
+             doesn't passively drift/dangle under flight or landing shocks when
+             uncommanded -- it was previously unconstrained and had no actuator at
+             all, which is why it looked detached from the body. -->
+        <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.05</spring_stiffness><damping>0.01</damping></dynamics>
       </axis>
     </joint>
 
-
+    <!-- ── LEG 0 ── -->
     <link name="thigh_0">
       <pose>0.07 0.0 0.15 0 1.2 0.0</pose>
       <inertial>
@@ -582,7 +722,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Hip motor housing -->
       <visual name="hip_housing_0">
         <pose>0 0 0.01 0 0 0</pose>
         <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
@@ -592,6 +732,32 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
+      <!-- Hip actuator status LED (emissive sphere + a real point light so
+           it's actually visible in Ryugu's near-total darkness, not just a
+           colored-but-unlit surface) -->
+      <visual name="hip_led_0">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <geometry><sphere><radius>0.0025</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="hip_led_0_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <attenuation>
+          <range>0.06</range>
+          <constant>0.2</constant>
+          <linear>5</linear>
+          <quadratic>20</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -626,7 +792,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Knee motor housing -->
       <visual name="knee_housing_0">
         <pose>0 0 0.005 0 0 0</pose>
         <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
@@ -636,13 +802,23 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Foot pad -->
       <visual name="foot_0">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry><sphere><radius>0.02</radius></sphere></geometry>
         <material>
           <ambient>0.5 0.5 0.5 1</ambient>
           <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <!-- Foot proximity/contact sensor lens -->
+      <visual name="foot_sensor_0">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.05 0.05 0.15 1</ambient>
+          <diffuse>0.05 0.05 0.15 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
@@ -665,7 +841,7 @@
       <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
-
+    <!-- ── LEG 1 ── -->
     <link name="thigh_1">
       <pose>-0.03499999999999999 0.06062177826491071 0.15 0 1.2 2.0943951023931953</pose>
       <inertial>
@@ -685,7 +861,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Hip motor housing -->
       <visual name="hip_housing_1">
         <pose>0 0 0.01 0 0 0</pose>
         <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
@@ -695,6 +871,32 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
+      <!-- Hip actuator status LED (emissive sphere + a real point light so
+           it's actually visible in Ryugu's near-total darkness, not just a
+           colored-but-unlit surface) -->
+      <visual name="hip_led_1">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <geometry><sphere><radius>0.0025</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="hip_led_1_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <attenuation>
+          <range>0.06</range>
+          <constant>0.2</constant>
+          <linear>5</linear>
+          <quadratic>20</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -729,7 +931,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Knee motor housing -->
       <visual name="knee_housing_1">
         <pose>0 0 0.005 0 0 0</pose>
         <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
@@ -739,13 +941,23 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Foot pad -->
       <visual name="foot_1">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry><sphere><radius>0.02</radius></sphere></geometry>
         <material>
           <ambient>0.5 0.5 0.5 1</ambient>
           <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <!-- Foot proximity/contact sensor lens -->
+      <visual name="foot_sensor_1">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.05 0.05 0.15 1</ambient>
+          <diffuse>0.05 0.05 0.15 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
@@ -768,7 +980,7 @@
       <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
-
+    <!-- ── LEG 2 ── -->
     <link name="thigh_2">
       <pose>-0.03500000000000003 -0.06062177826491069 0.15 0 1.2 4.1887902047863905</pose>
       <inertial>
@@ -788,7 +1000,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Hip motor housing -->
       <visual name="hip_housing_2">
         <pose>0 0 0.01 0 0 0</pose>
         <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
@@ -798,6 +1010,32 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
+      <!-- Hip actuator status LED (emissive sphere + a real point light so
+           it's actually visible in Ryugu's near-total darkness, not just a
+           colored-but-unlit surface) -->
+      <visual name="hip_led_2">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <geometry><sphere><radius>0.0025</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="hip_led_2_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <attenuation>
+          <range>0.06</range>
+          <constant>0.2</constant>
+          <linear>5</linear>
+          <quadratic>20</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+      </light>
       <collision name="collision">
         <pose>0 0 0.075 0 0 0</pose>
         <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
@@ -832,7 +1070,7 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Knee motor housing -->
       <visual name="knee_housing_2">
         <pose>0 0 0.005 0 0 0</pose>
         <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
@@ -842,13 +1080,23 @@
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
-
+      <!-- Foot pad -->
       <visual name="foot_2">
         <pose>0 0 0.15 0 0 0</pose>
         <geometry><sphere><radius>0.02</radius></sphere></geometry>
         <material>
           <ambient>0.5 0.5 0.5 1</ambient>
           <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <!-- Foot proximity/contact sensor lens -->
+      <visual name="foot_sensor_2">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.05 0.05 0.15 1</ambient>
+          <diffuse>0.05 0.05 0.15 1</diffuse>
           <specular>0.5 0.5 0.5 1</specular>
         </material>
       </visual>
@@ -871,7 +1119,7 @@
       <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
-
+    <!-- ══════════ JOINT CONTROLLER PLUGINS ══════════ -->
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>hip_joint_0</joint_name>
       <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
@@ -916,6 +1164,11 @@
       <joint_name>rw_z_joint</joint_name>
       <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
       <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>drill_joint</joint_name>
+      <p_gain>2.0</p_gain><i_gain>0</i_gain><d_gain>0.1</d_gain>
+      <cmd_max>0.5</cmd_max><cmd_min>-0.5</cmd_min>
     </plugin>
 
   </model>
