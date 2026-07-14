@@ -14,6 +14,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64, Bool
 from sensor_msgs.msg import Imu
+from nav_msgs.msg import Odometry
 import sys
 import math
 
@@ -38,11 +39,30 @@ class LandingController(Node):
 
         # ── Tunable parameters ──
         # Contact detection: acceleration magnitude threshold (m/s²)
-        # In micro-gravity, any accel > ~0.01 m/s² is suspicious; a landing
-        # impact typically produces >0.05 m/s² even at very low speeds.
-        self.contact_accel_threshold = 0.02  # m/s²
+        # Found 2026-07-14: this was set to 0.02, but reaction-wheel torque
+        # reactions and leg-joint PID corrections routinely produce transient
+        # linear accelerations in that same range -- they're driven by motor
+        # torque limits (up to 134 mNm for legs), which have nothing to do
+        # with how weak gravity is here. Live-caught: a "contact detected"
+        # event fired at accel=0.0204 m/s^2 while the robot was still ~4.8m
+        # in the air, immediately confirming LANDED (and downstream, gating
+        # SAMPLER drill deployment) despite being nowhere near the ground.
+        # Raised to 0.08, matching this file's own original comment that a
+        # genuine landing impact "typically produces >0.05 m/s^2" -- the old
+        # 0.02 threshold was already inconsistent with that reasoning.
+        self.contact_accel_threshold = 0.08  # m/s²
         self.settle_duration_ticks = 200     # ~2s at 100Hz IMU
         self.flight_accel_threshold = 0.005  # below this = free-fall = flight
+
+        # Second line of defense against the same false-positive class:
+        # require the robot's actual velocity (from odometry) to be small
+        # before confirming LANDED, not just a sustained accel reading. A
+        # genuinely still-flying robot has non-trivial velocity almost all
+        # the time (except a brief instant at apex), so combined with the
+        # accel-threshold fix above, a coincidental false accept needs both
+        # conditions to align, which is far less likely than either alone.
+        self.landed_velocity_threshold = 0.01  # m/s
+        self.velocity_mag = 0.0
 
         # Soft landing joint targets (slight crouch to absorb impact)
         self.soft_hip_target = 0.3    # gentle splay
@@ -87,12 +107,21 @@ class LandingController(Node):
         self.create_subscription(
             Imu, f'/{self.robot_name}/imu', self.imu_callback, 10)
 
+        self.create_subscription(
+            Odometry, f'/{self.robot_name}/odometry', self.odom_callback, 10)
+
         # Flight trigger (hopper_locomotion tells us when a jump starts)
         self.create_subscription(
             Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
 
         # Periodic status log
         self.create_timer(5.0, self.log_status)
+
+    def odom_callback(self, msg):
+        vx = msg.twist.twist.linear.x
+        vy = msg.twist.twist.linear.y
+        vz = msg.twist.twist.linear.z
+        self.velocity_mag = math.sqrt(vx * vx + vy * vy + vz * vz)
 
     def jump_callback(self, msg):
         """Called when hopper_locomotion initiates a jump."""
@@ -133,9 +162,19 @@ class LandingController(Node):
                     self.get_logger().info(
                         f'[{self.robot_name}] ⚠️ Bounce detected → back to FLIGHT')
             else:
-                # Sustained contact
+                # Sustained contact -- also require real velocity to actually
+                # be low (see landed_velocity_threshold note above) before
+                # confirming, not just a sustained accel reading.
                 if self.settle_counter >= self.settle_duration_ticks:
-                    if self._is_inverted(msg):
+                    if self.velocity_mag > self.landed_velocity_threshold:
+                        self.get_logger().warn(
+                            f'[{self.robot_name}] Sustained contact accel but velocity '
+                            f'still {self.velocity_mag:.4f} m/s — not actually landed, '
+                            f'resetting settle counter (likely a false accel trigger, '
+                            f'e.g. RW/leg motor reaction torque).',
+                            throttle_duration_sec=2.0)
+                        self.settle_counter = 0
+                    elif self._is_inverted(msg):
                         self.get_logger().warn(
                             f'[{self.robot_name}] ⚠️ Landed INVERTED (upside-down) — '
                             f'initiating self-righting maneuver')
