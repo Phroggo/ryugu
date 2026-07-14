@@ -1,10 +1,30 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, Bool
+from nav_msgs.msg import Odometry
 import random
 import time
 import math
+
+# How close (m) the odometry-reported position must be to a target before a
+# SAMPLER is considered "arrived" and allowed to deploy its drill. Real jumps
+# don't land exactly on the requested target, so this is a tolerance, not zero.
+ARRIVAL_RADIUS = 3.0
+
+# Sample tube carousel capacity per Research_Paper.md's mechanical design.
+SAMPLE_CAROUSEL_CAPACITY = 3
+
+# Battery drain (%/2s tick) by role, replacing the old flat random.uniform(0.1,0.4)
+# applied unconditionally to every agent regardless of what it was doing.
+BATTERY_DRAIN_BY_ROLE = {
+    "SCOUT": 0.05,        # locomotion standby + passive LIDAR/camera scanning
+    "SAMPLER": 0.15,      # legs/RW actively driving travel hops
+    "RELAY": 0.08,        # comms transmission draw
+    "Unassigned": 0.05,
+}
+DRILL_ACTIVE_EXTRA_DRAIN = 0.10  # additional draw while the drill motor is loaded
+SOLAR_CHARGE_RATE = 0.6          # %/tick while parked in RECHARGE facing the sun
 
 class MetricsLogger:
     def __init__(self):
@@ -32,7 +52,16 @@ class SwarmManager(Node):
                 "battery": random.uniform(85.0, 100.0), # Ni-MH charge
                 "target_x": 0.0,
                 "target_y": 0.0,
-                "has_sample": False
+                "has_sample": False,
+                "drill_deployed": False,
+                # 3-tube carousel: how many samples currently stored, vs.
+                # extracted-but-not-yet-stowed (has_sample tracks the latter).
+                "sample_count": 0,
+                # Real pose feedback (was previously assumed to always be the
+                # origin -- see odometry subscription below).
+                "pos_x": 0.0,
+                "pos_y": 0.0,
+                "landed": True,
             } for agent in self.agents
         }
         
@@ -51,20 +80,51 @@ class SwarmManager(Node):
             agent: self.create_publisher(Float64, f'/{agent}/target_yaw', 10)
             for agent in self.agents
         }
-        
+
+        # Real position feedback (odometry) and landing status, so this node no
+        # longer has to assume every agent sits at the origin.
+        for agent in self.agents:
+            self.create_subscription(
+                Odometry, f'/{agent}/odometry',
+                lambda msg, a=agent: self.odom_callback(a, msg), 10)
+            self.create_subscription(
+                Bool, f'/{agent}/landed',
+                lambda msg, a=agent: self.landed_callback(a, msg), 10)
+
         self.anomaly_queue = []
         self.timer = self.create_timer(2.0, self.swarm_tick)
         self.get_logger().info("Initiating Cooperative Mission Bidding Protocol...")
 
+    def odom_callback(self, agent, msg):
+        self.state[agent]["pos_x"] = msg.pose.pose.position.x
+        self.state[agent]["pos_y"] = msg.pose.pose.position.y
+
+    def landed_callback(self, agent, msg):
+        self.state[agent]["landed"] = msg.data
+
     def swarm_tick(self):
         # 1. Ni-MH Battery Simulation & Safety Overrides
+        # Drain now depends on what the agent is actually doing, instead of a
+        # flat random drain applied to every agent regardless of role. RECHARGE
+        # previously didn't actually charge anything -- it kept draining at the
+        # same rate as every other role, so a critical-battery agent could
+        # never climb back above the 80% exit threshold and would be stuck in
+        # RECHARGE forever (or drift to negative battery).
         for agent in self.agents:
-            self.state[agent]["battery"] -= random.uniform(0.1, 0.4)
-            if self.state[agent]["battery"] < 15.0 and self.state[agent]["role"] != "RECHARGE":
+            role = self.state[agent]["role"]
+            if role == "RECHARGE":
+                self.state[agent]["battery"] = min(100.0, self.state[agent]["battery"] + SOLAR_CHARGE_RATE)
+            else:
+                drain = BATTERY_DRAIN_BY_ROLE.get(role, 0.05)
+                if role == "SAMPLER" and self.state[agent]["drill_deployed"]:
+                    drain += DRILL_ACTIVE_EXTRA_DRAIN
+                self.state[agent]["battery"] = max(0.0, self.state[agent]["battery"] - drain)
+
+            if self.state[agent]["battery"] < 15.0 and role != "RECHARGE":
                 self.get_logger().warn(f"🔋 {agent} BMS Alert! Ni-MH cells critical ({self.state[agent]['battery']:.1f}%). Fleeing to sunlight.")
                 self.state[agent]["role"] = "RECHARGE"
                 self.metrics.log_switch()
-            elif self.state[agent]["battery"] > 80.0 and self.state[agent]["role"] == "RECHARGE":
+            elif self.state[agent]["battery"] > 80.0 and role == "RECHARGE":
                 self.state[agent]["role"] = "Unassigned"
                 
         # 2. Bidding Protocol (Assigning SCOUT, SAMPLER, RELAY)
@@ -97,21 +157,57 @@ class SwarmManager(Node):
                     self.metrics.data["anomalies_found"] += 1
                     
             elif role == "SAMPLER":
-                # Simulate arriving at the anomaly and drilling
                 if not self.state[agent]["has_sample"]:
-                    self.get_logger().info(f"⛏️ {agent} deploying Core Sampler Drill at anomaly site...")
-                    drill_msg = Float64(data=-0.1) # Extend drill down
-                    self.drill_pubs[agent].publish(drill_msg)
-                    self.state[agent]["has_sample"] = True
-                    self.metrics.data["samples_extracted"] += 1
+                    # Only drill once the robot has actually landed AND its real
+                    # (odometry-reported) position is near the anomaly -- previously
+                    # this fired 2s after dispatch regardless of whether the jump
+                    # had even completed, let alone arrived at the right spot.
+                    dx = self.state[agent]["target_x"] - self.state[agent]["pos_x"]
+                    dy = self.state[agent]["target_y"] - self.state[agent]["pos_y"]
+                    dist_to_target = math.hypot(dx, dy)
+                    if self.state[agent]["landed"] and dist_to_target <= ARRIVAL_RADIUS:
+                        self.get_logger().info(f"⛏️ {agent} arrived (within {dist_to_target:.1f}m) — deploying Core Sampler Drill...")
+                        self.drill_pubs[agent].publish(Float64(data=-0.1)) # Extend drill down
+                        self.state[agent]["drill_deployed"] = True
+                        self.state[agent]["has_sample"] = True
+                        self.metrics.data["samples_extracted"] += 1
+                    else:
+                        self.get_logger().info(f"🚁 {agent} en route to anomaly ({dist_to_target:.1f}m remaining, landed={self.state[agent]['landed']})...")
                 else:
-                    self.get_logger().info(f"🧪 {agent} analyzing extracted regolith core...")
-                    # Hand off to relay
-                    relay = next((a for a in self.agents if self.state[a]["role"] == "RELAY"), None)
-                    if relay:
-                        self.get_logger().info(f"📤 {agent} broadcasting spectrometer data to {relay}...")
-                        self.state[agent]["role"] = "SCOUT" # Done sampling, back to scouting
-                        self.state[agent]["has_sample"] = False
+                    if self.state[agent]["drill_deployed"]:
+                        self.get_logger().info(f"⛏️ {agent} retracting Core Sampler Drill...")
+                        self.drill_pubs[agent].publish(Float64(data=0.0)) # Retract
+                        self.state[agent]["drill_deployed"] = False
+                    self.state[agent]["sample_count"] += 1
+                    self.state[agent]["has_sample"] = False
+                    self.get_logger().info(
+                        f"🧪 {agent} stowing core in carousel tube "
+                        f"({self.state[agent]['sample_count']}/{SAMPLE_CAROUSEL_CAPACITY})...")
+
+                    carousel_full = self.state[agent]["sample_count"] >= SAMPLE_CAROUSEL_CAPACITY
+                    if not carousel_full and self.anomaly_queue:
+                        # Room left and more targets queued -- chain directly to the
+                        # next anomaly instead of always returning after one sample
+                        # (previously every visit unconditionally reverted to SCOUT,
+                        # so the paper's 3-tube carousel never had any effect).
+                        target = self.anomaly_queue.pop(0)
+                        self._dispatch_sampler(agent, target)
+                    else:
+                        # Carousel full, or nothing left to visit -- hand off to relay.
+                        relay = next((a for a in self.agents if self.state[a]["role"] == "RELAY"), None)
+                        if relay:
+                            self.get_logger().info(
+                                f"📤 {agent} broadcasting {self.state[agent]['sample_count']} "
+                                f"stored core(s) to {relay}...")
+                            self.state[agent]["role"] = "SCOUT"
+                            self.state[agent]["sample_count"] = 0
+                        elif carousel_full:
+                            self.get_logger().warn(
+                                f"📦 {agent} carousel full ({SAMPLE_CAROUSEL_CAPACITY}/"
+                                f"{SAMPLE_CAROUSEL_CAPACITY}) and no RELAY available -- "
+                                f"holding samples, standing by as SCOUT.")
+                            self.state[agent]["role"] = "SCOUT"
+                            self.state[agent]["sample_count"] = 0
                         
             elif role == "RELAY":
                 # Simulate transmitting data to orbiter
@@ -125,19 +221,28 @@ class SwarmManager(Node):
             for scout in [a for a in self.agents if self.state[a]["role"] == "SCOUT"]:
                 target = self.anomaly_queue.pop(0)
                 self.state[scout]["role"] = "SAMPLER"
-                self.state[scout]["target_x"] = target[0]
-                self.state[scout]["target_y"] = target[1]
-                
-                # Assume robot is currently near origin for this demo
-                dist = (target[0]**2 + target[1]**2)**0.5
-                yaw = math.atan2(target[1], target[0])
-                
-                self.yaw_pubs[scout].publish(Float64(data=yaw))
-                self.jump_pubs[scout].publish(Float64(data=dist))
-                
-                self.get_logger().info(f"🚀 {scout} accepting bid for SAMPLER. Navigating to [{target[0]:.1f}, {target[1]:.1f}] via {dist:.1f}m jump.")
-                self.metrics.log_switch()
+                self._dispatch_sampler(scout, target)
                 break
+
+    def _dispatch_sampler(self, agent, target):
+        """Send an agent already in the SAMPLER role toward a target anomaly.
+        Shared by the initial SCOUT->SAMPLER dispatch and by carousel-chaining
+        (visiting the next anomaly without returning to SCOUT first, as long
+        as there's room left in the sample carousel)."""
+        self.state[agent]["target_x"] = target[0]
+        self.state[agent]["target_y"] = target[1]
+
+        # Real position from odometry, not an assumed origin.
+        dx = target[0] - self.state[agent]["pos_x"]
+        dy = target[1] - self.state[agent]["pos_y"]
+        dist = math.hypot(dx, dy)
+        yaw = math.atan2(dy, dx)
+
+        self.yaw_pubs[agent].publish(Float64(data=yaw))
+        self.jump_pubs[agent].publish(Float64(data=dist))
+
+        self.get_logger().info(f"🚀 {agent} accepting bid for SAMPLER. Navigating to [{target[0]:.1f}, {target[1]:.1f}] via {dist:.1f}m jump.")
+        self.metrics.log_switch()
 
 def main(args=None):
     rclpy.init(args=args)
