@@ -1,0 +1,918 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.8">
+  <model name="spacehopper">
+
+    
+    <link name="base_link">
+      <pose>0 0 0.25 0 0 0</pose>
+      <inertial>
+        <mass>1.35</mass>
+        <inertia>
+          <ixx>0.0089994375</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.0089994375</iyy><iyz>0.0</iyz>
+          <izz>0.0089994375</izz>
+        </inertia>
+      </inertial>
+
+      
+      <visual name="hull_visual">
+        <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
+        <material>
+          <ambient>0.18 0.18 0.22 1</ambient>
+          <diffuse>0.18 0.18 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+
+      <visual name="mli_top">
+        <pose>0 0 0.101 0 0 0</pose>
+        <geometry><box><size>0.19 0.19 0.002</size></box></geometry>
+        <material>
+          <ambient>0.85 0.75 0.3 1</ambient>
+          <diffuse>0.85 0.75 0.3 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="mli_bottom">
+        <pose>0 0 -0.101 0 0 0</pose>
+        <geometry><box><size>0.19 0.19 0.002</size></box></geometry>
+        <material>
+          <ambient>0.85 0.75 0.3 1</ambient>
+          <diffuse>0.85 0.75 0.3 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="mli_front">
+        <pose>0.101 0 0 0 0 0</pose>
+        <geometry><box><size>0.002 0.19 0.19</size></box></geometry>
+        <material>
+          <ambient>0.8 0.8 0.85 1</ambient>
+          <diffuse>0.8 0.8 0.85 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="mli_back">
+        <pose>-0.101 0 0 0 0 0</pose>
+        <geometry><box><size>0.002 0.19 0.19</size></box></geometry>
+        <material>
+          <ambient>0.8 0.8 0.85 1</ambient>
+          <diffuse>0.8 0.8 0.85 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="mli_left">
+        <pose>0 0.101 0 0 0 0</pose>
+        <geometry><box><size>0.19 0.002 0.19</size></box></geometry>
+        <material>
+          <ambient>0.85 0.75 0.3 1</ambient>
+          <diffuse>0.85 0.75 0.3 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="mli_right">
+        <pose>0 -0.101 0 0 0 0</pose>
+        <geometry><box><size>0.19 0.002 0.19</size></box></geometry>
+        <material>
+          <ambient>0.8 0.8 0.85 1</ambient>
+          <diffuse>0.8 0.8 0.85 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+
+      <visual name="bracket_0">
+        <pose>-0.0925 -0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_1">
+        <pose>-0.0925 -0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_2">
+        <pose>-0.0925 0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_3">
+        <pose>-0.0925 0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_4">
+        <pose>0.0925 -0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_5">
+        <pose>0.0925 -0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_6">
+        <pose>0.0925 0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="bracket_7">
+        <pose>0.0925 0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.15 0.15 0.15 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+
+      
+      <visual name="antenna_mast">
+        <pose>0.06 0.06 0.125 0 0 0</pose>
+        <geometry><cylinder><radius>0.004</radius><length>0.05</length></cylinder></geometry>
+        <material>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="antenna_tip">
+        <pose>0.06 0.06 0.155 0 0 0</pose>
+        <geometry><sphere><radius>0.008</radius></sphere></geometry>
+        <material>
+          <ambient>0.9 0.9 0.9 1</ambient>
+          <diffuse>0.9 0.9 0.9 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="antenna_dish">
+        <pose>0.06 0.06 0.148 0.3 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.002</length></cylinder></geometry>
+        <material>
+          <ambient>0.85 0.85 0.85 1</ambient>
+          <diffuse>0.85 0.85 0.85 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+
+      
+      <visual name="camera_body">
+        <pose>0.105 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.015 0.025 0.025</size></box></geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="camera_lens">
+        <pose>0.114 0 0.02 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.003</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.05 0.2 1</ambient>
+          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="sci_camera_body">
+        <pose>0 -0.04 -0.105 0 0 0</pose>
+        <geometry><box><size>0.02 0.02 0.015</size></box></geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="sci_camera_lens">
+        <pose>0 -0.04 -0.114 0 0 0</pose>
+        <geometry><cylinder><radius>0.007</radius><length>0.003</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.05 0.2 1</ambient>
+          <diffuse>0.05 0.05 0.2 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+
+      <visual name="louver_0">
+        <pose>-0.102 -0.06 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.4 0.45 1</ambient>
+          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="louver_1">
+        <pose>-0.102 -0.03 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.4 0.45 1</ambient>
+          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="louver_2">
+        <pose>-0.102 0.0 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.4 0.45 1</ambient>
+          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="louver_3">
+        <pose>-0.102 0.03 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.4 0.45 1</ambient>
+          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="louver_4">
+        <pose>-0.102 0.06 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.4 0.45 1</ambient>
+          <diffuse>0.4 0.4 0.45 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+
+      <visual name="led_0">
+        <pose>-0.06 0.102 -0.06 0 0 0</pose>
+        <geometry><sphere><radius>0.004</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+      <visual name="led_1">
+        <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
+        <geometry><sphere><radius>0.004</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.4 0.8 1</ambient>
+          <diffuse>0.0 0.4 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+      <visual name="led_2">
+        <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
+        <geometry><sphere><radius>0.004</radius></sphere></geometry>
+        <material>
+          <ambient>0.8 0.6 0.0 1</ambient>
+          <diffuse>0.8 0.6 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 0.8 0.0 1</emissive>
+        </material>
+      </visual>
+
+      
+
+      
+
+      
+      <visual name="rw_housing_x">
+        <pose>0 0 0 0 1.5707963267948966 0</pose>
+        <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
+        <material>
+          <ambient>0.25 0.25 0.25 1</ambient>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="rw_housing_y">
+        <pose>0 0 0 1.5707963267948966 0 0</pose>
+        <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
+        <material>
+          <ambient>0.25 0.25 0.25 1</ambient>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="rw_housing_z">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
+        <material>
+          <ambient>0.25 0.25 0.25 1</ambient>
+          <diffuse>0.25 0.25 0.25 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+
+      
+      <collision name="collision">
+        <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
+      </collision>
+
+      
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on>
+        <update_rate>100</update_rate>
+        <visualize>true</visualize>
+        <topic>imu</topic>
+      </sensor>
+
+      
+    </link>
+
+    <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu" />
+
+    
+    <link name="solar_panel">
+      <pose>0 0 0.355 0 0 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.0004049999999999999</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.0004049999999999999</iyy><iyz>0.0</iyz>
+          <izz>0.0008099999999999998</izz>
+        </inertia>
+      </inertial>
+      <visual name="panel_surface">
+        <geometry><box><size>0.18 0.18 0.005</size></box></geometry>
+        <material>
+          <ambient>0.05 0.08 0.35 1</ambient>
+          <diffuse>0.05 0.08 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="cell_grid_h1">
+        <pose>0 0 0.003 0 0 0</pose>
+        <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="cell_grid_h2">
+        <pose>0 0.045 0.003 0 0 0</pose>
+        <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="cell_grid_h3">
+        <pose>0 -0.045 0.003 0 0 0</pose>
+        <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="cell_grid_v1">
+        <pose>0.045 0 0.003 0 0 0</pose>
+        <geometry><box><size>0.001 0.18 0.001</size></box></geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="cell_grid_v2">
+        <pose>-0.045 0 0.003 0 0 0</pose>
+        <geometry><box><size>0.001 0.18 0.001</size></box></geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <joint name="solar_panel_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>solar_panel</child>
+    </joint>
+
+    
+    <link name="rw_x">
+      <pose>0 0 0.25 0 1.5707963267948966 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.00014024999999999997</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.00014024999999999997</iyy><iyz>0.0</iyz>
+          <izz>0.00027</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.06</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.35 0.1 0.1 1</ambient>
+          <diffuse>0.35 0.1 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <joint name="rw_x_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rw_x</child>
+      <pose relative_to="rw_x">0 0 0 0 0 0</pose>
+      <axis><xyz expressed_in="__model__">1 0 0</xyz></axis>
+    </joint>
+
+    <link name="rw_y">
+      <pose>0 0 0.25 1.5707963267948966 0 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.00014024999999999997</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.00014024999999999997</iyy><iyz>0.0</iyz>
+          <izz>0.00027</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.06</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.1 0.35 0.1 1</ambient>
+          <diffuse>0.1 0.35 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <joint name="rw_y_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rw_y</child>
+      <pose relative_to="rw_y">0 0 0 0 0 0</pose>
+      <axis><xyz expressed_in="__model__">0 1 0</xyz></axis>
+    </joint>
+
+    <link name="rw_z">
+      <pose>0 0 0.25 0 0 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.00014024999999999997</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.00014024999999999997</iyy><iyz>0.0</iyz>
+          <izz>0.00027</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.06</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.1 0.1 0.35 1</ambient>
+          <diffuse>0.1 0.1 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <joint name="rw_z_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rw_z</child>
+      <pose relative_to="rw_z">0 0 0 0 0 0</pose>
+      <axis><xyz expressed_in="__model__">0 0 1</xyz></axis>
+    </joint>
+
+    
+    <link name="drill_link">
+      <pose>0 0 0.09999999999999999 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia>
+          <ixx>0.0002225</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.0002225</iyy><iyz>0.0</iyz>
+          <izz>2.875e-05</izz>
+        </inertia>
+      </inertial>
+      <visual name="drill_shaft">
+        <geometry><cylinder><radius>0.012</radius><length>0.1</length></cylinder></geometry>
+        <material>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="drill_bit">
+        <pose>0 0 -0.05 0 0 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <visual name="drill_collar">
+        <pose>0 0 0.04 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.3 0.3 0.35 1</ambient>
+          <diffuse>0.3 0.3 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+    </link>
+    <joint name="drill_joint" type="prismatic">
+      <parent>base_link</parent>
+      <child>drill_link</child>
+      <pose relative_to="drill_link">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit><lower>-0.1</lower><upper>0.0</upper></limit>
+      </axis>
+    </joint>
+
+    
+    <link name="thigh_0">
+      <pose>0.07 0.0 0.15 0 1.2 0.0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000097</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000097</iyy><iyz>0</iyz>
+          <izz>0.000006</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="hip_housing_0">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.15 1</ambient>
+          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+      </collision>
+    </link>
+    <joint name="hip_joint_0" type="revolute">
+      <parent>base_link</parent>
+      <child>thigh_0</child>
+      <pose relative_to="thigh_0">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      </axis>
+    </joint>
+
+    <link name="calf_0">
+      <pose relative_to="thigh_0">0 0 0.15 0 0.8 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000095</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000095</iyy><iyz>0</iyz>
+          <izz>0.000003</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.35 0.35 0.38 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="knee_housing_0">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.15 1</ambient>
+          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="foot_0">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+      </collision>
+      <collision name="foot_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+      </collision>
+    </link>
+    <joint name="knee_joint_0" type="revolute">
+      <parent>thigh_0</parent>
+      <child>calf_0</child>
+      <pose relative_to="calf_0">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
+    </joint>
+
+    
+    <link name="thigh_1">
+      <pose>-0.03499999999999999 0.06062177826491071 0.15 0 1.2 2.0943951023931953</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000097</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000097</iyy><iyz>0</iyz>
+          <izz>0.000006</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="hip_housing_1">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.15 1</ambient>
+          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+      </collision>
+    </link>
+    <joint name="hip_joint_1" type="revolute">
+      <parent>base_link</parent>
+      <child>thigh_1</child>
+      <pose relative_to="thigh_1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      </axis>
+    </joint>
+
+    <link name="calf_1">
+      <pose relative_to="thigh_1">0 0 0.15 0 0.8 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000095</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000095</iyy><iyz>0</iyz>
+          <izz>0.000003</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.35 0.35 0.38 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="knee_housing_1">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.15 1</ambient>
+          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="foot_1">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+      </collision>
+      <collision name="foot_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+      </collision>
+    </link>
+    <joint name="knee_joint_1" type="revolute">
+      <parent>thigh_1</parent>
+      <child>calf_1</child>
+      <pose relative_to="calf_1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
+    </joint>
+
+    
+    <link name="thigh_2">
+      <pose>-0.03500000000000003 -0.06062177826491069 0.15 0 1.2 4.1887902047863905</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000097</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000097</iyy><iyz>0</iyz>
+          <izz>0.000006</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="hip_housing_2">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.15 1</ambient>
+          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+      </collision>
+    </link>
+    <joint name="hip_joint_2" type="revolute">
+      <parent>base_link</parent>
+      <child>thigh_2</child>
+      <pose relative_to="thigh_2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      </axis>
+    </joint>
+
+    <link name="calf_2">
+      <pose relative_to="thigh_2">0 0 0.15 0 0.8 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.000095</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000095</iyy><iyz>0</iyz>
+          <izz>0.000003</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.35 0.35 0.38 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="knee_housing_2">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.15 1</ambient>
+          <diffuse>0.12 0.12 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      
+      <visual name="foot_2">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1</ambient>
+          <diffuse>0.5 0.5 0.5 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+      </collision>
+      <collision name="foot_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+      </collision>
+    </link>
+    <joint name="knee_joint_2" type="revolute">
+      <parent>thigh_2</parent>
+      <child>calf_2</child>
+      <pose relative_to="calf_2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
+    </joint>
+
+    
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>hip_joint_0</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>knee_joint_0</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>hip_joint_1</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>knee_joint_1</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>hip_joint_2</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>knee_joint_2</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>rw_x_joint</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+      <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>rw_y_joint</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+      <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>rw_z_joint</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+      <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+
+  </model>
+</sdf>
