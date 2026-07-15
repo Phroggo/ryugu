@@ -2,6 +2,8 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64, Bool
+from nav_msgs.msg import Odometry
+import subprocess
 import sys
 import math
 
@@ -39,7 +41,23 @@ class HopperLocomotion(Node):
         # small recovery nudge if idle that long.
         self.idle_ticks = 0
         self.IDLE_RECOVERY_TICKS = 3000
-        self.RECOVERY_AMPLITUDE = 0.5
+        self.RECOVERY_AMPLITUDE = 0.3  # stroke fraction for recovery hops
+
+        # Redesigned stroke endpoints (2026-07-15) -- see CROUCH/LAUNCH in
+        # tick() for the geometry derivation from the empirical joint-angle
+        # mapping (thigh-from-vertical ~= 0.57 + hip; calf = thigh + 0.8 +
+        # knee). Crouch: compressed, feet planted under the body. Extend:
+        # legs nearly straight down, ~0.10 m of vertical stroke.
+        self.CROUCH_HIP = 0.63
+        self.CROUCH_KNEE = -1.65
+        self.EXTEND_HIP = -0.42
+        self.EXTEND_KNEE = -0.80
+
+        # Latest odometry pose, for the in-place set_pose DART-sleep wake
+        # (see _wake_model).
+        self.last_pose = None
+        self.create_subscription(
+            Odometry, f'/{self.robot_name}/odometry', self.odom_callback, 10)
         # Only count idle time toward a recovery hop while actually landed --
         # a freshly-(re)started node, or one whose robot is mid-flight,
         # shouldn't self-fire a hop just because its own uptime passed the
@@ -81,20 +99,18 @@ class HopperLocomotion(Node):
         g = 0.000114 # Ryugu gravity
         v_req = math.sqrt(max(distance, 0.0) * g)
 
-        # Scale launch amplitude around a measured calibration point.
-        # Recalibrated 2026-07-15: the old reference ("5m at 1.0 rad, apex
-        # 5.57m") predates the delta-based launch stroke and no longer
-        # holds. Measured live with the delta scheme: amplitude 0.77 rad
-        # delivered ~0.008 m/s of takeoff delta-v (position-PID thrust
-        # self-terminates when the leg reaches its target, so delivered
-        # impulse scales ~linearly with amplitude, NOT with the launch
-        # window). Clamped to [0.3, 2.5] rad: floor keeps short hops from
-        # degenerating, ceiling stays inside the +/-3.14 rad joint limit --
-        # at the ceiling a single hop covers roughly v^2/g ~= 6m, so longer
-        # dispatches rely on swarm_manager's corrective re-hop chaining.
-        AMP_CAL = 0.77   # rad
-        V_CAL = 0.008    # m/s measured at AMP_CAL
-        self.launch_amplitude = max(0.3, min(2.5, AMP_CAL * v_req / V_CAL))
+        # Stroke-fraction scaling (2026-07-15 launch-kinematics redesign):
+        # launch_amplitude is now the FRACTION [0..1] of the full crouch->
+        # extension stroke (see CROUCH/LAUNCH below for the geometry). The
+        # full stroke extends the legs from a compressed feet-under-body
+        # crouch to nearly straight-down, ~0.10 m of vertical travel, with
+        # an estimated full-stroke delta-v of V_FULL (provisional -- refine
+        # from the first measured hop). Floor 0.2 keeps short hops from
+        # degenerating into no-ops; cap 1.0 is the physical stroke limit
+        # (full stroke is estimated ~0.08 m/s, ~25% of escape velocity, so
+        # even the cap is containment-safe).
+        V_FULL = 0.08    # m/s, provisional full-stroke delta-v estimate
+        self.launch_amplitude = max(0.2, min(1.0, v_req / V_FULL))
 
         self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s. Launch amplitude: {self.launch_amplitude:.2f} rad")
         self.get_logger().info(f"[{self.robot_name}] Initiating Tri-Pedal Jump Sequence!")
@@ -102,6 +118,30 @@ class HopperLocomotion(Node):
         self.state = self.CROUCH
         self.state_timer = 0
         self.idle_ticks = 0
+
+    def odom_callback(self, msg):
+        p = msg.pose.pose.position
+        q = msg.pose.pose.orientation
+        self.last_pose = (p.x, p.y, p.z, q.x, q.y, q.z, q.w)
+
+    def _wake_model(self):
+        """In-place set_pose to wake the model out of DART sleep (gz-sim8
+        sleeps a quiescent model even with allow_auto_disable=false in the
+        SDF -- proven live 2026-07-15; a sleeping model ignores all joint
+        commands, silently zeroing crouch/launch). Fire-and-forget CLI call;
+        ~50ms of subprocess spawn is irrelevant at these timescales."""
+        if self.last_pose is None:
+            self.get_logger().warn(f"[{self.robot_name}] No odometry yet — cannot wake model in place.")
+            return
+        x, y, z, qx, qy, qz, qw = self.last_pose
+        req = (f'name: "{self.robot_name}", '
+               f'position: {{x: {x}, y: {y}, z: {z}}}, '
+               f'orientation: {{x: {qx}, y: {qy}, z: {qz}, w: {qw}}}')
+        subprocess.Popen(
+            ['gz', 'service', '-s', '/world/ryugu_world/set_pose',
+             '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
+             '--timeout', '1000', '--req', req],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def set_joints(self, hip_val, knee_val):
         for j in self.joints:
@@ -127,57 +167,63 @@ class HopperLocomotion(Node):
 
         if self.state == self.CROUCH:
             if self.state_timer == 0:
-                self.get_logger().info("1. Crouching (Compressing Legs & Orienting to Target)")
-                                # Physically lean the robot forward (nose down, rear up)
-                self.pubs['hip_joint_0'].publish(Float64(data=1.2))
-                self.pubs['knee_joint_0'].publish(Float64(data=-1.2))
-                self.pubs['hip_joint_1'].publish(Float64(data=0.2))
-                self.pubs['knee_joint_1'].publish(Float64(data=-0.2))
-                self.pubs['hip_joint_2'].publish(Float64(data=0.2))
-                self.pubs['knee_joint_2'].publish(Float64(data=-0.2))
+                self.get_logger().info("1. Crouching (waking physics, planting feet under body)")
+                # Wake the model FIRST: gz-sim8's DART integration puts a
+                # quiescent model to sleep despite allow_auto_disable=false
+                # in model.sdf (proven live 2026-07-15: exact-zero velocity,
+                # frozen pose, joint commands ignored -- and an in-place
+                # set_pose reliably wakes it, which is why every historical
+                # "teleport freed the legs" event worked).
+                self._wake_model()
+                # Redesigned crouch (2026-07-15): symmetric, feet planted
+                # UNDER the body, legs compressed. Empirical mapping from
+                # the live in-air pose test: thigh angle from down-vertical
+                # ~= 0.57 + hip_joint; calf continues at thigh + 0.8(knee
+                # mount) + knee_joint. Crouch: thigh 1.2 rad out, calf 0.35
+                # (near-vertical) -> feet 0.195 m below hip at 0.26 m stance
+                # radius, chassis belly ~0.2 m clear of the ground. (The old
+                # asymmetric forward-lean crouch swept the feet sideways
+                # under the body at launch -- a scoop, not a downward press
+                # -- and delivered ~zero net impulse.)
+                self.set_joints(self.CROUCH_HIP, self.CROUCH_KNEE)
             self.state_timer += 1
-            if self.state_timer > 20: # 2.0 seconds to allow Reaction Wheels to spin chassis to target yaw
+            # 10 s crouch (was 2 s): standing the 2.5 kg body up from belly-
+            # rest onto planted feet at the leg PIDs' soft forces (~0.2 N
+            # total) takes 3-5 s of slow rise; cycle-1 telemetry showed
+            # IGNITION firing while the body had only risen 3 mm, so the
+            # launch stroke started from unloaded, mid-swing legs and
+            # delivered ~nothing. 10 s also still covers the RW yaw slew.
+            if self.state_timer > 100:
                 self.state = self.LAUNCH
                 self.state_timer = 0
 
         elif self.state == self.LAUNCH:
             if self.state_timer == 0:
-                self.get_logger().info(f"2. IGNITION (amplitude={self.launch_amplitude:.2f} rad, distance-scaled forward hop to target)")
-                # Found 2026-07-15: firing all 3 legs to the SAME absolute
-                # target (the old set_joints(-amp, amp) call) made leg 0
-                # sweep a much larger angle than legs 1/2 within the same
-                # fixed 0.2s window, because CROUCH leaves leg 0 bent much
-                # further (1.2/-1.2) than legs 1/2 (0.2/-0.2) for the
-                # intentional forward lean. Unequal angular travel in a fixed
-                # time means unequal per-leg thrust at liftoff -- a real net
-                # torque impulse on the chassis at the exact moment it leaves
-                # the ground, which is what was causing the robot to start
-                # tumbling immediately on every jump. Fix: apply the same
-                # DELTA (launch_amplitude) from each leg's own crouch
-                # baseline instead of the same absolute target, so every leg
-                # travels an equal angular distance -- balanced thrust
-                # magnitude -- while the crouch lean still shapes the
-                # resulting diagonal thrust *direction* via each leg's
-                # differing final position.
-                self.pubs['hip_joint_0'].publish(Float64(data=1.2 - self.launch_amplitude))
-                self.pubs['knee_joint_0'].publish(Float64(data=-1.2 + self.launch_amplitude))
-                self.pubs['hip_joint_1'].publish(Float64(data=0.2 - self.launch_amplitude))
-                self.pubs['knee_joint_1'].publish(Float64(data=-0.2 + self.launch_amplitude))
-                self.pubs['hip_joint_2'].publish(Float64(data=0.2 - self.launch_amplitude))
-                self.pubs['knee_joint_2'].publish(Float64(data=-0.2 + self.launch_amplitude))
+                self.get_logger().info(f"2. IGNITION (stroke fraction={self.launch_amplitude:.2f})")
+                # Re-wake in case the 2s crouch settled into quiescence.
+                self._wake_model()
+                # Redesigned launch (2026-07-15): extend the legs from the
+                # compressed crouch TOWARD straight-down (full stroke: thigh
+                # 1.2 -> 0.15 rad from vertical, calf 0.35 -> 0.15), pressing
+                # the planted feet into the ground through ~0.10 m of
+                # vertical travel. launch_amplitude is the FRACTION of that
+                # full stroke, so per-leg travel stays symmetric (equal
+                # thrust, no launch torque impulse) at every commanded
+                # distance. The previous delta scheme swept the feet inward
+                # PAST vertical (a sideways scoop) and delivered ~zero
+                # impulse -- direction, not magnitude, was the flaw.
+                frac = self.launch_amplitude
+                hip = self.CROUCH_HIP + frac * (self.EXTEND_HIP - self.CROUCH_HIP)
+                knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
+                self.set_joints(hip, knee)
 
             self.state_timer += 1
-            # Launch window lengthened 0.2s -> 0.5s (2026-07-15). With the
-            # delta-based stroke, thrust force comes from position-PID
-            # tracking error (F ~ p_gain * amplitude / leg_length ~ 0.13 N
-            # at 0.77 rad), so the delivered impulse is F * contact_time.
-            # At 0.2s the measured delta-v was ~8 mm/s vs the 18.5 mm/s a
-            # 3 m hop needs -- the retraction was cutting the push short
-            # (verified live: legs moved cleanly, zero liftoff). 0.5s gives
-            # ~0.026 m/s of impulse authority at the same force. Pushing
+            # 1.0 s launch window: extending the loaded stroke through its
+            # ~0.10 m of vertical travel at ~0.33 m/s^2 of body acceleration
+            # takes ~0.8 s; retracting earlier truncates the push. Pushing
             # "too long" is harmless in micro-gravity: once the feet leave
             # the ground there is no contact force left to apply.
-            if self.state_timer >= 5: # 0.5 seconds (5 * 0.1s tick)
+            if self.state_timer >= 10: # 1.0 second (10 * 0.1s tick)
                 self.get_logger().info("3. Retracting for Landing Phase (FLIGHT Mode)")
                 self.set_joints(0.0, 0.0)
                 self.state = self.FLIGHT
