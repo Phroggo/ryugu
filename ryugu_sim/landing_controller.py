@@ -13,7 +13,7 @@ the robot flying for minutes.
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64, Bool
-from sensor_msgs.msg import Imu
+from sensor_msgs.msg import Imu, JointState
 from nav_msgs.msg import Odometry
 import sys
 import math
@@ -204,6 +204,22 @@ class LandingController(Node):
         self.create_subscription(
             Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
 
+        # Measured joint angles (telemetry; latest positions keyed by joint
+        # name). A "zero-stiffness catch" that mirrored these back as
+        # position targets during contact was tried 2026-07-15 and REMOVED:
+        # the bridged feedback lags, so the trailing target pumped the
+        # rebound instead of damping it (in 16 mm/s, out 22 mm/s). Impact
+        # dissipation lives in model.sdf's physical joint damping instead.
+        self.joint_pos = {}
+        self.create_subscription(
+            JointState, f'/{self.robot_name}/joint_states',
+            self.joint_state_callback, 10)
+
+    def joint_state_callback(self, msg):
+        for name, pos in zip(msg.name, msg.position):
+            self.joint_pos[name] = pos
+
+
         # Periodic status log
         self.create_timer(5.0, self.log_status)
 
@@ -303,11 +319,8 @@ class LandingController(Node):
                 self.contact_via_rest = False
                 self.get_logger().info(
                     f'[{self.robot_name}] 🎯 Contact detected! '
-                    f'accel={accel_mag:.4f} m/s² → Switching to compliant mode')
-                # frac=0 == the flight-retract pose; the CONTACT_DETECTED
-                # state ramps it up over ~2s from the next tick. A full-step
-                # apply here was the pogo kick (see _apply_soft_landing).
-                self._apply_soft_landing(0.0)
+                    f'accel={accel_mag:.4f} m/s² → hands-off settle '
+                    f'(no posture commands at contact)')
             else:
                 # Fallback for the resting-reads-as-free-fall trap (see the
                 # bounce_velocity_threshold note in __init__): if altitude
@@ -331,9 +344,17 @@ class LandingController(Node):
             # impact contacts. A rest-path contact (robot already still) must
             # not touch the legs at all: any posture step at rest is itself a
             # launch impulse in micro-gravity.
-            if not self.contact_via_rest:
-                # ~2 s ramp (100 Hz ticks) — see _apply_soft_landing.
-                self._apply_soft_landing(min(1.0, self.settle_counter / 200.0))
+            # NO posture commands during contact AT ALL (2026-07-15/16).
+            # History of this line, because every alternative was tried and
+            # live-measured: (1) step to soft posture -> pogo kick, 0.7-0.9 m
+            # non-decaying bounces; (2) ~2 s ramped soft posture -> still
+            # added energy (in 32 mm/s, out 38 mm/s, 10+ m pogo); (3) zero-
+            # stiffness catch mirroring measured joint angles as targets ->
+            # WORSE (in 16 mm/s, out 22 mm/s): the bridged joint-state
+            # feedback arrives late, the target trails the motion, and the
+            # lagged P-torque ends up pumping the rebound instead of damping
+            # it. Impact dissipation is now handled where phase lag cannot
+            # exist: physical joint <damping> in model.sdf (0.005 -> 0.15).
             self.settle_counter += 1
 
             # A genuine bounce means we are back in free-fall AND genuinely
