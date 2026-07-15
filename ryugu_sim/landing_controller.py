@@ -80,24 +80,26 @@ class LandingController(Node):
         #  (a) a "bounce" now additionally requires genuine velocity
         #      (bounce_velocity_threshold) -- a free-fall accel reading plus
         #      near-zero velocity means RESTING, and settling continues;
-        #  (b) a FLIGHT-state fallback: if altitude stays within a 1 cm band
-        #      for 45 s AND velocity stays below 5 mm/s, we are sitting on
-        #      something -> CONTACT_DETECTED.
+        #  (b) a FLIGHT/IDLE-state fallback: if altitude stays within a 2 cm
+        #      band for 60 s AND velocity stays below 5 mm/s, we are sitting
+        #      on something -> CONTACT_DETECTED.
         #      Apex safety must be computed TWO-sided (learned live
         #      2026-07-15: a 2 cm/30 s version of this check fired at the
         #      apex of a slow bounce and declared LANDED midair, because the
         #      band reference can be set just below apex on the way up --
         #      the coast then dwells within the band for up to
-        #      2*sqrt(2*band/g) seconds, ~37 s for a 2 cm band). For a 1 cm
-        #      band the worst-case apex dwell is 2*sqrt(0.02/0.000114)
-        #      ~= 26.5 s < 45 s. The velocity gate adds an independent
-        #      guard: any hop with a horizontal component keeps
-        #      |v| > 5 mm/s through apex and can never satisfy it.
+        #      2*sqrt(2*band/g) seconds, ~37.5 s for a 2 cm band). The 60 s
+        #      window clears that worst case with 1.6x margin, and the
+        #      velocity gate adds an independent guard: any hop with a
+        #      horizontal component keeps |v| > 5 mm/s through apex and can
+        #      never satisfy it. (Band was briefly 1 cm/45 s; relaxed to
+        #      2 cm/60 s because real regolith terrain lets a settling robot
+        #      creep a few mm as leg contacts shift, breaking a 1 cm band.)
         self.bounce_velocity_threshold = 0.02   # m/s
         self.rest_z_ref = None
         self.rest_z_ticks = 0
-        self.REST_Z_BAND = 0.01        # m
-        self.REST_Z_TICKS = 4500       # ~45 s @ 100 Hz IMU
+        self.REST_Z_BAND = 0.02        # m
+        self.REST_Z_TICKS = 6000       # ~60 s @ 100 Hz IMU
         self.REST_VEL_MAX = 0.005      # m/s
 
         # Soft landing joint targets (slight crouch to absorb impact)
@@ -123,6 +125,28 @@ class LandingController(Node):
         self.stand_knee_target = -1.0
         self.STAND_DELAY_TICKS = 300   # wait ~3 s after LANDED before folding
         self.landed_ticks = 0
+        # The fold must be RAMPED, not stepped: commanding the stand targets
+        # in one step let the position controllers whip the legs at full
+        # torque, and the resulting foot/ground impulse threw the 2.5 kg
+        # robot clean off the surface at ~0.036 m/s (caught live 2026-07-15
+        # -- in micro-gravity that's a ~5 m unplanned ballistic hop, with
+        # every safety state disarmed because the state machine said
+        # LANDED). Interpolate from the soft-landing pose over ~15 s instead.
+        self.STAND_RAMP_TICKS = 1500
+        # Liftoff watchdog while LANDED: if the robot is genuinely moving
+        # again (velocity above threshold, sustained), it is NOT landed --
+        # revert to FLIGHT so contact detection and downstream consumers
+        # (attitude tilt control, hopper state) re-arm. Threshold above any
+        # grounded rocking residue; 2 s persistence filters transients.
+        self.LIFTOFF_VEL = 0.02        # m/s
+        self.LIFTOFF_TICKS = 200       # ~2 s @ 100 Hz
+        self.liftoff_counter = 0
+        # True when CONTACT_DETECTED was entered via the rest-window path
+        # (robot already still) rather than an impact spike: in that case
+        # the compliant posture is never snapped on (nothing to absorb, and
+        # the snap itself kicks the robot airborne), and the stand-up ramp
+        # anchors at the flight-retract pose (0,0) instead of the soft pose.
+        self.contact_via_rest = False
 
         # Self-righting (leg inversion) parameters. Joint range is +/-3.14 rad
         # (full rotation), which physically supports flipping the body over.
@@ -178,6 +202,26 @@ class LandingController(Node):
         self.velocity_mag = math.sqrt(vx * vx + vy * vy + vz * vz)
         self.pos_z = msg.pose.pose.position.z
 
+    def _rest_window_elapsed(self):
+        """True once altitude has stayed inside REST_Z_BAND with velocity
+        below REST_VEL_MAX for REST_Z_TICKS consecutive IMU ticks -- the
+        robot is sitting on something. Resets its own window (and returns
+        False) whenever either condition breaks. See the apex-dwell safety
+        analysis in __init__ for why the band/velocity/duration values are
+        what they are."""
+        if (self.rest_z_ref is None
+                or abs(self.pos_z - self.rest_z_ref) > self.REST_Z_BAND
+                or self.velocity_mag > self.REST_VEL_MAX):
+            self.rest_z_ref = self.pos_z
+            self.rest_z_ticks = 0
+            return False
+        self.rest_z_ticks += 1
+        if self.rest_z_ticks >= self.REST_Z_TICKS:
+            self.rest_z_ref = None
+            self.rest_z_ticks = 0
+            return True
+        return False
+
     def jump_callback(self, msg):
         """Called when hopper_locomotion initiates a jump."""
         if msg.data:
@@ -187,6 +231,7 @@ class LandingController(Node):
             self.righting_attempt = 0
             self.rest_z_ref = None
             self.rest_z_ticks = 0
+            self.contact_via_rest = False
             self.get_logger().info(f'[{self.robot_name}] 🚀 Jump detected → FLIGHT mode')
 
     def imu_callback(self, msg):
@@ -196,11 +241,41 @@ class LandingController(Node):
         az = msg.linear_acceleration.z
         accel_mag = math.sqrt(ax**2 + ay**2 + az**2)
 
-        if self.state == self.FLIGHT:
+        if self.state == self.IDLE:
+            # Self-arm: a freshly-(re)started node boots IDLE, but the robot
+            # may already be airborne (initial spawn descent, or a restart
+            # mid-hop). Genuine motion with free-fall accel means flight --
+            # arm the landing pipeline instead of watching blind. Conversely,
+            # a restart while RESTING must find its way to LANDED (otherwise
+            # this node publishes landed=False forever and downstream
+            # consumers behave as if airborne) -- the same rest-window
+            # detector used in FLIGHT handles that.
+            if (accel_mag < self.flight_accel_threshold
+                    and self.velocity_mag > self.LIFTOFF_VEL):
+                self.state = self.FLIGHT
+                self.get_logger().info(
+                    f'[{self.robot_name}] 🛫 Airborne while IDLE '
+                    f'(v={self.velocity_mag:.3f} m/s, free-fall accel) → FLIGHT mode armed')
+            elif self._rest_window_elapsed():
+                self.state = self.CONTACT_DETECTED
+                self.settle_counter = 0
+                # NOTE: no _apply_soft_landing() here -- the robot is already
+                # at rest, so there is no impact to absorb, and snapping the
+                # legs to the compliant posture at full controller torque was
+                # itself kicking the robot off the surface at ~0.025 m/s
+                # (caught live by the liftoff watchdog, twice). The ramped
+                # stand-up after LANDED handles posture instead.
+                self.contact_via_rest = True
+                self.get_logger().info(
+                    f'[{self.robot_name}] 🎯 Resting while IDLE (altitude static) '
+                    f'— confirming ground contact')
+
+        elif self.state == self.FLIGHT:
             # In flight, watch for contact spike
             if accel_mag > self.contact_accel_threshold:
                 self.state = self.CONTACT_DETECTED
                 self.settle_counter = 0
+                self.contact_via_rest = False
                 self.get_logger().info(
                     f'[{self.robot_name}] 🎯 Contact detected! '
                     f'accel={accel_mag:.4f} m/s² → Switching to compliant mode')
@@ -208,29 +283,28 @@ class LandingController(Node):
             else:
                 # Fallback for the resting-reads-as-free-fall trap (see the
                 # bounce_velocity_threshold note in __init__): if altitude
-                # has stayed inside a 2 cm band for ~30 s, we are sitting on
-                # the ground even though no impact spike was (re)detected.
-                if (self.rest_z_ref is None
-                        or abs(self.pos_z - self.rest_z_ref) > self.REST_Z_BAND
-                        or self.velocity_mag > self.REST_VEL_MAX):
-                    self.rest_z_ref = self.pos_z
-                    self.rest_z_ticks = 0
-                else:
-                    self.rest_z_ticks += 1
-                    if self.rest_z_ticks >= self.REST_Z_TICKS:
-                        self.state = self.CONTACT_DETECTED
-                        self.settle_counter = 0
-                        self.rest_z_ref = None
-                        self.rest_z_ticks = 0
-                        self.get_logger().info(
-                            f'[{self.robot_name}] 🎯 Altitude static (±{self.REST_Z_BAND*100:.0f} cm '
-                            f'for {self.REST_Z_TICKS/100:.0f} s) — grounded without an impact '
-                            f'spike, switching to compliant mode')
-                        self._apply_soft_landing()
+                # has stayed inside a 1 cm band for 45 s with velocity below
+                # 5 mm/s, we are sitting on the ground even though no impact
+                # spike was (re)detected.
+                if self._rest_window_elapsed():
+                    self.state = self.CONTACT_DETECTED
+                    self.settle_counter = 0
+                    # No _apply_soft_landing() -- already at rest, nothing to
+                    # absorb; snapping legs to the compliant posture was
+                    # itself kicking the robot airborne (see IDLE branch).
+                    self.contact_via_rest = True
+                    self.get_logger().info(
+                        f'[{self.robot_name}] 🎯 Altitude static (±{self.REST_Z_BAND*100:.0f} cm '
+                        f'for {self.REST_Z_TICKS/100:.0f} s) — grounded without an impact '
+                        f'spike, settling in place')
 
         elif self.state == self.CONTACT_DETECTED:
-            # Keep applying soft landing commands
-            self._apply_soft_landing()
+            # Keep applying soft landing commands -- but only for genuine
+            # impact contacts. A rest-path contact (robot already still) must
+            # not touch the legs at all: any posture step at rest is itself a
+            # launch impulse in micro-gravity.
+            if not self.contact_via_rest:
+                self._apply_soft_landing()
             self.settle_counter += 1
 
             # A genuine bounce means we are back in free-fall AND genuinely
@@ -277,20 +351,51 @@ class LandingController(Node):
             self._run_righting_sequence(msg)
 
         elif self.state == self.LANDED:
-            # Stay landed until next jump; after a short pause, fold the legs
-            # up to the neutral stance so the feet stop bearing load and
-            # can't wedge into the terrain (see stand_hip_target note above).
+            # Liftoff watchdog: "landed" must remain true in the physics,
+            # not just the state machine. If the robot is genuinely moving
+            # again (kicked, bounced, disturbed), revert to FLIGHT so
+            # contact detection and downstream consumers re-arm.
+            if self.velocity_mag > self.LIFTOFF_VEL:
+                self.liftoff_counter += 1
+                if self.liftoff_counter >= self.LIFTOFF_TICKS:
+                    self.state = self.FLIGHT
+                    self.liftoff_counter = 0
+                    self.rest_z_ref = None
+                    self.rest_z_ticks = 0
+                    self.get_logger().warn(
+                        f'[{self.robot_name}] ⚠️ Liftoff detected while LANDED '
+                        f'(v={self.velocity_mag:.3f} m/s sustained) → back to FLIGHT')
+                    self.landed_pub.publish(Bool(data=False))
+                    return
+            else:
+                self.liftoff_counter = 0
+
+            # Stay landed until next jump; after a short pause, SLOWLY fold
+            # the legs up to the neutral stance so the feet stop bearing
+            # load and can't wedge into the terrain (see stand_hip_target
+            # and STAND_RAMP_TICKS notes above).
             self.landed_ticks += 1
             if self.landed_ticks == self.STAND_DELAY_TICKS:
                 self.get_logger().info(
                     f'[{self.robot_name}] 🧍 Folding legs to neutral stance '
-                    f'(unload feet, prevent terrain wedge-in)')
+                    f'(ramped over {self.STAND_RAMP_TICKS/100:.0f} s — unload feet, '
+                    f'prevent terrain wedge-in)')
             if self.landed_ticks >= self.STAND_DELAY_TICKS:
+                frac = min(1.0, (self.landed_ticks - self.STAND_DELAY_TICKS)
+                           / self.STAND_RAMP_TICKS)
+                # Anchor the ramp at whatever the legs were actually last
+                # commanded to: the soft posture after an impact landing, or
+                # the flight-retract pose (0,0) after a rest-path landing
+                # where the compliant snap was deliberately skipped.
+                from_hip = 0.0 if self.contact_via_rest else self.soft_hip_target
+                from_knee = 0.0 if self.contact_via_rest else self.soft_knee_target
+                hip = from_hip + frac * (self.stand_hip_target - from_hip)
+                knee = from_knee + frac * (self.stand_knee_target - from_knee)
                 for j, pub in self.joint_pubs.items():
                     if 'hip' in j:
-                        pub.publish(Float64(data=self.stand_hip_target))
+                        pub.publish(Float64(data=hip))
                     elif 'knee' in j:
-                        pub.publish(Float64(data=self.stand_knee_target))
+                        pub.publish(Float64(data=knee))
 
         # Publish landed status
         self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
