@@ -1475,6 +1475,15 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+        <!-- Real joint damping added 2026-07-15: with none, the leg position
+             PIDs behave as near-lossless springs at ground contact, and in
+             micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
+             (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
+             per cycle, impacts too soft for spike detection, too mobile for
+             rest detection). 0.005 N m s/rad dissipates contact energy in a
+             couple of cycles while being ~30x below the 0.134 N m actuator
+             budget at the ~1 rad/s peak speeds of a launch stroke. -->
+        <dynamics><damping>0.005</damping></dynamics>
       </axis>
     </joint>
 
@@ -1609,7 +1618,11 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit><lower>-3.14</lower><upper>3.14</upper></limit>
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
+      <!-- Damping raised 0.00001 -> 0.005 (2026-07-15), same rationale as the
+           hip joint above: dissipate landing-contact energy so micro-gravity
+           touchdowns settle in a couple of bounce cycles instead of ringing
+           near-losslessly for tens of minutes. -->
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.005</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ── LEG 1 ── -->
@@ -1710,6 +1723,15 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+        <!-- Real joint damping added 2026-07-15: with none, the leg position
+             PIDs behave as near-lossless springs at ground contact, and in
+             micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
+             (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
+             per cycle, impacts too soft for spike detection, too mobile for
+             rest detection). 0.005 N m s/rad dissipates contact energy in a
+             couple of cycles while being ~30x below the 0.134 N m actuator
+             budget at the ~1 rad/s peak speeds of a launch stroke. -->
+        <dynamics><damping>0.005</damping></dynamics>
       </axis>
     </joint>
 
@@ -1844,7 +1866,11 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit><lower>-3.14</lower><upper>3.14</upper></limit>
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
+      <!-- Damping raised 0.00001 -> 0.005 (2026-07-15), same rationale as the
+           hip joint above: dissipate landing-contact energy so micro-gravity
+           touchdowns settle in a couple of bounce cycles instead of ringing
+           near-losslessly for tens of minutes. -->
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.005</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ── LEG 2 ── -->
@@ -1945,6 +1971,15 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+        <!-- Real joint damping added 2026-07-15: with none, the leg position
+             PIDs behave as near-lossless springs at ground contact, and in
+             micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
+             (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
+             per cycle, impacts too soft for spike detection, too mobile for
+             rest detection). 0.005 N m s/rad dissipates contact energy in a
+             couple of cycles while being ~30x below the 0.134 N m actuator
+             budget at the ~1 rad/s peak speeds of a launch stroke. -->
+        <dynamics><damping>0.005</damping></dynamics>
       </axis>
     </joint>
 
@@ -2079,7 +2114,11 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit><lower>-3.14</lower><upper>3.14</upper></limit>
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.00001</damping><friction>0.00001</friction></dynamics></axis>
+      <!-- Damping raised 0.00001 -> 0.005 (2026-07-15), same rationale as the
+           hip joint above: dissipate landing-contact energy so micro-gravity
+           touchdowns settle in a couple of bounce cycles instead of ringing
+           near-losslessly for tens of minutes. -->
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.005</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ══════════ JOINT CONTROLLER PLUGINS ══════════ -->

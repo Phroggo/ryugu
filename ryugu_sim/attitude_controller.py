@@ -118,14 +118,36 @@ class AttitudeController(Node):
         self.tau_max = 0.015    # N m, RW motor torque budget (SS3.2)
 
         self.target_yaw = 0.0
-        self.max_rw_speed = 1396.0 # rad/s (H_max = 0.377 Nms / I = 0.00027 kgm^2)
+        # Wheel speed ceiling from the actual motor spec: Maxon EC 20 flat
+        # no-load speed ~9380 rpm = 982 rad/s. (Was 1396 rad/s = 13,330 rpm,
+        # above anything the cited motor can spin -- corrected 2026-07-15 in
+        # the scientific-accuracy pass. H_max = I_w * w_max = 0.00027 * 982
+        # ~= 0.265 N m s, still ~30x the worst-case single-leg launch
+        # momentum of ~0.0084 N m s from Research_Paper.md SS3.2.)
+        self.max_rw_speed = 982.0 # rad/s
         self.in_flight = False
         self.last_imu_time = None
 
         # Wheel acceleration ceiling, conservative vs the physical
-        # tau_max/I_wheel = 55.6 rad/s^2. Applied both to control authority
-        # and to the grounded bleed-down rate.
+        # tau_max/I_wheel = 55.6 rad/s^2.
         self.max_wheel_accel = 50.0 # rad/s^2
+
+        # Grounded tilt-wheel bleed rate. This CANNOT reuse the full control
+        # ceiling: decelerating a wheel dumps its momentum into the body
+        # (tau = I_w * a), and on Ryugu the ground can only absorb torque
+        # through friction of order mu*N*r ~= (1)(2.85e-4 N)(0.2 m) ~=
+        # 5.7e-5 N m. Bleeding at 50 rad/s^2 (tau = 0.0135 N m, ~240x the
+        # friction capacity) simply torqued the whole robot instead: caught
+        # live 2026-07-15 -- every LANDED confirmation was followed ~2 s
+        # later by a 0.04-0.05 m/s liftoff, i.e. the stored x/y wheel
+        # momentum (~0.007 N m s) was slam-dunked into a ~0.5 rad/s body
+        # spin whose leg/ground reaction launched the robot. 0.2 rad/s^2
+        # keeps the bleed reaction torque (5.4e-5 N m) at the friction
+        # capacity, so the ground genuinely absorbs the momentum. Wheels
+        # holding speed for minutes while parked is fine -- they are just
+        # flywheels storing it, exactly as the yaw wheel already does by
+        # design.
+        self.bleed_wheel_accel = 0.2 # rad/s^2
 
         # Attitude deadband (1 deg) + rate deadband. Because this controller
         # integrates torque into wheel speed, ANY persistent unreachable
@@ -160,10 +182,22 @@ class AttitudeController(Node):
         (see git history) -- in_flight was previously set True on launch and
         never reset, so tilt correction ran forever post-landing, fighting
         landing_controller's self-righting. Once grounded, landing_controller
-        owns orientation correction; this controller only holds yaw."""
+        owns orientation correction; this controller only holds yaw.
+
+        Reworked 2026-07-15: /landed is now the single source of truth in
+        BOTH directions. Previously in_flight only armed on jump_initiated,
+        so any unplanned flight (spawn descent, a bounce, the robot getting
+        kicked airborne by a leg maneuver -- all seen live) tumbled with
+        tilt correction disarmed. landed=False while grounded-but-settling
+        just means a little extra stabilization during touchdown, which is
+        harmless (the 1-deg deadband bounds any windup to a few tens of
+        rad/s over a settle window)."""
         if msg.data and self.in_flight:
             self.in_flight = False
             self.get_logger().info(f'[{self.robot_name}] Landed — tilt correction stopped, RWs handed off to yaw-hold only.')
+        elif not msg.data and not self.in_flight:
+            self.in_flight = True
+            self.get_logger().info(f'[{self.robot_name}] Airborne (landed=False) — tilt correction armed.')
 
     def target_yaw_callback(self, msg):
         self.target_yaw = msg.data
@@ -224,14 +258,16 @@ class AttitudeController(Node):
         self.last_imu_time = now
 
         max_delta = self.max_wheel_accel * dt
+        bleed_delta = self.bleed_wheel_accel * dt
         for axis, tau in (('x', tau_x), ('y', tau_y), ('z', tau_z)):
             if tau is None:
-                # Grounded tilt axes: slew the wheel back toward zero speed at
-                # the same physical acceleration ceiling, dumping its stored
-                # momentum into the ground through leg-contact friction. Legs
-                # (not RWs) own ground-contact stability; landing_controller
-                # owns explicit self-righting.
-                delta = -self.cmd_vel[axis]
+                # Grounded tilt axes: bleed the wheel toward zero speed
+                # GENTLY (see bleed_wheel_accel note in __init__ -- the
+                # reaction torque must stay within ground-friction capacity
+                # or the bleed itself kicks the robot back off the surface).
+                # Legs own ground-contact stability; landing_controller owns
+                # explicit self-righting.
+                delta = max(-bleed_delta, min(bleed_delta, -self.cmd_vel[axis]))
             else:
                 # Wheel acceleration that produces the desired body torque:
                 # a_wheel = -tau_body / I_wheel (Newton's third law across
