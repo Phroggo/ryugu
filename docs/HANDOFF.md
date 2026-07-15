@@ -695,9 +695,14 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       paper note (still flagged provisional).
 - [ ] 8. (Carried over) LIDAR decision — no sensor exists in the model; mass table
       lists it as intended hardware. See Guidance §3.
-- [ ] 9. (Carried over) Multi-agent scaling (scout_2/3) — swarm_manager is now much
-      more ready for this (per-agent liveness, auction); spawner + launch file are
-      still hardcoded to scout_1. See Guidance §4.
+- [x] 9. **Multi-agent scaling — ✅ DONE (2026-07-16, `ddab006`, pushed).** All three
+      scouts spawn (8-10 m apart), each gets its own controller trio + bridge, and the
+      swarm manager ran its first genuinely multi-agent allocation on first boot
+      (scout_1 RELAY, scout_2/3 SAMPLER en route to anomalies; dashboard all-ONLINE).
+      One model.sdf serves all three — plugin topics derive from the entity name;
+      odometry frame labels were de-hardcoded. **Watch:** RTF drops to ~58% with 3x
+      physics load; and the mm/s hop weakness (item 2) now applies to every en-route
+      leg, so full mission cycles are slow until item 2 is solved.
 - [ ] 10. Docs: `research_report.md` has a dated addendum covering the liftoff
       campaign and landing-damping saga (added 2026-07-16); once item 2 restores
       strong hops, update `Research_Paper.md` §3.1's "still open" caveat and the
