@@ -15,6 +15,7 @@ every field is a single primitive assignment (GIL-atomic), not a compound
 update that needs a lock.
 """
 import math
+import random
 import threading
 import time
 import tkinter as tk
@@ -35,14 +36,18 @@ ROLE_COLORS = {
     "Unassigned": "#5C6B7A",
 }
 
-# Deep-space / mission-control palette -- near-black with a cyan HUD accent,
-# rather than a generic flat dark-grey theme.
-BG = "#05070c"
-PANEL_BG = "#0d1420"
-PANEL_BORDER = "#1c4d5c"
-FG = "#cfe8f2"
-DIM_FG = "#5c7a8a"
-ACCENT = "#4dd8e6"
+# Deep-space / mission-control palette -- near-black indigo with a cyan HUD
+# accent and a live starfield header (restyled 2026-07-16 per user request:
+# "cleaner and aesthetic, a cool starry theme").
+BG = "#04060f"
+PANEL_BG = "#0a101d"
+PANEL_BORDER = "#234f61"
+SEPARATOR = "#152233"
+FG = "#d7ecf5"
+DIM_FG = "#5f7d8e"
+ACCENT = "#53dcec"
+ACCENT_DIM = "#2a8a9a"
+STAR_COLORS = ["#ffffff", "#cfe8ff", "#9fd8ff", "#ffd9a0", "#e8e8ff"]
 
 # Ubuntu Mono is confirmed installed on this machine and gives the dashboard
 # a "terminal/HUD" feel appropriate for a mission-control-style readout;
@@ -159,26 +164,31 @@ class SwarmGuiNode(Node):
 
 
 class BotPanel(tk.Frame):
-    GYRO_SIZE = 70
+    GYRO_SIZE = 74
 
     def __init__(self, master, agent_name):
-        super().__init__(master, bg=PANEL_BG, padx=8, pady=6,
+        super().__init__(master, bg=PANEL_BG, padx=10, pady=8,
                           highlightbackground=PANEL_BORDER, highlightthickness=1)
         self.agent_name = agent_name
 
         top = tk.Frame(self, bg=PANEL_BG)
         top.pack(fill="x")
-        self.name_label = tk.Label(top, text=agent_name, font=(FONT_MONO, 12, "bold"),
+        tk.Label(top, text="◆", font=(FONT_MONO, 10), bg=PANEL_BG,
+                 fg=ACCENT_DIM).pack(side="left", padx=(0, 4))
+        self.name_label = tk.Label(top, text=agent_name.upper(),
+                                    font=(FONT_MONO, 12, "bold"),
                                     bg=PANEL_BG, fg=FG)
         self.name_label.pack(side="left")
         self.role_badge = tk.Label(top, text="OFFLINE", font=(FONT_MONO, 9, "bold"),
-                                    bg="#2a3a45", fg="white", padx=6, pady=1)
+                                    bg="#2a3a45", fg="white", padx=8, pady=2)
         self.role_badge.pack(side="right")
 
         self.activity_label = tk.Label(self, text="-", font=(FONT_MONO, 9),
                                         bg=PANEL_BG, fg=DIM_FG, anchor="w",
                                         wraplength=200, justify="left")
-        self.activity_label.pack(fill="x", pady=(2, 4))
+        self.activity_label.pack(fill="x", pady=(3, 5))
+
+        tk.Frame(self, height=1, bg=SEPARATOR).pack(fill="x", pady=(0, 6))
 
         mid = tk.Frame(self, bg=PANEL_BG)
         mid.pack(fill="x")
@@ -193,8 +203,8 @@ class BotPanel(tk.Frame):
         right = tk.Frame(mid, bg=PANEL_BG)
         right.pack(side="left", fill="both", expand=True)
 
-        tk.Label(right, text="Battery", font=(FONT_MONO, 8), bg=PANEL_BG, fg=DIM_FG,
-                 anchor="w").pack(fill="x")
+        tk.Label(right, text="BATTERY", font=(FONT_MONO, 8), bg=PANEL_BG,
+                 fg=ACCENT_DIM, anchor="w").pack(fill="x")
         self.battery_canvas = tk.Canvas(right, width=140, height=12, bg="#111",
                                          highlightthickness=0)
         self.battery_canvas.pack(fill="x")
@@ -212,8 +222,9 @@ class BotPanel(tk.Frame):
         self.drill_label.pack(fill="x", pady=(2, 0))
 
         # --- Legs ---
-        tk.Label(self, text="Legs (hip / knee, rad)", font=(FONT_MONO, 8),
-                 bg=PANEL_BG, fg=DIM_FG, anchor="w").pack(fill="x", pady=(6, 0))
+        tk.Frame(self, height=1, bg=SEPARATOR).pack(fill="x", pady=(7, 0))
+        tk.Label(self, text="LEGS · HIP / KNEE (rad)", font=(FONT_MONO, 8),
+                 bg=PANEL_BG, fg=ACCENT_DIM, anchor="w").pack(fill="x", pady=(4, 1))
         legs_frame = tk.Frame(self, bg=PANEL_BG)
         legs_frame.pack(fill="x")
         self.leg_labels = []
@@ -224,8 +235,9 @@ class BotPanel(tk.Frame):
             self.leg_labels.append(lbl)
 
         # --- Reaction wheels ---
-        tk.Label(self, text="Reaction wheels (rad/s)", font=(FONT_MONO, 8),
-                  bg=PANEL_BG, fg=DIM_FG, anchor="w").pack(fill="x", pady=(6, 0))
+        tk.Frame(self, height=1, bg=SEPARATOR).pack(fill="x", pady=(7, 0))
+        tk.Label(self, text="REACTION WHEELS (rad/s)", font=(FONT_MONO, 8),
+                  bg=PANEL_BG, fg=ACCENT_DIM, anchor="w").pack(fill="x", pady=(4, 1))
         rw_frame = tk.Frame(self, bg=PANEL_BG)
         rw_frame.pack(fill="x")
         self.rw_labels = {}
@@ -364,6 +376,64 @@ class BotPanel(tk.Frame):
         c.create_line(cx + 4, cy, cx + 14, cy, fill="#FFEB3B", width=2)
         c.create_oval(cx - 2, cy - 2, cx + 2, cy + 2, fill="#FFEB3B", outline="")
 
+        # Corner tick marks -- subtle HUD framing.
+        t = 7
+        for (x0, y0, dx, dy) in ((1, 1, 1, 1), (size - 2, 1, -1, 1),
+                                 (1, size - 2, 1, -1), (size - 2, size - 2, -1, -1)):
+            c.create_line(x0, y0, x0 + dx * t, y0, fill=ACCENT_DIM)
+            c.create_line(x0, y0, x0, y0 + dy * t, fill=ACCENT_DIM)
+
+
+class StarfieldHeader(tk.Canvas):
+    """Starfield banner with the mission title over it. Stars are seeded
+    once (stable positions across redraws); a handful twinkle on a slow
+    timer. Redraws on resize so the field always fills the width."""
+
+    HEIGHT = 78
+    N_STARS = 110
+
+    def __init__(self, master):
+        super().__init__(master, height=self.HEIGHT, bg=BG,
+                         highlightthickness=0)
+        rng = random.Random(162173)  # asteroid number -- stable star map
+        # (u, v) in [0,1] so stars re-scatter correctly on resize
+        self.stars = [(rng.random(), rng.random(),
+                       rng.choice([1, 1, 1, 2]),  # mostly 1px, some 2px
+                       rng.choice(STAR_COLORS))
+                      for _ in range(self.N_STARS)]
+        self.twinkle_set = set()
+        self.bind("<Configure>", lambda e: self.redraw())
+        self._twinkle()
+
+    def _twinkle(self):
+        rng = random.Random()
+        self.twinkle_set = {rng.randrange(self.N_STARS) for _ in range(10)}
+        self.redraw()
+        self.after(700, self._twinkle)
+
+    def redraw(self):
+        self.delete("all")
+        w = max(self.winfo_width(), 2)
+        h = self.HEIGHT
+        for i, (u, v, r, color) in enumerate(self.stars):
+            x, y = u * w, v * h
+            c = "#3a4a5a" if i in self.twinkle_set else color
+            if r == 1:
+                self.create_rectangle(x, y, x + 1, y + 1, fill=c, outline="")
+            else:
+                self.create_oval(x - 1, y - 1, x + 1, y + 1, fill=c, outline="")
+        # a few slightly brighter "cross" stars for depth
+        for u, v in [(0.12, 0.3), (0.87, 0.62), (0.55, 0.15), (0.33, 0.75)]:
+            x, y = u * w, v * h
+            self.create_line(x - 3, y, x + 3, y, fill="#bfe8ff")
+            self.create_line(x, y - 3, x, y + 3, fill="#bfe8ff")
+        self.create_text(w / 2, h / 2 - 8,
+                         text="✹ 162173 RYUGU — SWARM TELEMETRY ✹",
+                         fill=ACCENT, font=(FONT_MONO, 13, "bold"))
+        self.create_text(w / 2, h / 2 + 12, text="· mission control uplink ·",
+                         fill=DIM_FG, font=(FONT_MONO, 8))
+        self.create_line(0, h - 1, w, h - 1, fill=PANEL_BORDER)
+
 
 class DashboardApp:
     def __init__(self, root, node: SwarmGuiNode):
@@ -372,19 +442,14 @@ class DashboardApp:
         root.title("Ryugu Swarm Dashboard")
         root.configure(bg=BG)
 
-        header = tk.Label(root, text="✹ 162173 RYUGU — SWARM TELEMETRY ✹",
-                           font=(FONT_MONO, 13, "bold"), bg=BG, fg=ACCENT, pady=8)
-        header.pack(fill="x")
-        subheader = tk.Label(root, text="mission control uplink", font=(FONT_MONO, 8),
-                              bg=BG, fg=DIM_FG)
-        subheader.pack(fill="x", pady=(0, 4))
+        StarfieldHeader(root).pack(fill="x")
 
         self.panels = {}
         container = tk.Frame(root, bg=BG)
-        container.pack(fill="both", expand=True, padx=6, pady=4)
+        container.pack(fill="both", expand=True, padx=8, pady=6)
         for agent in AGENTS:
             panel = BotPanel(container, agent)
-            panel.pack(fill="x", pady=4)
+            panel.pack(fill="x", pady=5)
             self.panels[agent] = panel
 
         self._tick()
