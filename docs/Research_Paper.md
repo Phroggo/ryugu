@@ -1,7 +1,7 @@
 # SpaceHopper: A Bio-Inspired Legged Swarm Robot for Microgravity Asteroid Exploration and Sampling
 
 **Abstract**
-*The exploration of low-gravity near-Earth objects (NEOs), such as the C-type asteroid 162173 Ryugu, poses unique traversal and sampling challenges. Traditional wheeled rovers lack sufficient traction in microgravity environments characterized by porous, rubble-pile topography. This paper presents the design and simulation of "SpaceHopper", a 2.5 kg tri-pedal hopping robot equipped with active gyroscopic attitude control. We utilize the Gazebo Harmonic physics engine to accurately simulate a high-fidelity Ryugu environment, validating the robot's locomotion, sampling capabilities, and power constraints under $0.000114 \text{ m/s}^2$ gravity. We demonstrate that combining bio-inspired leg morphology with 3-axis reaction wheels guarantees 100% self-righting probability and robust mobility across chaotic boulder fields.*
+*The exploration of low-gravity near-Earth objects (NEOs), such as the C-type asteroid 162173 Ryugu, poses unique traversal and sampling challenges. Traditional wheeled rovers lack sufficient traction in microgravity environments characterized by porous, rubble-pile topography. This paper presents the design and simulation of "SpaceHopper", a 2.5 kg tri-pedal hopping robot equipped with active gyroscopic attitude control. We utilize the Gazebo Harmonic physics engine to accurately simulate a high-fidelity Ryugu environment, validating the robot's locomotion, sampling capabilities, and power constraints under $0.000114 \text{ m/s}^2$ gravity. We demonstrate that combining bio-inspired leg morphology with 3-axis reaction wheels provides reliable self-righting (verified in live simulation trials, §3.2) and robust mobility across chaotic boulder fields, and we report the micro-gravity ground-contact dynamics — friction-limited launch geometry, phase-lag instability of active landing compliance — that dominated the system's development (§3.1, §3.3).*
 
 ---
 
@@ -321,7 +321,17 @@ Unlike explosive kinetic impactors, the SpaceHopper performs delicate, non-destr
 
 ## 6. Conclusion
 
-The simulated modeling of the SpaceHopper demonstrates that tri-pedal jumping combined with active reaction-wheel stabilization is a robust locomotion strategy for microgravity rubble piles. The over-engineered torque profiles ensure reliable mobility, while the tightly integrated power and communications systems enable extended multi-agent scientific operations on bodies like Asteroid Ryugu.
+The simulated modeling of the SpaceHopper demonstrates that tri-pedal jumping combined with active reaction-wheel stabilization is a viable locomotion strategy for microgravity rubble piles — a full autonomous mission loop (role auction → dispatch → hop → stabilized flight → detected landing → settle → next hop) has been verified end-to-end in a physically faithful Ryugu environment.
+
+The development history yields three findings we consider more valuable than the nominal design margins:
+
+1. **Actuator torque is not the binding constraint in milli-g; contact dynamics are.** The leg motors carry a >60× force margin over the hop requirement, yet liftoff was blocked successively by friction-limited stroke geometry (total foot grip is only $\mu m g \approx 2.9\times10^{-4}$ N — the ground reaction must stay vertical), controller rate limits, and command-arbitration races — never by torque.
+
+2. **Active landing compliance is destabilizing in milli-g.** Three independently implemented compliance schemes (stepped posture, ramped posture, zero-stiffness feedback catch) all *added* energy at contact; delayed feedback around a contact event pumps rebounds rather than damping them. Passive, phase-lag-free dissipation (physical joint damping) resolved what active control could not — at a quantified cost to launch delta-v that constitutes the platform's primary open tuning frontier (§3.3.1), and which motivates series-elastic launch mechanisms in future hardware iterations [2].
+
+3. **In milli-g, every grounded actuator motion is a propulsion event.** Reaction-wheel momentum dumps, posture changes, and stand-up maneuvers all produced unplanned ballistic flight during development. Ground-handling software for such bodies must be designed as a flight-control problem, not a manipulation problem.
+
+The tightly integrated power and communication systems, together with the market-based role-allocation layer (§4.3), enable extended multi-agent scientific operations on bodies like asteroid Ryugu; scaling the verified single-agent loop to the full three-agent swarm is the immediate next milestone.
 
 ## References
 
