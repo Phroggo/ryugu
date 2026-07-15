@@ -279,7 +279,7 @@ joints entirely (zero tracking on any command; suspected integrator/discretizati
 limit in the physics engine's explicit joint-damping handling) and was reverted. The
 quantified tradeoff and candidate directions (intermediate damping sweep,
 contact-surface compliance, series-elastic launch elements as used by spring-loaded
-hoppers [2]) are recorded in `research_report.md` §12.
+hoppers [5]) are recorded in `research_report.md` §12.
 
 ## 4. Power and Communication Systems
 
@@ -327,7 +327,7 @@ The development history yields three findings we consider more valuable than the
 
 1. **Actuator torque is not the binding constraint in milli-g; contact dynamics are.** The leg motors carry a >60× force margin over the hop requirement, yet liftoff was blocked successively by friction-limited stroke geometry (total foot grip is only $\mu m g \approx 2.9\times10^{-4}$ N — the ground reaction must stay vertical), controller rate limits, and command-arbitration races — never by torque.
 
-2. **Active landing compliance is destabilizing in milli-g.** Three independently implemented compliance schemes (stepped posture, ramped posture, zero-stiffness feedback catch) all *added* energy at contact; delayed feedback around a contact event pumps rebounds rather than damping them. Passive, phase-lag-free dissipation (physical joint damping) resolved what active control could not — at a quantified cost to launch delta-v that constitutes the platform's primary open tuning frontier (§3.3.1), and which motivates series-elastic launch mechanisms in future hardware iterations [2].
+2. **Active landing compliance is destabilizing in milli-g.** Three independently implemented compliance schemes (stepped posture, ramped posture, zero-stiffness feedback catch) all *added* energy at contact; delayed feedback around a contact event pumps rebounds rather than damping them. Passive, phase-lag-free dissipation (physical joint damping) resolved what active control could not — at a quantified cost to launch delta-v that constitutes the platform's primary open tuning frontier (§3.3.1), and which motivates series-elastic launch mechanisms in future hardware iterations [5].
 
 3. **In milli-g, every grounded actuator motion is a propulsion event.** Reaction-wheel momentum dumps, posture changes, and stand-up maneuvers all produced unplanned ballistic flight during development. Ground-handling software for such bodies must be designed as a flight-control problem, not a manipulation problem.
 
