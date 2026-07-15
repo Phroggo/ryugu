@@ -47,11 +47,22 @@ class HopperLocomotion(Node):
         # tick() for the geometry derivation from the empirical joint-angle
         # mapping (thigh-from-vertical ~= 0.57 + hip; calf = thigh + 0.8 +
         # knee). Crouch: compressed, feet planted under the body. Extend:
-        # legs nearly straight down, ~0.10 m of vertical stroke.
-        self.CROUCH_HIP = 0.63
-        self.CROUCH_KNEE = -1.65
+        # legs nearly straight down, ~0.11 m of vertical stroke.
+        #
+        # Corrected 2026-07-15 (second revision): the first stroke geometry
+        # (crouch hip 0.63/knee -1.65) put the thighs ~69 deg from vertical,
+        # so the leg force was mostly horizontal -- and at Ryugu weight the
+        # feet's total friction capacity is only u*m*g ~= 2.9e-4 N, so any
+        # horizontal force component makes the feet SLIDE outward instead of
+        # lifting the body (crouch stalled at +3 mm indefinitely, live-
+        # confirmed twice). These targets keep each foot directly under its
+        # hip (zigzag leg: calf angled back inward, foot at r ~= 0.07 m)
+        # through the whole stroke so the ground reaction stays vertical.
+        # Pass tell: the crouch should visibly raise body z by ~0.15-0.2 m.
+        self.CROUCH_HIP = 0.33
+        self.CROUCH_KNEE = -2.60
         self.EXTEND_HIP = -0.42
-        self.EXTEND_KNEE = -0.80
+        self.EXTEND_KNEE = -1.10
 
         # Latest odometry pose, for the in-place set_pose DART-sleep wake
         # (see _wake_model).
