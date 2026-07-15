@@ -159,6 +159,14 @@ To execute a controlled 5-meter high hop to clear boulders:
 - **Force Applied:** If the legs extend by $d = 0.1 \text{ m}$ during takeoff, the total average linear force required is $F = E / d = 0.001425 / 0.1 = \mathbf{0.0142 \text{ N}}$.
 - **Leg Motor Selection:** Maxon RE 13 (Brushed DC) with GP 13 gearheads (1:67 reduction) providing up to **134 mNm** of torque. This provides a massive 62x safety factor against the required jumping torque. This over-engineering is necessary to overcome internal friction, cold-welding in the vacuum of space, and the stiffness of thermal insulation blankets at the joints.
 
+> [!NOTE]
+> **Design point empirically validated 2026-07-15:** the first measured full-stroke
+> liftoff (§12.1) delivered a separation velocity of 0.0398 m/s — the same order as,
+> and comfortably above, the 0.0337 m/s this section derives for a 5 m hop. The 62×
+> torque margin, however, proved to be the *least* binding constraint in practice —
+> liftoff was gated by contact dynamics and command arbitration, never by torque
+> (§12; paper §6, finding 1).
+
 ## 4. Attitude Control & Reaction Wheels
 - **In-flight Stabilization:** The robot utilizes 3 internal Reaction Wheels (RWs) to dynamically stabilize pitch, roll, and yaw mid-flight. 
 - **Hardware:** Maxon EC 20 flat (Brushless DC); datasheet no-load speed ≈9,380 rpm (982 rad/s), nominal torque ≈8.75 mNm, stall ≈25.7 mNm. The simulation's 15 mNm torque budget sits in the intermittent-duty band (between nominal and stall) appropriate for correction burns of a few seconds.
