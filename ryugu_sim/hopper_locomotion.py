@@ -120,7 +120,9 @@ class HopperLocomotion(Node):
         # degenerating into no-ops; cap 1.0 is the physical stroke limit
         # (full stroke is estimated ~0.08 m/s, ~25% of escape velocity, so
         # even the cap is containment-safe).
-        V_FULL = 0.08    # m/s, provisional full-stroke delta-v estimate
+        # Measured 2026-07-15 from the first successful full-stroke liftoff
+        # (frac=1.0 with p=1.0 leg gains): separation velocity 0.0398 m/s.
+        V_FULL = 0.04    # m/s, measured full-stroke delta-v
         self.launch_amplitude = max(0.2, min(1.0, v_req / V_FULL))
 
         self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s. Launch amplitude: {self.launch_amplitude:.2f} rad")

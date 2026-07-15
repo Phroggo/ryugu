@@ -1091,6 +1091,22 @@
       <dimensions>3</dimensions>
     </plugin>
 
+    <!-- Joint-state feedback (added 2026-07-15) for the landing
+         controller's zero-stiffness catch: during ground contact it
+         mirrors measured joint angles back as position targets, so the
+         p=1.0 leg controllers exert ~zero restoring torque and the legs
+         crumple inelastically instead of trampolining the impact energy
+         back (passive restitution with stiff held targets measured at
+         ~0.96 - bounces from a 1.15 m spawn drop did not decay). -->
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <joint_name>hip_joint_0</joint_name>
+      <joint_name>knee_joint_0</joint_name>
+      <joint_name>hip_joint_1</joint_name>
+      <joint_name>knee_joint_1</joint_name>
+      <joint_name>hip_joint_2</joint_name>
+      <joint_name>knee_joint_2</joint_name>
+    </plugin>
+
     <!-- ══════════ SOLAR PANEL ARRAY (fixed to chassis top) ══════════ -->
     <link name="solar_panel">
       <pose>0 0 0.355 0 0 0</pose>
@@ -1483,10 +1499,27 @@
              micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
              (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
              per cycle, impacts too soft for spike detection, too mobile for
-             rest detection). 0.005 N m s/rad dissipates contact energy in a
-             couple of cycles while being ~30x below the 0.134 N m actuator
-             budget at the ~1 rad/s peak speeds of a launch stroke. -->
-        <dynamics><damping>0.005</damping></dynamics>
+             rest detection).
+             Raised 0.005 -> 0.15 on 2026-07-16: with the p=1.0 launch-
+             authority gains, the legs became stiff springs at touchdown and
+             measured contact restitution was ~0.96 (bounces from a 1.15 m
+             drop did not decay; every active-control mitigation - stepped,
+             ramped, or measured-angle-mirroring posture commands - ADDED
+             energy, the last one because bridged joint-state feedback lags
+             and pumps the rebound). Physical damping is phase-perfect by
+             construction. Sizing: effective vertical leg stiffness at
+             p=1.0 is ~48 N/m, so zeta = c_vert/(2*sqrt(k*m)) with
+             c_vert ~= 3*c_joint/r^2 (r~0.25 m) gives zeta ~0.45 and
+             restitution ~0.2 at c_joint = 0.15 N m s/rad -> bounces decay
+             in 2 cycles. DO NOT raise further: p=5.0 + damping=0.4 was
+             tried 2026-07-16 and froze the leg joints entirely (joints
+             pinned at ~0 rad, stand-fold and crouch both produced zero
+             motion, live joint_states-verified) - suspected DART explicit
+             joint-damping discretization limit. p=1.0 + 0.15 is the
+             verified-stable operating point. Launch cost is small because separation joint
+             speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
+             0.134 N m actuator budget. -->
+        <dynamics><damping>0.15</damping></dynamics>
       </axis>
     </joint>
 
@@ -1623,7 +1656,7 @@
            hip joint above: dissipate landing-contact energy so micro-gravity
            touchdowns settle in a couple of bounce cycles instead of ringing
            near-losslessly for tens of minutes. -->
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.005</damping><friction>0.00001</friction></dynamics></axis>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.15</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ── LEG 1 ── -->
@@ -1732,10 +1765,27 @@
              micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
              (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
              per cycle, impacts too soft for spike detection, too mobile for
-             rest detection). 0.005 N m s/rad dissipates contact energy in a
-             couple of cycles while being ~30x below the 0.134 N m actuator
-             budget at the ~1 rad/s peak speeds of a launch stroke. -->
-        <dynamics><damping>0.005</damping></dynamics>
+             rest detection).
+             Raised 0.005 -> 0.15 on 2026-07-16: with the p=1.0 launch-
+             authority gains, the legs became stiff springs at touchdown and
+             measured contact restitution was ~0.96 (bounces from a 1.15 m
+             drop did not decay; every active-control mitigation - stepped,
+             ramped, or measured-angle-mirroring posture commands - ADDED
+             energy, the last one because bridged joint-state feedback lags
+             and pumps the rebound). Physical damping is phase-perfect by
+             construction. Sizing: effective vertical leg stiffness at
+             p=1.0 is ~48 N/m, so zeta = c_vert/(2*sqrt(k*m)) with
+             c_vert ~= 3*c_joint/r^2 (r~0.25 m) gives zeta ~0.45 and
+             restitution ~0.2 at c_joint = 0.15 N m s/rad -> bounces decay
+             in 2 cycles. DO NOT raise further: p=5.0 + damping=0.4 was
+             tried 2026-07-16 and froze the leg joints entirely (joints
+             pinned at ~0 rad, stand-fold and crouch both produced zero
+             motion, live joint_states-verified) - suspected DART explicit
+             joint-damping discretization limit. p=1.0 + 0.15 is the
+             verified-stable operating point. Launch cost is small because separation joint
+             speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
+             0.134 N m actuator budget. -->
+        <dynamics><damping>0.15</damping></dynamics>
       </axis>
     </joint>
 
@@ -1872,7 +1922,7 @@
            hip joint above: dissipate landing-contact energy so micro-gravity
            touchdowns settle in a couple of bounce cycles instead of ringing
            near-losslessly for tens of minutes. -->
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.005</damping><friction>0.00001</friction></dynamics></axis>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.15</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ── LEG 2 ── -->
@@ -1981,10 +2031,27 @@
              micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
              (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
              per cycle, impacts too soft for spike detection, too mobile for
-             rest detection). 0.005 N m s/rad dissipates contact energy in a
-             couple of cycles while being ~30x below the 0.134 N m actuator
-             budget at the ~1 rad/s peak speeds of a launch stroke. -->
-        <dynamics><damping>0.005</damping></dynamics>
+             rest detection).
+             Raised 0.005 -> 0.15 on 2026-07-16: with the p=1.0 launch-
+             authority gains, the legs became stiff springs at touchdown and
+             measured contact restitution was ~0.96 (bounces from a 1.15 m
+             drop did not decay; every active-control mitigation - stepped,
+             ramped, or measured-angle-mirroring posture commands - ADDED
+             energy, the last one because bridged joint-state feedback lags
+             and pumps the rebound). Physical damping is phase-perfect by
+             construction. Sizing: effective vertical leg stiffness at
+             p=1.0 is ~48 N/m, so zeta = c_vert/(2*sqrt(k*m)) with
+             c_vert ~= 3*c_joint/r^2 (r~0.25 m) gives zeta ~0.45 and
+             restitution ~0.2 at c_joint = 0.15 N m s/rad -> bounces decay
+             in 2 cycles. DO NOT raise further: p=5.0 + damping=0.4 was
+             tried 2026-07-16 and froze the leg joints entirely (joints
+             pinned at ~0 rad, stand-fold and crouch both produced zero
+             motion, live joint_states-verified) - suspected DART explicit
+             joint-damping discretization limit. p=1.0 + 0.15 is the
+             verified-stable operating point. Launch cost is small because separation joint
+             speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
+             0.134 N m actuator budget. -->
+        <dynamics><damping>0.15</damping></dynamics>
       </axis>
     </joint>
 
@@ -2121,7 +2188,7 @@
            hip joint above: dissipate landing-contact energy so micro-gravity
            touchdowns settle in a couple of bounce cycles instead of ringing
            near-losslessly for tens of minutes. -->
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.005</damping><friction>0.00001</friction></dynamics></axis>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.15</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ══════════ JOINT CONTROLLER PLUGINS ══════════ -->
