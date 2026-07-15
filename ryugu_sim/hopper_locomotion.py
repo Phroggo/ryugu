@@ -196,7 +196,17 @@ class HopperLocomotion(Node):
                 # asymmetric forward-lean crouch swept the feet sideways
                 # under the body at launch -- a scoop, not a downward press
                 # -- and delivered ~zero net impulse.)
-                self.set_joints(self.CROUCH_HIP, self.CROUCH_KNEE)
+            # Re-assert the crouch targets EVERY tick, not just once (found
+            # 2026-07-15, fourth session): landing_controller's stand-up
+            # ramp publishes to the same joint topics at ~100 Hz, and a
+            # freshly-landed robot can receive a jump command while that
+            # ramp is still running -- a single one-shot crouch publication
+            # is overwritten within ~10 ms and the legs launch from the
+            # stand pose instead of the crouch (observed live: IGNITION
+            # from an un-crouched stance, ~zero impulse). Last-write-wins
+            # at the joint controller, so the active state machine must
+            # keep asserting its targets for as long as it owns the legs.
+            self.set_joints(self.CROUCH_HIP, self.CROUCH_KNEE)
             self.state_timer += 1
             # 10 s crouch (was 2 s): standing the 2.5 kg body up from belly-
             # rest onto planted feet at the leg PIDs' soft forces (~0.2 N
@@ -223,10 +233,12 @@ class HopperLocomotion(Node):
                 # distance. The previous delta scheme swept the feet inward
                 # PAST vertical (a sideways scoop) and delivered ~zero
                 # impulse -- direction, not magnitude, was the flaw.
-                frac = self.launch_amplitude
-                hip = self.CROUCH_HIP + frac * (self.EXTEND_HIP - self.CROUCH_HIP)
-                knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
-                self.set_joints(hip, knee)
+            # Re-assert every tick for the same last-write-wins reason as
+            # the CROUCH block above.
+            frac = self.launch_amplitude
+            hip = self.CROUCH_HIP + frac * (self.EXTEND_HIP - self.CROUCH_HIP)
+            knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
+            self.set_joints(hip, knee)
 
             self.state_timer += 1
             # 1.0 s launch window: extending the loaded stroke through its

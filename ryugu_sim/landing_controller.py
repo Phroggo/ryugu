@@ -304,7 +304,10 @@ class LandingController(Node):
                 self.get_logger().info(
                     f'[{self.robot_name}] 🎯 Contact detected! '
                     f'accel={accel_mag:.4f} m/s² → Switching to compliant mode')
-                self._apply_soft_landing()
+                # frac=0 == the flight-retract pose; the CONTACT_DETECTED
+                # state ramps it up over ~2s from the next tick. A full-step
+                # apply here was the pogo kick (see _apply_soft_landing).
+                self._apply_soft_landing(0.0)
             else:
                 # Fallback for the resting-reads-as-free-fall trap (see the
                 # bounce_velocity_threshold note in __init__): if altitude
@@ -329,7 +332,8 @@ class LandingController(Node):
             # not touch the legs at all: any posture step at rest is itself a
             # launch impulse in micro-gravity.
             if not self.contact_via_rest:
-                self._apply_soft_landing()
+                # ~2 s ramp (100 Hz ticks) — see _apply_soft_landing.
+                self._apply_soft_landing(min(1.0, self.settle_counter / 200.0))
             self.settle_counter += 1
 
             # A genuine bounce means we are back in free-fall AND genuinely
@@ -405,7 +409,18 @@ class LandingController(Node):
                     f'[{self.robot_name}] 🧍 Folding legs to neutral stance '
                     f'(ramped over {self.STAND_RAMP_TICKS/100:.0f} s — unload feet, '
                     f'prevent terrain wedge-in)')
-            if self.landed_ticks >= self.STAND_DELAY_TICKS:
+            # Publish ONLY through the ramp, then go silent (position
+            # controllers hold the last target on their own). Found
+            # 2026-07-15: this block runs in the ~100 Hz IMU callback, and
+            # publishing the final stand pose forever after the ramp
+            # completed steamrolled every leg command hopper_locomotion sent
+            # (one-shot crouch/launch targets were overridden within ~10 ms
+            # -- gz-side echo showed a continuous 0.9 flood). This single
+            # override explains every "crouch stalls at millimetres" test
+            # failure across three sessions; the friction/geometry theories
+            # were secondary to it.
+            if self.STAND_DELAY_TICKS <= self.landed_ticks \
+                    <= self.STAND_DELAY_TICKS + self.STAND_RAMP_TICKS:
                 frac = min(1.0, (self.landed_ticks - self.STAND_DELAY_TICKS)
                            / self.STAND_RAMP_TICKS)
                 # Anchor the ramp at whatever the legs were actually last
@@ -490,13 +505,23 @@ class LandingController(Node):
                         f'(attempt {self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS}, '
                         f'lead leg {self.righting_attempt % 3})')
 
-    def _apply_soft_landing(self):
-        """Command joints to a compliant spring-damper posture."""
+    def _apply_soft_landing(self, frac=1.0):
+        """Command joints toward the compliant posture, ramped by frac.
+
+        frac ramps 0->1 over the first ~2s of contact (anchored at the
+        flight-retract pose (0,0), so frac*target IS the ramp). Added
+        2026-07-15 after raising the leg PID gains for launch authority
+        (p 0.05->1.0): the old step command from (0,0) to the soft posture
+        whipped the now-stiff legs against the ground at every impact,
+        kicking the robot 0.7-0.9 m back up in a non-decaying pogo loop
+        (observed live: bounce apexes 5.66/5.75/5.74 m, energy being ADDED
+        each contact). Same class of bug as the stand-up-ramp fix -- in
+        micro-gravity every leg posture step IS a launch impulse."""
         for j, pub in self.joint_pubs.items():
             if 'hip' in j:
-                pub.publish(Float64(data=self.soft_hip_target))
+                pub.publish(Float64(data=frac * self.soft_hip_target))
             elif 'knee' in j:
-                pub.publish(Float64(data=self.soft_knee_target))
+                pub.publish(Float64(data=frac * self.soft_knee_target))
 
     def log_status(self):
         state_name = self.STATE_NAMES.get(self.state, "UNKNOWN")
