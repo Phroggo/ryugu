@@ -25,18 +25,26 @@ class HopperLocomotion(Node):
         # recovery hops).
         self.launch_amplitude = 1.0
 
-        # Idle-on-ground self-recovery: if landed with no jump command for this
-        # many ticks (10Hz -> 300 ticks = 30s), self-initiate a small hop via
-        # legs rather than sitting dead. 30s comfortably exceeds a SAMPLER's
-        # typical drill/retract dwell (~4-6s across two 2s swarm_tick cycles),
-        # so it won't interrupt drilling; it's a fallback for a SCOUT that
-        # never rolls an anomaly and would otherwise idle forever. Known
-        # simplification: this doesn't check battery/RECHARGE role (hopper
-        # has no visibility into swarm_manager state), so a RECHARGE-role
-        # agent could still get a small recovery nudge if idle that long.
+        # Idle-on-ground self-recovery: if landed with no jump command for
+        # this many ticks (10Hz -> 3000 ticks = 5 min), self-initiate a small
+        # hop via legs rather than sitting dead. Raised from 30s on
+        # 2026-07-15: landing settle alone takes ~45-50s in micro-gravity
+        # (rest-detection window + settle confirmation), so a 30s timer kept
+        # expiring while the rest of the stack was still mid-cycle and
+        # repeatedly kicked the robot between normal mission commands. 5 min
+        # is still a useful unstick fallback but comfortably exceeds every
+        # normal land->decide->dispatch cycle. Known simplification: this
+        # doesn't check battery/RECHARGE role (hopper has no visibility into
+        # swarm_manager state), so a RECHARGE-role agent could still get a
+        # small recovery nudge if idle that long.
         self.idle_ticks = 0
-        self.IDLE_RECOVERY_TICKS = 300
+        self.IDLE_RECOVERY_TICKS = 3000
         self.RECOVERY_AMPLITUDE = 0.5
+        # Only count idle time toward a recovery hop while actually landed --
+        # a freshly-(re)started node, or one whose robot is mid-flight,
+        # shouldn't self-fire a hop just because its own uptime passed the
+        # threshold (added 2026-07-15 after exactly that happened live).
+        self.landed = False
         
         # Publishers for Joint Position Controllers
         self.joints = ['hip_joint_0', 'knee_joint_0', 'hip_joint_1', 'knee_joint_1', 'hip_joint_2', 'knee_joint_2']
@@ -57,6 +65,7 @@ class HopperLocomotion(Node):
         self.timer = self.create_timer(0.1, self.tick)
 
     def landed_callback(self, msg):
+        self.landed = msg.data
         if msg.data and self.state == self.FLIGHT:
             self.get_logger().info(f"[{self.robot_name}] Landing controller reported LANDED. Settling to IDLE.")
             self.state = self.IDLE
@@ -100,6 +109,8 @@ class HopperLocomotion(Node):
 
     def tick(self):
         if self.state == self.IDLE:
+            if not self.landed:
+                return
             self.idle_ticks += 1
             if self.idle_ticks >= self.IDLE_RECOVERY_TICKS:
                 self.get_logger().info(
