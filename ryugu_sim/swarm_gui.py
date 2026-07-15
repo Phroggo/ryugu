@@ -319,8 +319,11 @@ class BotPanel(tk.Frame):
         else:
             self.power_rate_label.config(text="- %/tick", fg=DIM_FG)
 
-        # RW speed bars (scale against the 1396 rad/s saturation limit)
-        max_rw = 1396.0
+        # RW speed bars (scale against the 982 rad/s clamp — the EC 20 flat
+        # no-load speed; the controller's clamp was corrected 1396 → 982 in
+        # the 2026-07-15 scientific-accuracy pass and this display scale
+        # was updated to match on 2026-07-16)
+        max_rw = 982.0
         for axis in ['x', 'y', 'z']:
             canvas = self.rw_labels[axis]
             canvas.delete("all")

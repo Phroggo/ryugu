@@ -509,7 +509,7 @@ instead of publishing a stale state forever).
   (10⁻⁵ N·m·s/rad), the leg position-PIDs act as almost-lossless springs: a 3–5 mm/s
   touchdown bounced for tens of minutes (z oscillating 4.81–4.99 m, ~2% energy loss
   per cycle) — too soft for spike detection, too mobile for the rest window. Joint
-  damping raised to 5×10⁻³ N·m·s/rad in the model (still ~30× below the 134 mNm
+  damping raised to 5×10⁻³ N·m·s/rad in the model (later raised again to 0.15 for impact dissipation — see §12.2–12.3 for why and what it costs; still below the 134 mNm
   actuator budget at launch-stroke speeds), dissipating contact energy in a couple
   of cycles. This is the physically-honest fix — real legged landers land on damped,
   compliant joints, not ideal springs.
