@@ -104,7 +104,9 @@ guarantee.
 margin above, an invisible world-boundary structure (four walls plus a ceiling, all
 collision-only — no visual geometry, so nothing renders) was added enclosing the full
 100×100m modeled terrain, with a ceiling at 100m altitude — more than $17\times$ the
-largest jump apex observed in live testing (~5.6m). This guarantees containment via
+largest *commanded*-jump apex observed in live testing (~5.6m; later pogo-bounce
+episodes during the 2026-07-16 landing-dissipation work briefly reached ~10.3m —
+still >9x under the ceiling, and that failure mode is now fixed, see SS12.2). This guarantees containment via
 genuine physics collision response regardless of how any given launch impulse is
 calibrated, both against exceeding escape velocity vertically and against drifting
 horizontally past the edge of the modeled terrain (which is only 100×100m — a bot
