@@ -81,17 +81,20 @@ class HopperLocomotion(Node):
         g = 0.000114 # Ryugu gravity
         v_req = math.sqrt(max(distance, 0.0) * g)
 
-        # Scale launch amplitude around the reference calibration point: a 5m
-        # target at full +/-1.0 rad amplitude (0.2s) was verified to reach
-        # apex ~5.57m (see HANDOFF.md). Previously v_req was computed and
-        # logged but never actually used -- every jump fired an identical
-        # fixed impulse regardless of requested distance. Clamped to
-        # [0.3, 2.5] rad: floor keeps short hops from failing to lift off,
-        # ceiling stays well inside the +/-3.14 rad joint limit and avoids
-        # slamming the controller's torque cap on long-distance requests.
-        v_ref = math.sqrt(5.0 * g)
-        scale = (v_req / v_ref) if v_ref > 0 else 1.0
-        self.launch_amplitude = max(0.3, min(2.5, scale))
+        # Scale launch amplitude around a measured calibration point.
+        # Recalibrated 2026-07-15: the old reference ("5m at 1.0 rad, apex
+        # 5.57m") predates the delta-based launch stroke and no longer
+        # holds. Measured live with the delta scheme: amplitude 0.77 rad
+        # delivered ~0.008 m/s of takeoff delta-v (position-PID thrust
+        # self-terminates when the leg reaches its target, so delivered
+        # impulse scales ~linearly with amplitude, NOT with the launch
+        # window). Clamped to [0.3, 2.5] rad: floor keeps short hops from
+        # degenerating, ceiling stays inside the +/-3.14 rad joint limit --
+        # at the ceiling a single hop covers roughly v^2/g ~= 6m, so longer
+        # dispatches rely on swarm_manager's corrective re-hop chaining.
+        AMP_CAL = 0.77   # rad
+        V_CAL = 0.008    # m/s measured at AMP_CAL
+        self.launch_amplitude = max(0.3, min(2.5, AMP_CAL * v_req / V_CAL))
 
         self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s. Launch amplitude: {self.launch_amplitude:.2f} rad")
         self.get_logger().info(f"[{self.robot_name}] Initiating Tri-Pedal Jump Sequence!")
@@ -164,7 +167,17 @@ class HopperLocomotion(Node):
                 self.pubs['knee_joint_2'].publish(Float64(data=-0.2 + self.launch_amplitude))
 
             self.state_timer += 1
-            if self.state_timer >= 2: # 0.2 seconds (2 * 0.1s tick)
+            # Launch window lengthened 0.2s -> 0.5s (2026-07-15). With the
+            # delta-based stroke, thrust force comes from position-PID
+            # tracking error (F ~ p_gain * amplitude / leg_length ~ 0.13 N
+            # at 0.77 rad), so the delivered impulse is F * contact_time.
+            # At 0.2s the measured delta-v was ~8 mm/s vs the 18.5 mm/s a
+            # 3 m hop needs -- the retraction was cutting the push short
+            # (verified live: legs moved cleanly, zero liftoff). 0.5s gives
+            # ~0.026 m/s of impulse authority at the same force. Pushing
+            # "too long" is harmless in micro-gravity: once the feet leave
+            # the ground there is no contact force left to apply.
+            if self.state_timer >= 5: # 0.5 seconds (5 * 0.1s tick)
                 self.get_logger().info("3. Retracting for Landing Phase (FLIGHT Mode)")
                 self.set_joints(0.0, 0.0)
                 self.state = self.FLIGHT
