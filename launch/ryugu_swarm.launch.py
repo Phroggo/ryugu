@@ -63,8 +63,10 @@ def generate_launch_description():
 
     nodes = [gazebo, spawner, swarm_manager, swarm_gui, layout_windows]
     
-    # Add Locomotion, Attitude, Landing Controller, and Bridge for a single agent
-    for agent in ["scout_1"]:
+    # Locomotion, Attitude, Landing Controller, and Bridge per agent
+    # (scaled to the full 3-bot swarm 2026-07-16 -- keep in sync with
+    # spawner.py's AGENTS list and swarm_manager.py's self.agents)
+    for agent in ["scout_1", "scout_2", "scout_3"]:
         nodes.append(Node(
             package='ryugu_sim',
             executable='hopper_locomotion',

@@ -3,8 +3,16 @@ import subprocess
 import time
 import os
 
+# Full 3-bot swarm (scaled up 2026-07-16; previously scout_1 only). Spawn
+# points spread ~8-10 m apart so descent drift can't collide them, all at
+# z=6 above local terrain (~4.8) for the standard settle-in descent. One
+# spacehopper SDF serves all three: every plugin topic (joint controllers,
+# odometry, joint_state, IMU) derives from the spawned ENTITY name at
+# runtime, not from anything baked into model.sdf.
 AGENTS = [
-    ("scout_1", 0.0, 0.5, 6.0)
+    ("scout_1", 0.0, 0.5, 6.0),
+    ("scout_2", 8.0, -5.0, 6.0),
+    ("scout_3", -8.0, -5.0, 6.0),
 ]
 
 def main():

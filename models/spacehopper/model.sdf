@@ -1085,8 +1085,12 @@
          when computing distance/yaw to a target, and why monitor_height.py/
          monitor_joints.py (which expect this) were dead code. -->
     <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
-      <odom_frame>scout_1/odom</odom_frame>
-      <robot_base_frame>scout_1</robot_base_frame>
+      <!-- Generic frame labels (was scout_1/... - cosmetic strings in the
+           odometry message header; nothing consumes TF frames in this
+           project, and the TOPIC is derived from the spawned entity name at
+           runtime, so one model.sdf serves all three scouts). -->
+      <odom_frame>spacehopper/odom</odom_frame>
+      <robot_base_frame>spacehopper/base</robot_base_frame>
       <odom_publish_frequency>20</odom_publish_frequency>
       <dimensions>3</dimensions>
     </plugin>
