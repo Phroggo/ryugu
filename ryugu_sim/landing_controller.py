@@ -101,6 +101,18 @@ class LandingController(Node):
         self.REST_Z_BAND = 0.02        # m
         self.REST_Z_TICKS = 6000       # ~60 s @ 100 Hz IMU
         self.REST_VEL_MAX = 0.005      # m/s
+        # Velocity-only fallback path for the rest detector. Live deadlock
+        # found 2026-07-15: while unconfirmed, the attitude controller's
+        # grounded tilt-pump reaction (right at ground-friction capacity)
+        # rocks the body a couple of cm, which resets the z-band forever --
+        # tilt control prevents the very confirmation that would disarm
+        # tilt control. |v| < 5 mm/s sustained for 120 s confirms grounding
+        # on its own: a pure-vertical ballistic apex only satisfies the
+        # velocity gate for 2*v_gate/g ~= 88 s, so 120 s cannot false-fire
+        # in genuine flight (and any hop with a horizontal component never
+        # satisfies it at all).
+        self.rest_vel_ticks = 0
+        self.REST_VEL_TICKS = 12000    # ~120 s @ 100 Hz IMU
 
         # Soft landing joint targets (slight crouch to absorb impact)
         self.soft_hip_target = 0.3    # gentle splay
@@ -209,6 +221,18 @@ class LandingController(Node):
         False) whenever either condition breaks. See the apex-dwell safety
         analysis in __init__ for why the band/velocity/duration values are
         what they are."""
+        # Velocity-only path (see REST_VEL_TICKS note in __init__).
+        if self.velocity_mag > self.REST_VEL_MAX:
+            self.rest_vel_ticks = 0
+        else:
+            self.rest_vel_ticks += 1
+            if self.rest_vel_ticks >= self.REST_VEL_TICKS:
+                self.rest_vel_ticks = 0
+                self.rest_z_ref = None
+                self.rest_z_ticks = 0
+                return True
+
+        # Combined z-band + velocity path (faster, 60 s).
         if (self.rest_z_ref is None
                 or abs(self.pos_z - self.rest_z_ref) > self.REST_Z_BAND
                 or self.velocity_mag > self.REST_VEL_MAX):
@@ -219,6 +243,7 @@ class LandingController(Node):
         if self.rest_z_ticks >= self.REST_Z_TICKS:
             self.rest_z_ref = None
             self.rest_z_ticks = 0
+            self.rest_vel_ticks = 0
             return True
         return False
 

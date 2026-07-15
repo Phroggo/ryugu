@@ -1463,10 +1463,13 @@
         <cast_shadows>false</cast_shadows>
         <visualize>false</visualize>
       </light>
-      <collision name="collision">
-        <pose>0 0 0.075 0 0 0</pose>
-        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
-      </collision>
+      <!-- Thigh collision removed 2026-07-15: foot-only ground contact
+           (standard legged-sim practice). The thin thigh/calf cylinder
+           collisions catching in heightmap crevices were the root cause of
+           the recurring "wedge-in" jam - legs pinned so hard the 0.134 Nm
+           actuators could not move them at all, silently zeroing all jump
+           thrust. Stance loads go through the foot spheres; the chassis
+           box still protects the body. -->
     </link>
     <joint name="hip_joint_0" type="revolute">
       <parent>base_link</parent>
@@ -1573,7 +1576,7 @@
       <!-- Foot pad -->
       <visual name="foot_0">
         <pose>0 0 0.15 0 0 0</pose>
-        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
         <material>
           <ambient>0.4 0.41 0.43 1</ambient>
           <diffuse>0.4 0.41 0.43 1</diffuse>
@@ -1602,13 +1605,11 @@
           </pbr>
         </material>
       </visual>
-      <collision name="collision">
-        <pose>0 0 0.075 0 0 0</pose>
-        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
-      </collision>
+      <!-- Calf cylinder collision removed 2026-07-15 (see thigh note):
+           foot-only ground contact eliminates the wedge-in jam class. -->
       <collision name="foot_collision">
         <pose>0 0 0.15 0 0 0</pose>
-        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
       </collision>
     </link>
     <joint name="knee_joint_0" type="revolute">
@@ -1711,10 +1712,13 @@
         <cast_shadows>false</cast_shadows>
         <visualize>false</visualize>
       </light>
-      <collision name="collision">
-        <pose>0 0 0.075 0 0 0</pose>
-        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
-      </collision>
+      <!-- Thigh collision removed 2026-07-15: foot-only ground contact
+           (standard legged-sim practice). The thin thigh/calf cylinder
+           collisions catching in heightmap crevices were the root cause of
+           the recurring "wedge-in" jam - legs pinned so hard the 0.134 Nm
+           actuators could not move them at all, silently zeroing all jump
+           thrust. Stance loads go through the foot spheres; the chassis
+           box still protects the body. -->
     </link>
     <joint name="hip_joint_1" type="revolute">
       <parent>base_link</parent>
@@ -1821,7 +1825,7 @@
       <!-- Foot pad -->
       <visual name="foot_1">
         <pose>0 0 0.15 0 0 0</pose>
-        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
         <material>
           <ambient>0.4 0.41 0.43 1</ambient>
           <diffuse>0.4 0.41 0.43 1</diffuse>
@@ -1850,13 +1854,11 @@
           </pbr>
         </material>
       </visual>
-      <collision name="collision">
-        <pose>0 0 0.075 0 0 0</pose>
-        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
-      </collision>
+      <!-- Calf cylinder collision removed 2026-07-15 (see thigh note):
+           foot-only ground contact eliminates the wedge-in jam class. -->
       <collision name="foot_collision">
         <pose>0 0 0.15 0 0 0</pose>
-        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
       </collision>
     </link>
     <joint name="knee_joint_1" type="revolute">
@@ -1959,10 +1961,13 @@
         <cast_shadows>false</cast_shadows>
         <visualize>false</visualize>
       </light>
-      <collision name="collision">
-        <pose>0 0 0.075 0 0 0</pose>
-        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
-      </collision>
+      <!-- Thigh collision removed 2026-07-15: foot-only ground contact
+           (standard legged-sim practice). The thin thigh/calf cylinder
+           collisions catching in heightmap crevices were the root cause of
+           the recurring "wedge-in" jam - legs pinned so hard the 0.134 Nm
+           actuators could not move them at all, silently zeroing all jump
+           thrust. Stance loads go through the foot spheres; the chassis
+           box still protects the body. -->
     </link>
     <joint name="hip_joint_2" type="revolute">
       <parent>base_link</parent>
@@ -2069,7 +2074,7 @@
       <!-- Foot pad -->
       <visual name="foot_2">
         <pose>0 0 0.15 0 0 0</pose>
-        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
         <material>
           <ambient>0.4 0.41 0.43 1</ambient>
           <diffuse>0.4 0.41 0.43 1</diffuse>
@@ -2098,13 +2103,11 @@
           </pbr>
         </material>
       </visual>
-      <collision name="collision">
-        <pose>0 0 0.075 0 0 0</pose>
-        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
-      </collision>
+      <!-- Calf cylinder collision removed 2026-07-15 (see thigh note):
+           foot-only ground contact eliminates the wedge-in jam class. -->
       <collision name="foot_collision">
         <pose>0 0 0.15 0 0 0</pose>
-        <geometry><sphere><radius>0.02</radius></sphere></geometry>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
       </collision>
     </link>
     <joint name="knee_joint_2" type="revolute">
