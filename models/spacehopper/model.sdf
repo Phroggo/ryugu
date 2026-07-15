@@ -2127,32 +2127,104 @@
     <!-- ══════════ JOINT CONTROLLER PLUGINS ══════════ -->
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>hip_joint_0</joint_name>
-      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
       <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
     </plugin>
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>knee_joint_0</joint_name>
-      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
       <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
     </plugin>
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>hip_joint_1</joint_name>
-      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
       <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
     </plugin>
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>knee_joint_1</joint_name>
-      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
       <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
     </plugin>
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>hip_joint_2</joint_name>
-      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
       <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
     </plugin>
     <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
       <joint_name>knee_joint_2</joint_name>
-      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0.01</d_gain>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
       <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
     </plugin>
     <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
