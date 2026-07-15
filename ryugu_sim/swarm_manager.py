@@ -80,7 +80,10 @@ class SwarmManager(Node):
         self.get_logger().info("🧠 Ryugu Homogeneous Swarm Manager: ONLINE")
         self.metrics = MetricsLogger()
         
-        self.agents = ["scout_1"]
+        # Full 3-bot swarm (2026-07-16). All downstream state/publishers/
+        # subscriptions are already per-agent-keyed; the auction, liveness
+        # watchdog, and task-requeue logic were built for N agents.
+        self.agents = ["scout_1", "scout_2", "scout_3"]
         self.state = {
             agent: {
                 "role": "Unassigned",
