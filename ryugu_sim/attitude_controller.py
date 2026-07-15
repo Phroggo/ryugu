@@ -68,37 +68,87 @@ class AttitudeController(Node):
         # was pure added windup/overshoot risk for no benefit -- this also
         # removes the manual integral-reset-on-landing workaround the
         # previous fix needed.
-        self.Kp_tilt = 300.0
-        self.Kd_tilt = 60.0
-        self.Kp_yaw = 300.0
-        self.Kd_yaw = 60.0
+        #
+        # Rewritten AGAIN 2026-07-15 (torque-based momentum pumping). The
+        # previous law commanded wheel VELOCITY proportional to attitude
+        # error (cmd = -Kp*err + Kd*w, Kp=300/Kd=60) with a 50 rad/s^2 slew
+        # limiter. Two structural problems, both confirmed with live
+        # telemetry:
+        #
+        #  (1) A reaction wheel only exchanges angular momentum with the
+        #      body while it ACCELERATES (tau_body = -I_w * dw_wheel/dt).
+        #      Once the wheel reaches its commanded speed, torque stops.
+        #      Caught live: robot sitting still on the ground with a steady
+        #      0.42 rad yaw error, cmd_z pinned at ~126.7 rad/s (=300*0.42),
+        #      wheel happily spinning at that speed, ZERO torque flowing,
+        #      error never decreasing. In flight the same structure leaves a
+        #      residual spin: momentum conservation gives an equilibrium at
+        #      w_body = L0 / (I_body + I_wheel*Kd) != 0 -- the measured
+        #      persistent -1..-2.3 rad/s yaw spin, matching L0 from the
+        #      launch torque impulse.
+        #
+        #  (2) For yaw specifically, the error wraps at +/-pi. With Kp=300 a
+        #      spinning body turns the velocity target into a +/-942 rad/s
+        #      sawtooth that a 50 rad/s^2 slew-limited command can never
+        #      track; the slew direction dithers with near-zero mean, so net
+        #      momentum transfer stalls entirely.
+        #
+        # Correct structure (standard RW attitude control, e.g. Sidi 1997
+        # ch. 7): PD law on attitude produces a desired BODY torque, clipped
+        # to the physical wheel-motor budget (0.015 Nm, Maxon EC20 spec per
+        # Research_Paper.md SS3.2); wheel acceleration = -tau/I_w; integrate
+        # that into the wheel velocity command. Momentum keeps flowing until
+        # both rate AND angle error are nulled -- the wheel ends at whatever
+        # speed absorbs the disturbance momentum, not at a speed proportional
+        # to the remaining error.
+        #
+        # Gain sizing (vs. whole-robot inertia ~0.025 kg m^2 about z: base
+        # 0.009 + legs ~0.012 + panel 0.0008 + wheels ~0.0006 + drill):
+        #   w_n = sqrt(K_ang/I) = sqrt(0.02/0.025) ~= 0.89 rad/s
+        #   zeta = K_rate / (2*sqrt(K_ang*I)) ~= 1.12  (overdamped -> no
+        #   oscillation, per explicit tuning requirement)
+        # Torque saturates for |w| > 0.3 rad/s (rate-kill at full torque,
+        # ~0.6 rad/s^2 body decel) and for angle errors > 0.75 rad; inside
+        # those bounds the loop is smooth and overdamped. A hop's coast
+        # phase lasts minutes at Ryugu gravity, so a ~5 s convergence is
+        # comfortably fast.
+        self.K_ang = 0.02   # N m / rad      (attitude stiffness)
+        self.K_rate = 0.05  # N m / (rad/s)  (rate damping)
+        self.I_wheel = 0.00027  # kg m^2, RW spin-axis inertia (model.sdf)
+        self.tau_max = 0.015    # N m, RW motor torque budget (SS3.2)
 
         self.target_yaw = 0.0
         self.max_rw_speed = 1396.0 # rad/s (H_max = 0.377 Nms / I = 0.00027 kgm^2)
         self.in_flight = False
         self.last_imu_time = None
 
-        # Found 2026-07-15 (live telemetry: /scout_1/rw_y_joint_cmd_vel swinging
-        # -193 -> +27 -> -206 rad/s across consecutive ~1s samples while the
-        # body genuinely tumbled at 1.5-3 rad/s "as soon as the jump started").
-        # Root cause: Kp_tilt=300 on a bounded error term commands target
-        # velocities the RW motor cannot remotely reach -- the RW joint's
-        # torque ceiling is only 0.015 Nm (Research_Paper.md SS3.2, real Maxon
-        # EC20 "Continuous" spec), which caps wheel angular acceleration at
-        # ~55.6 rad/s^2 (0.015 / 0.00027 kgm^2). Reaching a 300 rad/s target
-        # would take 5+ seconds; the outer loop instead recomputes a brand
-        # new (often oppositely-signed) target every ~10ms IMU tick, so the
-        # low-level JointController sits permanently torque-saturated and the
-        # only thing that actually matters physically is the *sign* of the
-        # commanded velocity. That sign was flipping essentially every tick
-        # -- chattering -- rather than holding steady for the clean
-        # accelerate-then-decelerate bang-bang correction the paper's own
-        # kinematic model assumes (t ~= 1.07s to correct 90 deg at constant
-        # alpha=2.727 rad/s^2, SS3.2). Slew-limiting the *commanded target* to
-        # this same physical acceleration ceiling forces the sign to hold for
-        # a physically sensible duration instead of chattering, without
-        # changing the real torque budget the paper specifies.
-        self.max_wheel_accel = 50.0 # rad/s^2, conservative vs the 55.6 physical ceiling
+        # Wheel acceleration ceiling, conservative vs the physical
+        # tau_max/I_wheel = 55.6 rad/s^2. Applied both to control authority
+        # and to the grounded bleed-down rate.
+        self.max_wheel_accel = 50.0 # rad/s^2
+
+        # Attitude deadband (1 deg) + rate deadband. Because this controller
+        # integrates torque into wheel speed, ANY persistent unreachable
+        # error slowly winds the wheel toward momentum saturation. Terrain
+        # is never perfectly level (a tripod resting on regolith holds some
+        # small tilt no wheel can remove), and the overnight 2026-07-15 run
+        # showed exactly that: a ~0.1 deg residual tilt wound the wheels to
+        # the full 1396 rad/s pin over several hours. Inside the deadband
+        # the axis holds its stored momentum (dumping it would spin the
+        # body); only the error outside the deadband drives new torque.
+        # Angle deadband only -- rate damping stays ALWAYS active. (First
+        # attempt also deadbanded the rate at 0.005 rad/s; live telemetry
+        # showed the body then coasting at exactly 0.005 rad/s in a slow
+        # +/-1.2 deg limit cycle between the deadband walls, because inside
+        # the band nothing removed momentum. Damping cannot cause windup --
+        # it only acts while the body is actually rotating -- so it needs no
+        # deadband; only the angle term does.)
+        self.err_deadband = 0.017   # rad (~1 deg)
+
+    def _deadband(self, e, db):
+        if abs(e) <= db:
+            return 0.0
+        return e - db * (1.0 if e > 0 else -1.0)
 
     def jump_callback(self, msg):
         if msg.data:
@@ -132,7 +182,12 @@ class AttitudeController(Node):
         yaw = math.atan2(siny_cosp, cosy_cosp)
         error_yaw = self.target_yaw - yaw
         error_yaw = (error_yaw + math.pi) % (2.0 * math.pi) - math.pi
-        cmd_z = -self.Kp_yaw * error_yaw + self.Kd_yaw * wz
+
+        # Desired body torque about z (PD on yaw). Sign: error_yaw = -psi for
+        # target 0, so tau_z = -K_ang*psi - K_rate*wz = K_ang*error_yaw
+        # - K_rate*wz. Clipped to the physical motor budget below.
+        tau_z = (self.K_ang * self._deadband(error_yaw, self.err_deadband)
+                 - self.K_rate * wz)
 
         total_error = abs(error_yaw)
 
@@ -144,19 +199,21 @@ class AttitudeController(Node):
 
             # (local_up x world_up); world_up=(0,0,1) so the z-component is
             # always exactly 0 -- this correction never touches yaw.
+            # For a small roll +phi about x, err_x = -sin(phi) ~= -phi, so
+            # tau_x = -K_ang*phi - K_rate*wx = K_ang*err_x - K_rate*wx
+            # (same sign structure as yaw above).
             err_x = up_y
             err_y = -up_x
 
-            cmd_x = -self.Kp_tilt * err_x + self.Kd_tilt * wx
-            cmd_y = -self.Kp_tilt * err_y + self.Kd_tilt * wy
+            tau_x = (self.K_ang * self._deadband(err_x, self.err_deadband)
+                     - self.K_rate * wx)
+            tau_y = (self.K_ang * self._deadband(err_y, self.err_deadband)
+                     - self.K_rate * wy)
 
             total_error = math.sqrt(err_x * err_x + err_y * err_y)
         else:
-            # On the ground, bleed off any residual tilt command -- legs
-            # (not RW) are responsible for ground-contact stability once
-            # landed, and landing_controller owns explicit self-righting.
-            cmd_x = self.cmd_vel['x'] * 0.9
-            cmd_y = self.cmd_vel['y'] * 0.9
+            tau_x = None  # grounded: bleed tilt wheels down instead (below)
+            tau_y = None
 
         now = self.get_clock().now()
         if self.last_imu_time is None:
@@ -167,19 +224,31 @@ class AttitudeController(Node):
         self.last_imu_time = now
 
         max_delta = self.max_wheel_accel * dt
-        for axis, target in (('x', cmd_x), ('y', cmd_y), ('z', cmd_z)):
-            delta = target - self.cmd_vel[axis]
+        for axis, tau in (('x', tau_x), ('y', tau_y), ('z', tau_z)):
+            if tau is None:
+                # Grounded tilt axes: slew the wheel back toward zero speed at
+                # the same physical acceleration ceiling, dumping its stored
+                # momentum into the ground through leg-contact friction. Legs
+                # (not RWs) own ground-contact stability; landing_controller
+                # owns explicit self-righting.
+                delta = -self.cmd_vel[axis]
+            else:
+                # Wheel acceleration that produces the desired body torque:
+                # a_wheel = -tau_body / I_wheel (Newton's third law across
+                # the motor). The tau clip IS the 0.015 Nm motor budget.
+                tau = max(-self.tau_max, min(self.tau_max, tau))
+                delta = (-tau / self.I_wheel) * dt
             delta = max(-max_delta, min(max_delta, delta))
-            self.cmd_vel[axis] += delta
+            new_cmd = self.cmd_vel[axis] + delta
+            # Per-axis momentum-saturation clamp. (Previously one saturated
+            # axis rescaled ALL three commands, needlessly destroying the
+            # other two axes' control authority -- the wheels are physically
+            # independent.)
+            self.cmd_vel[axis] = max(-self.max_rw_speed, min(self.max_rw_speed, new_cmd))
 
         max_speed = max(abs(self.cmd_vel['x']), abs(self.cmd_vel['y']), abs(self.cmd_vel['z']))
-        if max_speed > self.max_rw_speed:
-            scale = self.max_rw_speed / max_speed
-            self.cmd_vel['x'] *= scale
-            self.cmd_vel['y'] *= scale
-            self.cmd_vel['z'] *= scale
-            max_speed = self.max_rw_speed
-            self.get_logger().warn(f'[{self.robot_name}] Reaction Wheel Saturation — clamped to {self.max_rw_speed:.0f} rad/s', throttle_duration_sec=2.0)
+        if max_speed >= self.max_rw_speed:
+            self.get_logger().warn(f'[{self.robot_name}] Reaction Wheel momentum saturation — wheel pinned at {self.max_rw_speed:.0f} rad/s', throttle_duration_sec=2.0)
 
         self.pubs['x'].publish(Float64(data=self.cmd_vel['x']))
         self.pubs['y'].publish(Float64(data=self.cmd_vel['y']))
