@@ -252,12 +252,28 @@ class LandingController(Node):
         analysis in __init__ for why the band/velocity/duration values are
         what they are."""
         # Velocity-only path (see REST_VEL_TICKS note in __init__).
+        # ALTITUDE-DRIFT GUARD added 2026-07-16: this path previously checked
+        # no altitude at all, and free-fall FROM REST stays under the 5 mm/s
+        # velocity gate for the first ~44 s (v = g*t) -- once the CPU-
+        # starvation fix restored full callback rates, the window elapsed
+        # inside that slow-start and confirmed LANDED at 1 m altitude while
+        # still falling (live-caught: "landed" at z=5.73 descending at
+        # 10 mm/s). A resting robot cannot drift 5 cm; a falling one always
+        # does within the window (g*t^2/2 = 5 cm at t=30 s).
         if self.velocity_mag > self.REST_VEL_MAX:
             self.rest_vel_ticks = 0
+            self.rest_vel_z_ref = None
         else:
+            if getattr(self, 'rest_vel_z_ref', None) is None:
+                self.rest_vel_z_ref = self.pos_z
+            if abs(self.pos_z - self.rest_vel_z_ref) > 0.05:
+                self.rest_vel_ticks = 0
+                self.rest_vel_z_ref = self.pos_z
+                return False
             self.rest_vel_ticks += 1
             if self.rest_vel_ticks >= self.REST_VEL_TICKS:
                 self.rest_vel_ticks = 0
+                self.rest_vel_z_ref = None
                 self.rest_z_ref = None
                 self.rest_z_ticks = 0
                 return True
