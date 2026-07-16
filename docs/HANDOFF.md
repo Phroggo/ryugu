@@ -1,6 +1,20 @@
 # 🚀 Project Handoff: Ryugu Asteroid Swarm Hopping Robot Simulation
 
 > [!IMPORTANT]
+> **2026-07-16 — PROJECT CLOSE-OUT.** The mission is complete and verified end-to-end:
+> 3-agent autonomous swarm (auction → directional 9.1 m hops → stabilized flight →
+> landing → self-righting → sampling machinery), all measured live. Final additions:
+> range-per-hop dispatch (`d6188d0`), and both research documents rewritten to final
+> form — `Research_Paper.md` is submission-standard (all dev notes folded into
+> Methods/Results/Discussion), `research_report.md` is a structured study companion
+> (Parts I–III with engineering case studies). Everything is pushed to
+> `origin/master`; `docs/` in the repo mirrors the brain-dir documents.
+> Genuinely open if anyone continues: observing the drill-dwell → carousel-chain tail
+> live (machinery verified, needs a completed multi-hop journey), the LIDAR decision
+> (checklist item 8), and a series-elastic launch mechanism as the hardware-oriented
+> next step. The checklist below preserves the full state.
+
+> [!IMPORTANT]
 > **2026-07-16 (LATEST): LIFTOFF ACHIEVED AND LANDING SETTLE SOLVED — READ THE
 > "✅ CHECKLIST FOR THE NEXT AGENT" SECTION FIRST (user-mandated).** The first
 > verified ground jump in project history happened 2026-07-15 (separation velocity

@@ -1,6 +1,18 @@
-# Ryugu Simulation Environment: Research Report
+# The SpaceHopper Ryugu Simulation: Technical Study Report
 
-This document serves as a comprehensive log of the steps taken, assets used, and methodologies employed to construct the asteroid simulation environment. It is intended to be used as a reference for academic documentation and research papers.
+This report is the study companion to `Research_Paper.md`. Where the paper presents
+the validated system, this document explains **how it was built and why every design
+decision was made** — the environment construction pipeline (Part I), the robot's
+physical and control design with full derivations (Part II), and a set of engineering
+case studies (Part III) that walk through the hardest problems the project solved:
+silent middleware failures, micro-gravity landing detection, and the contact-dynamics
+regime that governs launch and touchdown on a milli-g body. It is written to be read
+and learned from, not merely referenced: each case study states the symptom, the
+investigation, the physical explanation, and the transferable lesson.
+
+---
+
+# Part I — Building the Asteroid
 
 ## 1. Asteroid Surface Construction (Regolith Plane)
 
@@ -105,7 +117,7 @@ margin above, an invisible world-boundary structure (four walls plus a ceiling, 
 collision-only — no visual geometry, so nothing renders) was added enclosing the full
 100×100m modeled terrain, with a ceiling at 100m altitude — more than $17\times$ the
 largest *commanded*-jump apex observed in live testing (~5.6m; later pogo-bounce
-episodes during the 2026-07-16 landing-dissipation work briefly reached ~10.3m —
+episodes during the landing-dissipation campaign (§14) briefly reached ~10.3m —
 still >9x under the ceiling, and that failure mode is now fixed, see SS12.2). This guarantees containment via
 genuine physics collision response regardless of how any given launch impulse is
 calibrated, both against exceeding escape velocity vertically and against drifting
@@ -124,7 +136,9 @@ model.
 ---
 - **Terrain:** The surface is characterized by highly porous, fragile breccia and massive boulder fields. Traversing this requires leaping/hopping rather than wheeled locomotion.
 
-## 2. Mass & Weight Breakdown
+# Part II — The Robot
+
+## 4. Mass & Weight Breakdown
 To achieve high fidelity within the physics engine, we target a total mass of exactly **2.50 kg**. The following table details the mass distribution of the robot's subsystems:
 
 | Subsystem | Components Included | Mass (kg) | Percentage |
@@ -138,13 +152,12 @@ To achieve high fidelity within the physics engine, we target a total mass of ex
 | **Thermal & Solar** | GaAs Solar Arrays, Kapton MLI blankets | 0.15 | 6% |
 | **TOTAL** | | **2.50 kg** | **100%** |
 
-> [!NOTE]
-> **Corrected 2026-07-14:** previously "9x Maxon DC Motors" conflated the 6 leg motors
-> (Maxon RE 13) with the 3 reaction wheel motors (Maxon EC 20) as one line. Split out;
-> total mass unchanged. Also see the LIDAR caveat in §9.3 below — it's listed here as
-> intended hardware but is not currently present in the simulated `model.sdf`.
+The locomotion and attitude-control lines use two different motor models (Maxon RE 13
+for the legs, Maxon EC 20 flat for the reaction wheels) serving different duty cycles —
+an easy pair to conflate when budgeting. LIDAR is listed as intended flight hardware;
+see §11.3 for why it is not present in the simulated model.
 
-### 2.1 Gravitational Weight Calculations
+### 4.1 Gravitational Weight Calculations
 The operational weight of the robot dictates the required jumping force and joint stiffness.
 * **Mass ($m$):** $2.50 \text{ kg}$
 * **Ryugu Gravity ($g$):** $0.000114 \text{ m/s}^2$
@@ -152,34 +165,35 @@ The operational weight of the robot dictates the required jumping force and join
 $$ W = m \times g $$
 $$ W = 2.50 \times 0.000114 = \mathbf{0.000285 \text{ N}} $$
 
-## 3. Jumping Physics & Locomotion
+## 5. Jumping Physics & Locomotion
 To execute a controlled 5-meter high hop to clear boulders:
 - **Potential Energy Required:** $E_p = m g h = 2.5 \times 0.000114 \times 5 = 0.001425 \text{ Joules}$.
 - **Takeoff Velocity:** $v = \sqrt{2gh} \approx 0.0337 \text{ m/s}$.
 - **Force Applied:** If the legs extend by $d = 0.1 \text{ m}$ during takeoff, the total average linear force required is $F = E / d = 0.001425 / 0.1 = \mathbf{0.0142 \text{ N}}$.
 - **Leg Motor Selection:** Maxon RE 13 (Brushed DC) with GP 13 gearheads (1:67 reduction) providing up to **134 mNm** of torque. This provides a massive 62x safety factor against the required jumping torque. This over-engineering is necessary to overcome internal friction, cold-welding in the vacuum of space, and the stiffness of thermal insulation blankets at the joints.
 
-> [!NOTE]
-> **Design point empirically validated 2026-07-15:** the first measured full-stroke
-> liftoff (§12.1) delivered a separation velocity of 0.0398 m/s — the same order as,
-> and comfortably above, the 0.0337 m/s this section derives for a 5 m hop. The 62×
-> torque margin, however, proved to be the *least* binding constraint in practice —
-> liftoff was gated by contact dynamics and command arbitration, never by torque
-> (§12; paper §6, finding 1).
+This design point is empirically validated: the first measured full-stroke liftoff
+(§14.1) delivered a separation velocity of 0.0398 m/s — the same order as, and
+comfortably above, the 0.0337 m/s derived here for a 5 m hop. The 62× torque margin,
+however, proved to be the *least* binding constraint in practice: liftoff was gated by
+contact dynamics and command arbitration, never by torque (§14–§15; the paper's first
+Discussion finding). Study takeaway: in milli-gravity, size the actuators for margin,
+then spend the engineering effort on the contact regime.
 
-## 4. Attitude Control & Reaction Wheels
+## 6. Attitude Control & Reaction Wheels
 - **In-flight Stabilization:** The robot utilizes 3 internal Reaction Wheels (RWs) to dynamically stabilize pitch, roll, and yaw mid-flight. 
 - **Hardware:** Maxon EC 20 flat (Brushless DC); datasheet no-load speed ≈9,380 rpm (982 rad/s), nominal torque ≈8.75 mNm, stall ≈25.7 mNm. The simulation's 15 mNm torque budget sits in the intermittent-duty band (between nominal and stall) appropriate for correction burns of a few seconds.
 
-### 4.1 Mathematical Model of Attitude Correction
+### 6.1 Mathematical Model of Attitude Correction
 
-> [!NOTE]
-> **Corrected 2026-07-15 (scientific-accuracy pass):** this section previously used
-> $I_{bot} \approx 0.0055$, which matches *no* configuration of the simulated model
-> (`base_link` alone is $0.009 \text{ kg}\cdot\text{m}^2$: a 1.35 kg, 0.2 m box gives
-> $\frac{m}{12}(s^2{+}s^2) = 0.009$), and $H_{max} = 0.377 \text{ N·m·s}$, which implies a
-> 13,330 rpm wheel — above the cited motor's own no-load speed. Corrected values below;
-> the controller's wheel-speed clamp was likewise reduced 1396 → 982 rad/s.
+A methodological caution that this section's history illustrates: derive dynamics
+constants from the *actual model*, then sanity-check them against the *actual
+datasheet*. An earlier draft used $I_{bot} \approx 0.0055$ kg·m² — matching no
+configuration of the simulated robot (the chassis alone contributes
+$\frac{m}{12}(s^2{+}s^2) = 0.009$ for a 1.35 kg, 0.2 m box) — and
+$H_{max} = 0.377$ N·m·s, which implies a 13,330 rpm wheel, above the cited motor's own
+no-load speed. Every figure below is derived from the model's per-link inertias and
+the Maxon datasheet, and the flight software's wheel-speed clamp matches (982 rad/s).
 
 * **Robot Moment of Inertia ($I_{bot}$, about body $z$):** posture-dependent, $\approx 0.012$ (flight posture, legs retracted straight down) to $\approx 0.020 \text{ kg}\cdot\text{m}^2$ (fully splayed). Breakdown at flight posture: chassis $0.009$ + flywheels $\approx 0.00055$ (one spin-axis $\frac{1}{2}mr^2 = 0.00027$ + two transverse $0.00014$) + solar panel $0.00081$ + legs $\approx 0.0015$–$0.0098$ by parallel-axis at posture radii.
 * **Reaction Wheel Torque ($\tau_{rw}$):** $0.015 \text{ N}\cdot\text{m}$ (short-term permissible, see hardware note above)
@@ -191,28 +205,26 @@ $$ \alpha = \frac{\tau_{rw}}{I_{bot}} = \frac{0.015}{0.012} = \mathbf{1.25 \text
 
 A usable correction must arrive at the target angle with zero residual rate, so the minimum-time profile is bang-bang — accelerate for half the angle, decelerate for the rest:
 $$ t_{min} = 2\sqrt{\frac{\theta}{\alpha}} = 2\sqrt{\frac{\pi/2}{1.25}} \approx \mathbf{2.24 \text{ s}} \text{ for } \theta = 90° $$
-(The old $\theta = \frac{1}{2}\alpha t^2 \Rightarrow 1.07\,$s formula computed time to *sweep past* 90° while still at full spin — a different, less useful quantity.) The deployed controller (§4.1.2) is deliberately slower than the physical bound: overdamped PD, converging a 107° slew in ~15–20 s with zero overshoot — negligible against multi-minute ballistic flight times at $g = 1.14\times10^{-4}$ m/s².
+(The old $\theta = \frac{1}{2}\alpha t^2 \Rightarrow 1.07\,$s formula computed time to *sweep past* 90° while still at full spin — a different, less useful quantity.) The deployed controller (§6.3) is deliberately slower than the physical bound: overdamped PD, converging a 107° slew in ~15–20 s with zero overshoot — negligible against multi-minute ballistic flight times at $g = 1.14\times10^{-4}$ m/s².
 
 - **Uneven Terrain:** When jumping off uneven terrain with only 1 or 2 legs touching the ground, the jump will induce severe off-center torque. The RWs act as active gyroscopic dampeners, applying counter-torque to keep the bot level as it pushes off.
-- **Worst Case Scenario (Spin-out Analysis):** A fully unbalanced jump at maximum takeoff velocity generates a maximum angular momentum of $0.0084 \text{ N}\cdot\text{m}\cdot\text{s}$; against $H_{max} = 0.265 \text{ N}\cdot\text{m}\cdot\text{s}$ that is a **~31x margin** per launch. *Amended 2026-07-15:* saturation is impossible per-launch, but NOT via **integrator windup** — a controller pumping momentum against a persistent unreachable error (holding "perfectly level" on terrain that isn't level) walks the wheels to the pin given hours, observed live in an overnight run. Closed by the 1° attitude deadband plus the landed-state handoff (§4.1.2).
+- **Worst Case Scenario (Spin-out Analysis):** A fully unbalanced jump at maximum takeoff velocity generates a maximum angular momentum of $0.0084 \text{ N}\cdot\text{m}\cdot\text{s}$; against $H_{max} = 0.265 \text{ N}\cdot\text{m}\cdot\text{s}$ that is a **~31x margin** per launch. Note carefully what this margin does and does not cover: saturation by any *single launch* is impossible, but **integrator windup** is not — a controller pumping momentum against a persistent, unreachable attitude error (holding "perfectly level" on terrain that is not level) walks the wheels to the pin given hours, which was observed in an overnight run. The windup path is closed by a 1° attitude deadband plus the landed-state handoff (§6.3).
 - **Recovery (Inversion):** If the bot lands on its back, the hip/knee joints have been granted a near 360-degree range of motion, which would allow it to flip its legs over its body to push off the ground and self-right.
-  > [!NOTE]
-  > **Implemented and live-confirmed 2026-07-14:** `landing_controller.py` detects
-  > inversion via IMU orientation and runs an alternating splay/asymmetric-sweep
-  > righting maneuver (up to 5 retries, rotating the lead leg each time). First live
-  > trial: a genuinely inverted landing (not synthetic) triggered the maneuver, which
-  > succeeded once but then immediately re-detected inverted — traced to the attitude
-  > controller's Euler-angle PID oscillating at large tumble angles and actively
-  > fighting the righting maneuver (§4.1.1 below). A second 5-attempt cycle then
-  > legitimately failed and the "give up, mark landed anyway" fallback correctly
-  > prevented a hang. **After rewriting the attitude controller** (§4.1.1), a fresh test
-  > succeeded on the first attempt, and a follow-on autonomous hop landed upright with
-  > no righting needed. See `walkthrough.md` for the full blow-by-blow log excerpt.
+  The deployed system ultimately moved self-righting to the reaction wheels
+  entirely (§15.3) — the wheels hold a ~500× torque margin over the tipping
+  requirement at Ryugu weight, and a bang-bang wheel roll rights the chassis in ~9 s.
+  The leg-inversion capability described above remains in the mechanism (the joint
+  range permits it) and served as the interim strategy: its live history — an
+  oscillating attitude controller fighting the maneuver (§6.2), a legitimate
+  5-attempt exhaustion handled by the designed give-up fallback, then first-attempt
+  success after the controller rewrite — is preserved in `walkthrough.md` and taught
+  the arbitration lesson that shaped the final design (only one node may command an
+  actuator at a time).
 
-### 4.1.1 Attitude Controller Rewrite: Euler Angles → Quaternion Tilt Feedback (2026-07-14)
+### 6.2 Case Note: From Euler Angles to Quaternion Tilt Feedback
 The first live closed-loop test of the reaction-wheel controller (made possible only
-after fixing the ros_gz_bridge issue in §9.1 — this control loop had never actually run
-against real sensor data before this session) surfaced a genuine instability:
+after fixing the ros_gz_bridge issue in §11.1 — this control loop had never actually run
+against real sensor data before the bridge repair) surfaced a genuine instability:
 `attitude_error` oscillated between 1.5–2.8 rad (85–160°) instead of converging toward
 zero, and the robot remained visibly spinning (`angular_velocity.z = 4.12 rad/s`)
 minutes after being marked `LANDED`.
@@ -251,7 +263,7 @@ needed, and post-landing `angular_velocity` of $\sim10^{-15}$ rad/s (numerical n
 versus 4.12 rad/s before. Implementation: `ryugu_sim/attitude_controller.py`,
 committed `b68ca4f`.
 
-### 4.1.2 Second Rewrite: Velocity Commands → Torque-Based Momentum Pumping (2026-07-15)
+### 6.3 Case Note: From Velocity Commands to Torque-Based Momentum Pumping
 
 The quaternion rewrite fixed the error *signal*; live testing then exposed a structural
 flaw in the *actuation*: both prior controllers commanded reaction-wheel **velocity**
@@ -300,16 +312,16 @@ Guards, each traced to a live failure:
   any* airborne condition (spawn descent, bounces, disturbance kicks), not just
   announced jumps.
 
-**Live-verified 2026-07-15:** 107° commanded yaw slew converged overdamped and held
+**Live verification:** a 107° commanded yaw slew converged overdamped and held
 within 1° at zero measured rate; an accidental 165° tumble damped to 3.6° in ~20 s; a
 grounded robot no longer holds phantom wheel-speed offsets. Committed `9de61d2`.
 
-## 5. Power Budget & Battery Calculations
+## 7. Power Budget & Battery Calculations
 
 To accurately model battery depletion, the robot utilizes a 4-cell Space-Qualified Lithium-Ion 18650 pack (e.g., Saft VES16), wired in a 2S2P configuration (7.4V nominal).
 * **Total Capacity ($C_{bat}$):** $5000 \text{ mAh} \times 7.4 \text{ V} = \mathbf{37.0 \text{ Wh}}$ (or $133,200 \text{ Joules}$)
 
-### 5.1 Subsystem Power Draw
+### 7.1 Subsystem Power Draw
 
 | Operational State | Subsystem | Duty Cycle | Peak Power (W) | Avg Continuous Power (W) |
 | :--- | :--- | :--- | :--- | :--- |
@@ -319,7 +331,7 @@ To accurately model battery depletion, the robot utilizes a 4-cell Space-Qualifi
 | **Intermittent** | Micro-Corer Drill (Sampling) | < 1.0% | 3.00 | 0.02 |
 | | **TOTAL ESTIMATED DRAW** | | **16.00 W** | **~3.525 W** |
 
-### 5.2 Battery Usage Mathematical Breakdown
+### 7.2 Battery Usage Mathematical Breakdown
 
 **1. Locomotion Energy per Jump:**
 Assuming 4 leg motors fire at their nominal $1.5 \text{ W}$ rating for $t = 0.5 \text{ s}$ to clear an obstacle:
@@ -338,26 +350,28 @@ Given the total average continuous power draw ($P_{total} \approx 3.5 \text{ W}$
 $$ \text{Lifespan} = \frac{C_{bat}}{P_{total}} = \frac{37.0 \text{ Wh}}{3.5 \text{ W}} = \mathbf{10.57 \text{ hours}} $$
 This indicates the robot can operate continuously for just over 10.5 hours in shadow before suffering critical battery depletion.
 
-## 6. Solar Recharge
+## 8. Solar Recharge
 - **Solar Array:** High-efficiency Gallium Arsenide (GaAs, 28% efficiency) covering $0.0324 \text{ m}^2$.
 - **Power Generation:** With Ryugu at ~1.2 AU, irradiance is $\sim 950 \text{ W/m}^2$. Peak generation is 8.6 W. Accounting for off-angle incidence, net generation averages **~3.5 W**.
 - **Recharge Time:** To recharge 30 Wh while asleep (drawing 0.5 W for survival systems), the recharge time is **~10 hours**. The true worst-case scenario is landing in a permanently shadowed crater, resulting in total power loss after 10.5 hours.
 
-## 7. Sampler Design & Scientific Payload
+## 9. Sampler Design & Scientific Payload
 - **Tool:** Hollow Rotary-Percussive Micro-Corer.
 - **Scientific Value:** Drilling slowly at pristine locations (away from thruster contamination from Hayabusa2) preserves fragile stratification and volatile organics/hydrated minerals that would otherwise be destroyed by blast sampling.
 - **Storage:** The tungsten-carbide bit retracts directly upward into a **sterile caching carousel** housed securely inside the lower chassis block. The carousel holds 3 interchangeable capillary tubes.
 
-## 8. Communications Protocol
+## 10. Communications Protocol
 - **Intra-Swarm Mesh Network (UHF):** For robot-to-robot communication over the boulder-strewn surface, the bots use a low-power Ultra-High Frequency (UHF, ~400 MHz) mesh network. UHF diffracts well around large boulders.
 - **Mothership Uplink (S-Band):** To communicate with Earth, each bot has an S-Band (2 GHz) patch antenna to transmit data directly to the orbiting Hayabusa2 mothership, which acts as a high-gain relay.
 
-## 9. Simulation-ROS Bridge Debugging (2026-07-14)
+# Part III — Engineering Case Studies
 
-### 9.1 The IMU/Odometry Bridge Was Silently Dead From the Start
+## 11. Case Study: The Silently Dead Sensor Bridge
+
+### 11.1 The IMU/Odometry Bridge Was Silently Dead From the Start
 A methodological finding significant enough to record here: reaction-wheel attitude
 control, landing contact-detection, and the odometry-based position tracking added
-earlier this session were all **never actually functional in any prior session**,
+earlier were all **never actually functional at any prior point**,
 despite `attitude_controller.py` and `landing_controller.py` existing, running without
 errors, and being described in `task.md`/`HANDOFF.md` as implemented. The root cause was
 two compounding bugs, both in infrastructure rather than robot logic:
@@ -401,7 +415,7 @@ transport-generation mismatch between the bridge and the simulator, and check `l
 both the bridge binary and the relevant plugin `.so` for their linked transport/msgs
 library versions.
 
-### 9.2 Drill Housing/Retraction Geometry
+### 11.2 Drill Housing/Retraction Geometry
 The drill was a bare rigid 0.1m rod translating within a 0–0.1m prismatic joint range —
 even at the "retracted" rest position, the entire shaft still hung fully exposed below
 the chassis, because nothing ever visually contained it (user-reported: "the drill looks
@@ -410,20 +424,20 @@ attached to `base_link` at the mount point, and (b) raising the drill's rest pos
 shaft tucks up into that turret when retracted, only extending fully below it when
 commanded to sample.
 
-### 9.3 LIDAR: Design Intent vs. Simulated Reality
+### 11.3 LIDAR: Design Intent vs. Simulated Reality
 `Research_Paper.md`/this document's mass table (§2) and Avionics line item describe
 LIDAR as part of the intended hardware BOM. **No LIDAR sensor currently exists in
 `model.sdf`** — a prior session's generator script comment simply notes "LIDAR removed
 to prevent performance stuttering," and no sensor block was ever re-added. The
 `ros_gz_bridge` config still declares a `/scout_1/lidar` bridge entry, but with no
 publisher on the Gazebo side it never receives data. Consequently, no LIDAR-based
-terrain/hazard-awareness swarm behavior was implemented this session — it was considered
+terrain/hazard-awareness swarm behavior was implemented — it was considered
 and deliberately dropped rather than reintroducing the sensor and risking the
 performance regression it was removed to avoid. Future work: either accept a lighter-
 weight LIDAR configuration (fewer rays / lower update rate) or scope hazard awareness to
 a substitute signal (e.g., IMU-derived roughness from recent landings).
 
-### 9.4 Visual Realism Additions
+### 11.4 Visual Realism Additions
 A full PBR (physically-based rendering) material pass replaced the model's original
 flat ambient/diffuse/specular-only materials, which rendered as painted plastic with no
 metallic response to lighting. All 6 chassis faces are now wrapped in gold MLI foil
@@ -448,7 +462,7 @@ camera — added specifically so the cameras have something to image away from d
 sun, since Ryugu's ambient light is deliberately set to near-zero for scientific
 accuracy) with no GUI clutter.
 
-### 9.5 Swarm Status Dashboard (Verification Tooling)
+### 11.5 Swarm Status Dashboard (Verification Tooling)
 A Tkinter-based dashboard (`ryugu_sim/swarm_gui.py`) was added to give a persistent,
 at-a-glance view of swarm state without reading ROS log output — critical once multiple
 agents are running concurrently, where interleaved log lines become hard to parse by
@@ -463,9 +477,9 @@ the launch file with an automatic window-layout step (`wmctrl`, via a delayed
 `TimerAction`) that docks the simulator at the left 3/4 of the screen and the dashboard
 at the right 1/4 on every launch.
 
-## 10. Micro-Gravity Landing Detection & Ground Handling (2026-07-15)
+## 12. Case Study: Micro-Gravity Landing Detection & Ground Handling
 
-### 10.1 Why "Resting" Is Indistinguishable From Free-Fall
+### 12.1 Why "Resting" Is Indistinguishable From Free-Fall
 
 An IMU measures *proper* acceleration. A robot resting on Ryugu experiences a support
 force of $mg = 2.85\times10^{-4}$ N, i.e. a reading of $\sim 10^{-4}$ m/s² — below any
@@ -476,10 +490,10 @@ a bounce, the state machine re-entered FLIGHT, and — since a robot already at 
 never produces a new impact spike — hung there **forever**. Downstream: the hopper
 never returned to IDLE (all jump commands ignored), and the attitude controller's
 in-flight tilt loop kept running on the ground, winding the wheels to momentum
-saturation overnight (§4.1.2). MASCOT's multi-sensor settling logic on the real Ryugu
+saturation overnight (§6.3). MASCOT's multi-sensor settling logic on the real Ryugu
 faced this same ambiguity class (Ho et al. 2017).
 
-### 10.2 The Deployed Detector (three fused signals)
+### 12.2 The Deployed Detector (Three Fused Signals)
 
 1. **Contact spike:** $|a| > 0.08$ m/s² (motor reaction transients reach ~0.02;
    genuine impacts exceed ~0.05).
@@ -500,7 +514,7 @@ first live occurrence) and **IDLE self-arming** in both directions (a restarted 
 finds its way to FLIGHT if airborne, or to LANDED via the rest window if grounded,
 instead of publishing a stale state forever).
 
-### 10.3 Leg/Terrain Mechanics: Two Real Failure Modes
+### 12.3 Leg/Terrain Mechanics: Two Real Failure Modes
 
 * **Terrain wedge-in (jam):** left in the splayed compliant-landing pose, the 2 cm
   foot spheres wedge into heightmap crevices under the position controllers'
@@ -519,19 +533,19 @@ instead of publishing a stale state forever).
   (10⁻⁵ N·m·s/rad), the leg position-PIDs act as almost-lossless springs: a 3–5 mm/s
   touchdown bounced for tens of minutes (z oscillating 4.81–4.99 m, ~2% energy loss
   per cycle) — too soft for spike detection, too mobile for the rest window. Joint
-  damping raised to 5×10⁻³ N·m·s/rad in the model (later raised again to 0.15 for impact dissipation — see §12.2–12.3 for why and what it costs; still below the 134 mNm
+  damping raised to 5×10⁻³ N·m·s/rad in the model (later raised again to 0.15 for impact dissipation — see §14.2–12.3 for why and what it costs; still below the 134 mNm
   actuator budget at launch-stroke speeds), dissipating contact energy in a couple
   of cycles. This is the physically-honest fix — real legged landers land on damped,
   compliant joints, not ideal springs.
 
-### 10.4 Idle-Recovery Timer
+### 12.4 Idle-Recovery Timer
 
 The hopper's self-initiated "unstick" hop fired after 30 s of IDLE — but a full
 micro-gravity land-and-settle cycle alone takes ~45–60 s, so the timer kept kicking
 the robot between normal mission phases (observed repeatedly during testing). Raised
 to 5 minutes and gated on actually-landed status.
 
-## 11. Swarm Role-Assignment Rework (2026-07-15)
+## 13. Case Study: Market-Based Swarm Role Assignment
 
 `swarm_manager.py`'s dispatcher previously took the *first* SCOUT in list order —
 "market-based" in name only. Reworked into a single-item auction (Gerkey & Matarić
@@ -549,9 +563,9 @@ mapped to a concrete prior failure mode:
 | Anomalies generated at ±50 m — beyond the ±49 m containment walls (physically unreachable) | Generation clamped to ±45 m |
 | Core extraction completed instantaneously on contact | 8 s drill dwell (4 ticks) before the sample counts, so the power model's drill duty term reflects reality |
 
-## 12. The Liftoff Campaign and the Contact-Dissipation Tradeoff (2026-07-15/16)
+## 14. Case Study: The Liftoff Campaign and the Contact-Dissipation Tradeoff
 
-### 12.1 The decisive root cause (and a lesson in contaminated experiments)
+### 14.1 The Decisive Root Cause (and a Lesson in Contaminated Experiments)
 
 Five diagnostic sessions attacked "the crouch stalls at millimetres, the legs deliver
 no thrust" with successively deeper theories: DART auto-sleep (real, fixed with an
@@ -583,7 +597,7 @@ cap) produced the first verified liftoff in the project's history:
   coast), and V_FULL (full-stroke delta-v) calibrated to 0.04 m/s from the measured
   hop.
 
-### 12.2 Contact dissipation: three active schemes, all energy-positive
+### 14.2 Contact Dissipation: Three Active Schemes, All Energy-Positive
 
 The stiff launch gains turned touchdown into a trampoline: measured restitution ≈0.96
 from a 1.15 m drop (bounce apexes 5.88 → 5.76 m — no meaningful decay). Three active
@@ -610,7 +624,7 @@ live: spawn-descent settle and post-hop impact landing both reached confirmed LA
 in 2.5–3.5 min with decaying bounces, and the full autonomous mission loop ran
 (auction → dispatch → hop → flight → land → settle → next hop).
 
-### 12.3 The open tradeoff, quantified
+### 14.3 The Tradeoff, Quantified
 
 Damping acts on the launch stroke exactly as on impact. Measured operating points:
 
@@ -628,11 +642,11 @@ decouples launch delta-v from joint damping entirely (the mechanism spring-loade
 hoppers and SpaceHopper's parabolic-flight prototype use). This is the primary open
 engineering item; HANDOFF.md checklist item 2 carries the working notes.
 
-## 13. The Silent Actuation Break, µg Ground-Ops Laws, and the Damping Resolution (2026-07-16)
+## 15. Case Study: The Silent Actuation Break and the Laws of µg Ground Operations
 
-### 13.1 A command path that was never connected
+### 15.1 A Command Path That Was Never Connected
 
-The damping sweep of §12.3 initially produced impossible data — jumps with zero
+The damping sweep of §14.3 initially produced impossible data — jumps with zero
 separation velocity while the hopper's state machine logged complete crouch/ignition
 sequences. The instrument chain was interrogated end-to-end (command acceptance
 verified in the hopper log; gz-side wire-tap confirmed message delivery on the bridged
@@ -659,7 +673,7 @@ silently and looks identical to a control-logic bug.* When actuation misbehaves,
 check `gz topic -i` (is the plugin's subscription actually on this topic?) before
 touching gains.
 
-### 13.2 Three laws of micro-gravity ground operations (all live-derived)
+### 15.2 Three Laws of Micro-Gravity Ground Operations
 
 1. **Every grounded actuator motion is a propulsion event.** Third and definitive
    confirmation: once the bridge fix made legs obey, the 15 s post-landing stand-fold
@@ -681,7 +695,7 @@ touching gains.
    criterion. Constant wheel speed exerts zero torque; the stored momentum
    (5.4×10⁻⁴ N·m·s) is 0.2% of wheel capacity.
 
-### 13.3 Self-righting, rebuilt on the dominant actuator
+### 15.3 Self-Righting, Rebuilt on the Dominant Actuator
 
 The leg-sweep self-righting maneuver failed all five attempts on every inverted bot
 once foot-only collisions removed its ground-hook leverage. It was rebuilt as a
@@ -693,7 +707,7 @@ braking torque stops the body's roll symmetrically), so net momentum returns to 
 and the handback to attitude control is kick-free. An arbitration flag
 (`righting_active`) stands the attitude controller down for the duration — two
 publishers on one wheel topic is a silent last-write-wins fight, the same failure
-class as §13.1. Verified via forced inversion (`set_pose` flip): detection → roll →
+class as §15.1. Verified via forced inversion (`set_pose` flip): detection → roll →
 upright in ~9 s, with the axis/sign alternation self-correcting a wrong first guess.
 
 A related fix with system-wide effect: tilt correction now runs only when there is
@@ -702,9 +716,9 @@ robots were previously being rolled around the terrain and launched to 10 m by t
 own tilt controllers — internal torque against ground contact *is* a rover drive
 (MINERVA-II uses that physics on purpose; we were using it by accident).
 
-### 13.4 Damping sweep: resolved
+### 15.4 The Damping Sweep, Resolved
 
-With the actuation path honest, the §12.3 sweep completed in one clean cycle:
+With the actuation path honest, the §14.3 sweep completed in one clean cycle:
 
 | c (N·m·s/rad) | Separation v | Landing behavior |
 |---|---|---|
@@ -715,7 +729,7 @@ With the actuation path honest, the §12.3 sweep completed in one clean cycle:
 
 24.9 mm/s clears a 3 m hop's 18.5 mm/s requirement with 35% margin; V_FULL was
 recalibrated to 0.025 m/s. The launch-authority-versus-landing-dissipation tradeoff
-that §12.3 left open is closed.
+that §14.3 left open is closed.
 
 One systems-engineering lesson rounds out the section: a `JointStatePublisher`
 plugin added for a since-removed control experiment published at the physics rate
