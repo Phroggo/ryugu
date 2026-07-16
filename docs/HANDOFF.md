@@ -654,24 +654,25 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
           handling).
       Delivered-v calibration (`V_FULL` in `jump_target_callback`, provisional
       0.08 m/s) must still be re-measured from the first real hop.
-- [ ] **2. NEXT STEP — recover strong hops without reintroducing the pogo.** This is
-      now the #1 open engineering item. At the stable config, hops are only a few mm/s
-      (functional but slow: ~25 cm ascents instead of multi-meter). All measured data
-      points for whoever picks this up: damping 0.005 → sep-v 39.8 mm/s but restitution
-      0.96 (endless pogo); damping 0.15 → clean settle but mm/s hops; damping 0.4 +
-      p 5.0 → joints freeze entirely (⛔ see 1b). Candidate directions, cheapest first:
-      (a) intermediate damping sweep (0.03 / 0.05 / 0.08) — find whether any value
-          gives ≥15 mm/s separation AND settling within ~10 min;
-      (b) asymmetric dissipation via the knee `<spring_stiffness>` + lower damping
-          (springs store rather than return if the stroke direction differs from the
-          impact direction — needs thought, may not work);
-      (c) contact-surface compliance on the foot spheres (`<surface><bounce>`,
-          `<contact>` params) so the GROUND absorbs the impact instead of the joints —
-          dartsim's support for these params is unverified, test on a drop first;
-      (d) the real-robot answer: a launch-dedicated series-elastic element (a real
-          SpaceHopper uses spring-loaded legs charged slowly and released — a latch
-          mechanism decouples launch speed from controller/damping physics entirely;
-          in SDF this could be a detachable joint or a spring pre-load trick).
+- [x] **2. Strong hops + settling landings — ✅ RESOLVED (2026-07-16, `a2ac862`,
+      pushed): joint damping c=0.05 locked in.** First honest measurement: separation
+      24.9 mm/s (apex +2.9 m; 35% margin over a 3 m hop's needs), landing settles and
+      confirms in ~14 min. Full table in the commit message. **But the sweep's real
+      story is the bug hunt it forced — read `9fdc3d4` before trusting ANY old
+      leg-related conclusion:**
+      ⛔ **The bridge NEVER delivered leg/drill commands in recent sessions**: gz-sim 8's
+      JointPositionController subscribes ONLY to the joint-indexed topic
+      (`.../joint/<j>/0/cmd_pos`, verbose-server-verified); the un-indexed variant the
+      bridge published to has no subscriber. ROS remaps can't express "/0/" (numeric
+      token), so the bridge now uses a YAML `config_file` per agent. Verify with
+      `gz topic -i` (subscriber present?) whenever leg behavior looks wrong.
+      Other landmines fixed en route, each live-verified: false mid-air LANDED
+      (velocity-only rest path had no altitude guard; free-fall from rest stays under
+      5 mm/s for ~44 s); exactly-in-place set_pose is a no-op that does NOT wake DART
+      (wake now lifts +0.5 mm); sleep-defeat idle rotor (yaw wheel never commanded
+      below 2 rad/s — a skeleton with a moving joint can never sleep); post-landing
+      stand-fold REMOVED (with obedient legs it catapulted the robot off at
+      0.128 m/s — after LANDED, legs hold their landing pose, no exceptions).
 - [ ] **3. Measure post-liftoff flight tumble with the torque-based controller.**
       Expected: launch-induced rates damped toward zero within ~5–10 s, NO persistent
       wz. The old failure signature (1.5–3 rad/s chaotic, or constant −1 to −2 rad/s
