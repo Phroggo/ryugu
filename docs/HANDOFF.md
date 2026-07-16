@@ -673,19 +673,26 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       below 2 rad/s — a skeleton with a moving joint can never sleep); post-landing
       stand-fold REMOVED (with obedient legs it catapulted the robot off at
       0.128 m/s — after LANDED, legs hold their landing pose, no exceptions).
-- [ ] **3. Measure post-liftoff flight tumble with the torque-based controller.**
-      Expected: launch-induced rates damped toward zero within ~5–10 s, NO persistent
-      wz. The old failure signature (1.5–3 rad/s chaotic, or constant −1 to −2 rad/s
-      yaw) should be gone. Sample `/scout_1/imu` angular_velocity through a hop.
+- [x] **3. Flight tumble — ✅ MEASURED AND PASSED (2026-07-16 mission watch).**
+      In-flight rates 0.005–0.015 rad/s (essentially still), launch transients
+      (0.24 rad/s) decay within seconds, no persistent yaw. Old failure signatures
+      gone. Known minor: the sleep-defeat rotor's one-time spin-up leaves a
+      ~0.03 rad/s free-flight yaw residual (below the 0.15 rad/s tilt gate);
+      harmless — a future fix is spinning the rotor up before launch while
+      grounded so friction absorbs the reaction.
 - [x] **4. Post-landing cycle after a REAL hop — ✅ verified 2026-07-16** (impact-path
       contact → settle → LANDED → fold ramp → next jump accepted, zero watchdog trips;
       the impact soft-posture snap this item warned about was removed entirely, see 1b).
-- [ ] **5. Watch one full swarm_manager mission cycle live** (auction → dispatch →
-      en-route → arrival gating → 8 s drill dwell → stow → chain). Partially observed
-      2026-07-16 (role assignment, dispatch, hop, land, re-hop all ran live under
-      swarm_manager); the drill-dwell/stow/chain tail and a deliberate short-hop
-      correction have still not been watched end-to-end. Note hop distances are
-      currently mm/s-scale (item 2), so en-route legs take a long time.
+- [ ] **5. Full swarm mission cycle — auction/dispatch/re-hop ✅ VERIFIED live**
+      (2026-07-16: competitive bids "scout_2=29.1, scout_3=40.8 → winner scout_2",
+      dispatch, cooldown-paced corrective re-hops). **BUT the mission cannot complete
+      yet: the symmetric vertical stroke has ZERO horizontal range** — re-hops
+      repeated "23.2 m short" forever; the bots hop in place. A forward-lean
+      directional stroke (LEAN=0.25 rad, `f5afaa2`) was implemented and was under
+      live range-verification at session end — verify horizontal displacement per
+      hop, then re-watch the drill-dwell/stow/chain tail, then calibrate a
+      range-per-hop model (V_FULL splits into vertical/horizontal components with
+      lean; the 60 m auction jumps need realistic per-hop legs of a few meters).
 - [x] **6. Self-righting — ✅ REWRITTEN AND VERIFIED (2026-07-16, `09de868`, pushed).**
       The leg-sweep maneuver was live-observed failing all 5 attempts on every inverted
       bot (this item's fear confirmed). Replaced with a reaction-wheel roll (bang-bang
