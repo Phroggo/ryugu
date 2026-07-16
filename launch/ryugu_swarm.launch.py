@@ -118,9 +118,6 @@ def generate_launch_description():
             f'/model/{agent}/lidar@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
             # Odometry (real position/velocity feedback, was previously nonexistent)
             f'/model/{agent}/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry',
-            # Joint states (leg angle feedback for landing_controller's
-            # zero-stiffness catch, added 2026-07-15)
-            f'/world/ryugu_world/model/{agent}/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model',
             # Reaction Wheels Velocity
             f'/model/{agent}/joint/rw_x_joint/cmd_vel@std_msgs/msg/Float64]ignition.msgs.Double',
             f'/model/{agent}/joint/rw_y_joint/cmd_vel@std_msgs/msg/Float64]ignition.msgs.Double',
@@ -142,7 +139,6 @@ def generate_launch_description():
             (imu_gz_topic, f'/{agent}/imu'),
             (f'/model/{agent}/lidar', f'/{agent}/lidar'),
             (f'/model/{agent}/odometry', f'/{agent}/odometry'),
-            (f'/world/ryugu_world/model/{agent}/joint_state', f'/{agent}/joint_states'),
             (f'/model/{agent}/joint/rw_x_joint/cmd_vel', f'/{agent}/rw_x_joint_cmd_vel'),
             (f'/model/{agent}/joint/rw_y_joint/cmd_vel', f'/{agent}/rw_y_joint_cmd_vel'),
             (f'/model/{agent}/joint/rw_z_joint/cmd_vel', f'/{agent}/rw_z_joint_cmd_vel'),

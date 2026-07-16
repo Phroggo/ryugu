@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float64, Bool
 from sensor_msgs.msg import Imu
+from nav_msgs.msg import Odometry
 import sys
 import math
 
@@ -20,10 +22,35 @@ class AttitudeController(Node):
         self.error_pub = self.create_publisher(Float64, f'/{self.robot_name}/attitude_error', 10)
         self.rw_speed_pub = self.create_publisher(Float64, f'/{self.robot_name}/rw_speed_max', 10)
 
-        self.create_subscription(Imu, f'/{self.robot_name}/imu', self.imu_callback, 10)
+        # SENSOR-DATA QoS (best-effort, shallow queue) for the IMU: with 3
+        # bots the RELIABLE depth-10 queues back up under load ("message
+        # lost" floods), and a controller acting on stale measurements PUMPS
+        # instead of damps -- the delayed-feedback lesson yet again, this
+        # time delivered by CPU starvation (2026-07-16).
+        self.create_subscription(Imu, f'/{self.robot_name}/imu',
+                                 self.imu_callback, qos_profile_sensor_data)
         self.create_subscription(Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
         self.create_subscription(Bool, f'/{self.robot_name}/landed', self.landed_callback, 10)
         self.create_subscription(Float64, f'/{self.robot_name}/target_yaw', self.target_yaw_callback, 10)
+
+        # Odometry velocity, for the at-rest tilt gate (see imu_callback):
+        # tilt correction on a GROUNDED body is a rover drive -- internal
+        # torque against ground contact rolls the robot around the terrain
+        # and launches it off bumps (observed live 2026-07-16: two freshly
+        # landed bots re-kicked themselves to 10 m altitude and km-scale
+        # drift). MINERVA-II used exactly this physics ON PURPOSE for
+        # mobility; we must not use it by accident.
+        self.velocity_mag = 0.0
+        self.create_subscription(Odometry, f'/{self.robot_name}/odometry',
+                                 self.odom_callback, qos_profile_sensor_data)
+
+        # Stand down entirely while landing_controller runs its RW-based
+        # self-righting roll (2026-07-16): two nodes publishing wheel
+        # commands is a silent last-write-wins fight.
+        self.righting_active = False
+        self.create_subscription(
+            Bool, f'/{self.robot_name}/righting_active',
+            self.righting_callback, 10)
 
         # We command wheel velocity directly (proportional to error and
         # damped by body rate), not accumulated acceleration -- see the
@@ -172,6 +199,10 @@ class AttitudeController(Node):
             return 0.0
         return e - db * (1.0 if e > 0 else -1.0)
 
+    def odom_callback(self, msg):
+        v = msg.twist.twist.linear
+        self.velocity_mag = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+
     def jump_callback(self, msg):
         if msg.data:
             self.in_flight = True
@@ -203,7 +234,21 @@ class AttitudeController(Node):
         self.target_yaw = msg.data
         self.get_logger().info(f'[{self.robot_name}] New target yaw received: {self.target_yaw:.2f} rad')
 
+    def righting_callback(self, msg):
+        if msg.data and not self.righting_active:
+            self.get_logger().info(
+                f'[{self.robot_name}] RW righting in progress — attitude '
+                f'controller standing down.')
+            # Drop our integrated wheel commands so we don't step the wheels
+            # when we resume (righting hands them back near zero).
+            self.cmd_vel = {'x': 0.0, 'y': 0.0, 'z': 0.0}
+        self.righting_active = msg.data
+
     def imu_callback(self, msg):
+        # landing_controller owns the wheels during a righting roll.
+        if self.righting_active:
+            return
+
         q = msg.orientation
         wx = msg.angular_velocity.x
         wy = msg.angular_velocity.y
@@ -225,7 +270,17 @@ class AttitudeController(Node):
 
         total_error = abs(error_yaw)
 
-        if self.in_flight:
+        # At-rest gate (2026-07-16): even with in_flight armed (landed has
+        # not confirmed), a body that is essentially motionless must NOT be
+        # torqued -- tilt correction against ground contact IS a rover drive
+        # in ug (it rolled two freshly-landed bots around the terrain and
+        # launched them to 10 m). Tilt runs only while there is real motion
+        # to stabilize; a resting-but-tilted body is landing_controller's
+        # problem (rest-confirm -> inversion check -> RW righting).
+        rate_mag = math.sqrt(wx * wx + wy * wy + wz * wz)
+        really_moving = (self.velocity_mag > 0.008) or (rate_mag > 0.15)
+
+        if self.in_flight and really_moving:
             # Local +Z ("up") axis rotated into the world frame -- this is
             # the 3rd column of the rotation matrix derived from q.
             up_x = 2.0 * (q.x * q.z + q.w * q.y)

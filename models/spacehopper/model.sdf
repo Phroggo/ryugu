@@ -1095,21 +1095,14 @@
       <dimensions>3</dimensions>
     </plugin>
 
-    <!-- Joint-state feedback (added 2026-07-15) for the landing
-         controller's zero-stiffness catch: during ground contact it
-         mirrors measured joint angles back as position targets, so the
-         p=1.0 leg controllers exert ~zero restoring torque and the legs
-         crumple inelastically instead of trampolining the impact energy
-         back (passive restitution with stiff held targets measured at
-         ~0.96 - bounces from a 1.15 m spawn drop did not decay). -->
-    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
-      <joint_name>hip_joint_0</joint_name>
-      <joint_name>knee_joint_0</joint_name>
-      <joint_name>hip_joint_1</joint_name>
-      <joint_name>knee_joint_1</joint_name>
-      <joint_name>hip_joint_2</joint_name>
-      <joint_name>knee_joint_2</joint_name>
-    </plugin>
+    <!-- NOTE (2026-07-16): a JointStatePublisher plugin briefly lived here
+         for the zero-stiffness landing catch. REMOVED along with the catch:
+         it publishes every physics step (measured 515 Hz on the wire), and
+         three Python subscribers deserializing that pinned every landing
+         controller at 100% CPU (imu_callback throughput collapsed from
+         ~100 Hz to 2.6 Hz - the whole landing state machine froze). If
+         joint-state telemetry is ever needed again, it MUST be rate-limited
+         or consumed in C++, not Python. -->
 
     <!-- ══════════ SOLAR PANEL ARRAY (fixed to chassis top) ══════════ -->
     <link name="solar_panel">

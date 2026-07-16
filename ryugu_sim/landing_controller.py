@@ -12,8 +12,9 @@ the robot flying for minutes.
 """
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float64, Bool
-from sensor_msgs.msg import Imu, JointState
+from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
 import sys
 import math
@@ -193,31 +194,44 @@ class LandingController(Node):
         self.landed_pub = self.create_publisher(
             Bool, f'/{self.robot_name}/landed', 10)
 
+        # Reaction-wheel command publishers + righting arbitration flag
+        # (2026-07-16 RW-based self-righting -- see _run_righting_sequence).
+        # attitude_controller subscribes to righting_active and stands down
+        # completely while it is True: both nodes publishing wheel commands
+        # is a silent last-write-wins fight, the same failure class as the
+        # stand-pose flood that masked liftoff for five sessions.
+        self.rw_pubs = {axis: self.create_publisher(
+            Float64, f'/{self.robot_name}/rw_{axis}_joint_cmd_vel', 10)
+            for axis in ('x', 'y')}
+        self.righting_active_pub = self.create_publisher(
+            Bool, f'/{self.robot_name}/righting_active', 10)
+        # Wheel speed used for the righting roll. Momentum budget: 150 rad/s
+        # x I_w=2.7e-4 = 0.04 N*m*s -> free-body counter-roll ~3 rad/s about
+        # the ~0.012 kg*m^2 roll axis; tipping torque needed against Ryugu
+        # weight is ~2.9e-5 N*m vs the wheel motor's 0.015 N*m -- a ~500x
+        # margin. Kept well under the 982 rad/s clamp so the brake phase is
+        # quick and returns net momentum to ~zero (no post-righting bleed
+        # kick -- the LANDED->liftoff kick lesson from b876c87).
+        self.RIGHTING_WHEEL_SPEED = 150.0
+        self.RIGHTING_TIMEOUT_TICKS = 1500  # 15 s per attempt at ~100 Hz
+
         # ── Subscribers ──
+        # Sensor-data QoS (best-effort, shallow queue): under 3-bot load the
+        # RELIABLE depth-10 queues back up and the state machine acts on
+        # stale measurements (2026-07-16).
         self.create_subscription(
-            Imu, f'/{self.robot_name}/imu', self.imu_callback, 10)
+            Imu, f'/{self.robot_name}/imu', self.imu_callback,
+            qos_profile_sensor_data)
 
         self.create_subscription(
-            Odometry, f'/{self.robot_name}/odometry', self.odom_callback, 10)
+            Odometry, f'/{self.robot_name}/odometry', self.odom_callback,
+            qos_profile_sensor_data)
 
         # Flight trigger (hopper_locomotion tells us when a jump starts)
         self.create_subscription(
             Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
 
-        # Measured joint angles (telemetry; latest positions keyed by joint
-        # name). A "zero-stiffness catch" that mirrored these back as
-        # position targets during contact was tried 2026-07-15 and REMOVED:
-        # the bridged feedback lags, so the trailing target pumped the
-        # rebound instead of damping it (in 16 mm/s, out 22 mm/s). Impact
-        # dissipation lives in model.sdf's physical joint damping instead.
-        self.joint_pos = {}
-        self.create_subscription(
-            JointState, f'/{self.robot_name}/joint_states',
-            self.joint_state_callback, 10)
 
-    def joint_state_callback(self, msg):
-        for name, pos in zip(msg.name, msg.position):
-            self.joint_pos[name] = pos
 
 
         # Periodic status log
@@ -458,8 +472,9 @@ class LandingController(Node):
                     elif 'knee' in j:
                         pub.publish(Float64(data=knee))
 
-        # Publish landed status
+        # Publish landed status + righting arbitration flag
         self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
+        self.righting_active_pub.publish(Bool(data=(self.state == self.RIGHTING)))
 
     def _is_inverted(self, msg):
         """True if the chassis +Z axis is currently pointing mostly downward
@@ -476,55 +491,82 @@ class LandingController(Node):
         return world_up_z < 0.0
 
     def _run_righting_sequence(self, msg):
-        """Alternates a splay phase (grip) and an asymmetric sweep phase
-        (roll) to flip the chassis over. Re-checks orientation after each
-        full splay+sweep cycle; retries with a rotated lead leg on failure,
-        up to MAX_RIGHTING_ATTEMPTS before giving up.
+        """Reaction-wheel roll-over (rewritten 2026-07-16).
+
+        The original leg-sweep righting (alternating splay + asymmetric
+        sweep) was live-observed failing all 5 attempts on every inverted
+        bot after the foot-only-collision change (the sweeps lost their
+        ground-hook leverage) and the 0.15 joint damping raise (the sweeps
+        lost their dynamic flick). Replaced with the physically dominant
+        actuator: spin a lateral reaction wheel at full torque -- the body
+        counter-rolls (MINERVA-II's actual mobility principle on the real
+        Ryugu); once past horizontal, command the wheel back to zero, which
+        brakes the body's roll symmetrically. Net wheel momentum returns to
+        ~zero, so handing control back to attitude_controller causes no
+        bleed kick. Roll axis/sign alternate per attempt (x+, x-, y+, y-,
+        x+) -- a wrong first guess self-corrects on retry.
         """
         self.righting_ticks += 1
-        phase_ticks = self.RIGHTING_PHASE_TICKS
-        in_sweep_phase = (self.righting_ticks // phase_ticks) % 2 == 1
-        lead = self.righting_attempt % 3
 
-        if not in_sweep_phase:
+        qx, qy = msg.orientation.x, msg.orientation.y
+        u_z = 1.0 - 2.0 * (qx * qx + qy * qy)
+
+        axis = 'x' if (self.righting_attempt % 4) < 2 else 'y'
+        sign = 1.0 if (self.righting_attempt % 2) == 0 else -1.0
+
+        if self.righting_ticks == 1:
+            # Fold legs compact once per attempt so they don't snag the
+            # terrain mid-roll. (A posture step is normally a launch impulse
+            # in ug -- here the maneuver is deliberately dynamic anyway.)
             for j, pub in self.joint_pubs.items():
                 if 'hip' in j:
-                    pub.publish(Float64(data=self.righting_splay_hip))
+                    pub.publish(Float64(data=self.stand_hip_target))
                 elif 'knee' in j:
-                    pub.publish(Float64(data=self.righting_splay_knee))
-        else:
-            for i in range(3):
-                hip_j, knee_j = f'hip_joint_{i}', f'knee_joint_{i}'
-                if i == lead:
-                    self.joint_pubs[hip_j].publish(Float64(data=self.righting_sweep_lead_hip))
-                    self.joint_pubs[knee_j].publish(Float64(data=self.righting_sweep_lead_knee))
-                else:
-                    self.joint_pubs[hip_j].publish(Float64(data=self.righting_sweep_brace_hip))
-                    self.joint_pubs[knee_j].publish(Float64(data=self.righting_sweep_brace_knee))
+                    pub.publish(Float64(data=self.stand_knee_target))
+            self.get_logger().info(
+                f'[{self.robot_name}] 🔄 RW righting attempt '
+                f'{self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS}: '
+                f'rolling about {axis} ({"+" if sign > 0 else "-"}), '
+                f'u_z={u_z:.2f}')
 
-        if self.righting_ticks >= phase_ticks * 2:
-            if not self._is_inverted(msg):
+        other = 'y' if axis == 'x' else 'x'
+        if u_z < 0.2:
+            # Spin phase: full-torque wheel spin-up; body counter-rolls.
+            self.rw_pubs[axis].publish(
+                Float64(data=sign * self.RIGHTING_WHEEL_SPEED))
+            self.rw_pubs[other].publish(Float64(data=0.0))
+        else:
+            # Brake phase: command the wheel back to zero -- the decel
+            # torque stops the body's roll as symmetrically as it started.
+            self.rw_pubs[axis].publish(Float64(data=0.0))
+            self.rw_pubs[other].publish(Float64(data=0.0))
+            if u_z > 0.75:
                 self.get_logger().info(
                     f'[{self.robot_name}] ✅ Self-righting successful '
-                    f'(attempt {self.righting_attempt + 1}) — re-confirming contact')
+                    f'(attempt {self.righting_attempt + 1}, RW roll about '
+                    f'{axis}) — re-confirming contact')
                 self.state = self.CONTACT_DETECTED
                 self.settle_counter = 0
+                return
+
+        if self.righting_ticks >= self.RIGHTING_TIMEOUT_TICKS:
+            self.rw_pubs['x'].publish(Float64(data=0.0))
+            self.rw_pubs['y'].publish(Float64(data=0.0))
+            self.righting_attempt += 1
+            self.righting_ticks = 0
+            if self.righting_attempt >= self.MAX_RIGHTING_ATTEMPTS:
+                self.get_logger().error(
+                    f'[{self.robot_name}] ❌ Self-righting failed after '
+                    f'{self.MAX_RIGHTING_ATTEMPTS} attempts — giving up, marking '
+                    f'LANDED anyway so downstream logic (e.g. SAMPLER dispatch) '
+                    f'does not hang forever. Robot may still be physically inverted.')
+                self.state = self.LANDED
+                self.landed_ticks = 0
             else:
-                self.righting_attempt += 1
-                self.righting_ticks = 0
-                if self.righting_attempt >= self.MAX_RIGHTING_ATTEMPTS:
-                    self.get_logger().error(
-                        f'[{self.robot_name}] ❌ Self-righting failed after '
-                        f'{self.MAX_RIGHTING_ATTEMPTS} attempts — giving up, marking '
-                        f'LANDED anyway so downstream logic (e.g. SAMPLER dispatch) '
-                        f'does not hang forever. Robot may still be physically inverted.')
-                    self.state = self.LANDED
-                    self.landed_ticks = 0
-                else:
-                    self.get_logger().warn(
-                        f'[{self.robot_name}] Still inverted, retrying self-righting '
-                        f'(attempt {self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS}, '
-                        f'lead leg {self.righting_attempt % 3})')
+                self.get_logger().warn(
+                    f'[{self.robot_name}] Still inverted (u_z={u_z:.2f}), retrying '
+                    f'with alternate roll axis/sign '
+                    f'(attempt {self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS})')
 
     def _apply_soft_landing(self, frac=1.0):
         """Command joints toward the compliant posture, ramped by frac.

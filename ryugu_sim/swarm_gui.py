@@ -22,6 +22,7 @@ import tkinter as tk
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float64, Bool, String
 from sensor_msgs.msg import Imu
 
@@ -105,7 +106,7 @@ class SwarmGuiNode(Node):
                 lambda msg, s=st: self._drill(s, msg), 10)
             self.create_subscription(
                 Imu, f'/{agent}/imu',
-                lambda msg, s=st: self._imu(s, msg), 10)
+                lambda msg, s=st: self._imu(s, msg), qos_profile_sensor_data)
             for axis in ['x', 'y', 'z']:
                 self.create_subscription(
                     Float64, f'/{agent}/rw_{axis}_joint_cmd_vel',
