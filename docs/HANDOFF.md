@@ -685,10 +685,21 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       swarm_manager); the drill-dwell/stow/chain tail and a deliberate short-hop
       correction have still not been watched end-to-end. Note hop distances are
       currently mm/s-scale (item 2), so en-route legs take a long time.
-- [ ] **6. Re-verify self-righting after the leg-collision change.** Righting sweeps
-      push against the ground — with thigh/calf collisions gone, the maneuver now works
-      through foot spheres only. It may work better (no snagging) or worse (less
-      leverage); nobody has watched it since the change.
+- [x] **6. Self-righting — ✅ REWRITTEN AND VERIFIED (2026-07-16, `09de868`, pushed).**
+      The leg-sweep maneuver was live-observed failing all 5 attempts on every inverted
+      bot (this item's fear confirmed). Replaced with a reaction-wheel roll (bang-bang
+      spin/brake, ~500x torque margin, MINERVA-II's principle) + a
+      `/scout_N/righting_active` flag that stands the attitude controller down during
+      the roll. Verified via forced set_pose inversion: upright in ~9 s (2 attempts,
+      axis/sign alternation self-corrected a wrong first guess), stable after.
+      **Same commit, two more critical fixes:** (a) the joint_state publisher was
+      flooding at 515 Hz and had pinned all landing controllers at 100% CPU (state
+      machines frozen; landing took 7+ min or never) — removed entirely, landing now
+      confirms in ~2 min; ⛔ never feed a per-physics-step topic to a Python
+      subscriber. (b) at-rest gate on tilt correction — grounded tilt torque is a
+      rover drive in µg and was rolling landed bots around and launching them to
+      10 m; tilt now runs only when |v|>8mm/s or |ω|>0.15 rad/s. All sensor
+      subscriptions moved to sensor-data QoS (stale RELIABLE backlogs pump).
 - [ ] **7. Amplitude calibration refinement** once item 2 restores strong hops:
       re-measure V_FULL (currently 0.04 m/s, measured at damping 0.005 — it is LOWER
       at damping 0.15) and achieved distance for 2–3 fractions, then update the §3.1
