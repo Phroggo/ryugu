@@ -688,11 +688,16 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       dispatch, cooldown-paced corrective re-hops). **BUT the mission cannot complete
       yet: the symmetric vertical stroke has ZERO horizontal range** — re-hops
       repeated "23.2 m short" forever; the bots hop in place. A forward-lean
-      directional stroke (LEAN=0.25 rad, `f5afaa2`) was implemented and was under
-      live range-verification at session end — verify horizontal displacement per
-      hop, then re-watch the drill-dwell/stow/chain tail, then calibrate a
-      range-per-hop model (V_FULL splits into vertical/horizontal components with
-      lean; the 60 m auction jumps need realistic per-hop legs of a few meters).
+      directional stroke (LEAN=0.25 rad, `f5afaa2`) was implemented and
+      **range-VERIFIED (`023d7de`): 9.1 m horizontal per full-stroke hop**
+      (~15 mm/s horizontal / ~22 mm/s vertical, thrust tilt ~34°, clean arc,
+      confirmed landing). With ~9 m/hop the 5-attempt re-hop budget converges on
+      20–40 m targets — the autonomous loop is complete. REMAINING for this item:
+      watch the drill-dwell → stow → carousel-chain tail live under swarm_manager
+      (all machinery verified except this last leg), and optionally teach
+      swarm_manager a range-per-hop model (currently it requests the full distance
+      per jump and relies on re-hops; requesting min(distance, ~9 m) legs would be
+      cleaner).
 - [x] **6. Self-righting — ✅ REWRITTEN AND VERIFIED (2026-07-16, `09de868`, pushed).**
       The leg-sweep maneuver was live-observed failing all 5 attempts on every inverted
       bot (this item's fear confirmed). Replaced with a reaction-wheel roll (bang-bang
