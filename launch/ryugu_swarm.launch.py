@@ -91,70 +91,48 @@ def generate_launch_description():
             output='screen'
         ))
         
-        # Build the bridge parameters dynamically for this agent
-        # gz-sim auto-generates this long hierarchical topic name for the IMU sensor
-        # since the SDF no longer sets an explicit (and incorrectly unscoped)
-        # <topic> override -- see generate_detailed_spacehopper.py's IMU sensor
-        # comment for the full story (IMU data was silently never reaching
-        # attitude_controller.py/landing_controller.py before this fix).
+        # Bridge config via YAML file (rewritten 2026-07-16). WHY: gz-sim 8's
+        # JointPositionController subscribes ONLY to the joint-INDEXED topic
+        # /model/<m>/joint/<j>/0/cmd_pos (verbose-server-verified), and ROS
+        # remap rules cannot express a numeric path token ("/0/"), so the
+        # old CLI-args + remappings approach could not reach the plugin at
+        # all. The YAML config decouples gz_topic_name (not ROS-restricted)
+        # from ros_topic_name. The old un-indexed bridge SILENTLY published
+        # into the void for position controllers.
         imu_gz_topic = f'/world/ryugu_world/model/{agent}/link/base_link/sensor/imu_sensor/imu'
-
-        # NOTE on message type strings below: GZ->ROS bridge entries (using the "["
-        # bracket) must name the type gz-transport actually publishes on the wire.
-        # `gz topic -i -t <topic>` showed these sensor/odometry topics are published
-        # as "gz.msgs.X", not "ignition.msgs.X" -- the "ignition.msgs.*" alias isn't
-        # registered for IMU/Odometry/LaserScan in this ros_gz_bridge build, so the
-        # bridge silently created a dead (non-delivering) subscription for each of
-        # them. This is why IMU never reached attitude_controller.py/
-        # landing_controller.py, and why swarm_manager.py's odometry-based position
-        # tracking looked wired up but was actually always frozen at (0,0). The
-        # ROS->GZ command entries below (using "]") were unaffected -- Float64/Double
-        # apparently does have that legacy alias -- so they're left as-is since they
-        # were already confirmed working (drill, legs, RW respond to commands).
-        bridge_config = [
-            # IMU
-            f'{imu_gz_topic}@sensor_msgs/msg/Imu[gz.msgs.IMU',
-            # LIDAR
-            f'/model/{agent}/lidar@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
-            # Odometry (real position/velocity feedback, was previously nonexistent)
-            f'/model/{agent}/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry',
-            # Reaction Wheels Velocity
-            f'/model/{agent}/joint/rw_x_joint/cmd_vel@std_msgs/msg/Float64]ignition.msgs.Double',
-            f'/model/{agent}/joint/rw_y_joint/cmd_vel@std_msgs/msg/Float64]ignition.msgs.Double',
-            f'/model/{agent}/joint/rw_z_joint/cmd_vel@std_msgs/msg/Float64]ignition.msgs.Double',
+        entries = [
+            (f'/{agent}/imu', imu_gz_topic,
+             'sensor_msgs/msg/Imu', 'gz.msgs.IMU', 'GZ_TO_ROS'),
+            (f'/{agent}/odometry', f'/model/{agent}/odometry',
+             'nav_msgs/msg/Odometry', 'gz.msgs.Odometry', 'GZ_TO_ROS'),
         ]
-        
-        # Leg Position Commands
+        for axis in ['x', 'y', 'z']:
+            entries.append((f'/{agent}/rw_{axis}_joint_cmd_vel',
+                            f'/model/{agent}/joint/rw_{axis}_joint/cmd_vel',
+                            'std_msgs/msg/Float64', 'gz.msgs.Double', 'ROS_TO_GZ'))
         for j in range(3):
-            bridge_config.append(f'/model/{agent}/joint/hip_joint_{j}/cmd_pos@std_msgs/msg/Float64]ignition.msgs.Double')
-            bridge_config.append(f'/model/{agent}/joint/knee_joint_{j}/cmd_pos@std_msgs/msg/Float64]ignition.msgs.Double')
+            for jt in ['hip', 'knee']:
+                entries.append((f'/{agent}/joint_{jt}_joint_{j}_cmd_pos',
+                                f'/model/{agent}/joint/{jt}_joint_{j}/0/cmd_pos',
+                                'std_msgs/msg/Float64', 'gz.msgs.Double', 'ROS_TO_GZ'))
+        entries.append((f'/{agent}/cmd_drill',
+                        f'/model/{agent}/joint/drill_joint/0/cmd_pos',
+                        'std_msgs/msg/Float64', 'gz.msgs.Double', 'ROS_TO_GZ'))
 
-        # Drill/Sampler Position Command (was previously unbridged -- swarm_manager
-        # published to cmd_drill but it never reached Gazebo, and the joint had no
-        # controller plugin either, so the drill could only passively drift)
-        bridge_config.append(f'/model/{agent}/joint/drill_joint/cmd_pos@std_msgs/msg/Float64]ignition.msgs.Double')
-
-        # Create topic remapping rules
-        remappings = [
-            (imu_gz_topic, f'/{agent}/imu'),
-            (f'/model/{agent}/lidar', f'/{agent}/lidar'),
-            (f'/model/{agent}/odometry', f'/{agent}/odometry'),
-            (f'/model/{agent}/joint/rw_x_joint/cmd_vel', f'/{agent}/rw_x_joint_cmd_vel'),
-            (f'/model/{agent}/joint/rw_y_joint/cmd_vel', f'/{agent}/rw_y_joint_cmd_vel'),
-            (f'/model/{agent}/joint/rw_z_joint/cmd_vel', f'/{agent}/rw_z_joint_cmd_vel'),
-        ]
-        for j in range(3):
-            remappings.append((f'/model/{agent}/joint/hip_joint_{j}/cmd_pos', f'/{agent}/joint_hip_joint_{j}_cmd_pos'))
-            remappings.append((f'/model/{agent}/joint/knee_joint_{j}/cmd_pos', f'/{agent}/joint_knee_joint_{j}_cmd_pos'))
-        # Remap straight onto swarm_manager's existing publish topic name
-        remappings.append((f'/model/{agent}/joint/drill_joint/cmd_pos', f'/{agent}/cmd_drill'))
+        cfg_path = f'/tmp/ryugu_bridge_{agent}.yaml'
+        with open(cfg_path, 'w') as f:
+            for ros_t, gz_t, ros_ty, gz_ty, dr in entries:
+                f.write(f'- ros_topic_name: "{ros_t}"\n'
+                        f'  gz_topic_name: "{gz_t}"\n'
+                        f'  ros_type_name: "{ros_ty}"\n'
+                        f'  gz_type_name: "{gz_ty}"\n'
+                        f'  direction: {dr}\n')
 
         nodes.append(Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
             name=f'bridge_{agent}',
-            arguments=bridge_config,
-            remappings=remappings,
+            parameters=[{'config_file': cfg_path}],
             output='screen'
         ))
 

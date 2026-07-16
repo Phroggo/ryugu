@@ -147,8 +147,16 @@ class HopperLocomotion(Node):
             self.get_logger().warn(f"[{self.robot_name}] No odometry yet — cannot wake model in place.")
             return
         x, y, z, qx, qy, qz, qw = self.last_pose
+        # +0.5 mm lift: an EXACTLY in-place set_pose is a no-op that does
+        # not wake DART (found 2026-07-16 — the wake previously "worked"
+        # only because odometry lagged under CPU load, making the commanded
+        # pose accidentally differ; once the starvation fix landed, odometry
+        # became current, the set_pose became truly in-place, and the model
+        # slept through entire jump sequences with z bit-identical for
+        # minutes). Half a millimetre is imperceptible but guarantees a
+        # state change.
         req = (f'name: "{self.robot_name}", '
-               f'position: {{x: {x}, y: {y}, z: {z}}}, '
+               f'position: {{x: {x}, y: {y}, z: {z + 0.0005}}}, '
                f'orientation: {{x: {qx}, y: {qy}, z: {qz}, w: {qw}}}')
         subprocess.Popen(
             ['gz', 'service', '-s', '/world/ryugu_world/set_pose',
@@ -210,6 +218,11 @@ class HopperLocomotion(Node):
             # keep asserting its targets for as long as it owns the legs.
             self.set_joints(self.CROUCH_HIP, self.CROUCH_KNEE)
             self.state_timer += 1
+            # Keep-awake: re-nudge every 2 s through the crouch — a slow
+            # crouch can cross DART's quiescence window mid-stroke and the
+            # model sleeps through its own IGNITION (2026-07-16).
+            if self.state_timer % 20 == 0:
+                self._wake_model()
             # 10 s crouch (was 2 s): standing the 2.5 kg body up from belly-
             # rest onto planted feet at the leg PIDs' soft forces (~0.2 N
             # total) takes 3-5 s of slow rise; cycle-1 telemetry showed

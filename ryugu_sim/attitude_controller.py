@@ -176,6 +176,12 @@ class AttitudeController(Node):
         # design.
         self.bleed_wheel_accel = 0.2 # rad/s^2
 
+        # Minimum idle speed for the yaw wheel -- the DART sleep-defeat
+        # rotor (see the publish block at the end of imu_callback). 2 rad/s
+        # is far above DART's quiescence threshold and dynamically
+        # irrelevant (constant speed = zero torque).
+        self.IDLE_ROTOR_SPEED = 2.0
+
         # Attitude deadband (1 deg) + rate deadband. Because this controller
         # integrates torque into wheel speed, ANY persistent unreachable
         # error slowly winds the wheel toward momentum saturation. Terrain
@@ -341,9 +347,24 @@ class AttitudeController(Node):
         if max_speed >= self.max_rw_speed:
             self.get_logger().warn(f'[{self.robot_name}] Reaction Wheel momentum saturation — wheel pinned at {self.max_rw_speed:.0f} rad/s', throttle_duration_sec=2.0)
 
+        # SLEEP-DEFEAT ROTOR (2026-07-16): gz-sim8's DART integration sleeps
+        # a quiescent model even with allow_auto_disable=false, and a
+        # sleeping model ignores ALL joint commands (crouches/launches
+        # silently do nothing -- the root of every "legs pinned" mystery).
+        # In-place set_pose wake nudges proved unreliable (the model
+        # re-slept mid-crouch between 2 s nudges). A skeleton with ANY
+        # moving joint can never sleep, so: whenever the yaw wheel would
+        # otherwise be near-stopped, idle it at a tiny constant speed.
+        # Constant speed = zero motor torque = zero disturbance; stored
+        # momentum is 2 x 2.7e-4 = 5.4e-4 N*m*s, 0.2% of wheel capacity.
+        # Applied on the ground AND in flight -- insomnia must be permanent.
+        z_cmd = self.cmd_vel['z']
+        if abs(z_cmd) < self.IDLE_ROTOR_SPEED:
+            z_cmd = self.IDLE_ROTOR_SPEED if z_cmd >= 0.0 else -self.IDLE_ROTOR_SPEED
+
         self.pubs['x'].publish(Float64(data=self.cmd_vel['x']))
         self.pubs['y'].publish(Float64(data=self.cmd_vel['y']))
-        self.pubs['z'].publish(Float64(data=self.cmd_vel['z']))
+        self.pubs['z'].publish(Float64(data=z_cmd))
 
         self.error_pub.publish(Float64(data=total_error))
         self.rw_speed_pub.publish(Float64(data=max_speed))

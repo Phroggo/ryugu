@@ -1516,7 +1516,7 @@
              verified-stable operating point. Launch cost is small because separation joint
              speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
              0.134 N m actuator budget. -->
-        <dynamics><damping>0.15</damping></dynamics>
+        <dynamics><damping>0.05</damping></dynamics>
       </axis>
     </joint>
 
@@ -1653,7 +1653,7 @@
            hip joint above: dissipate landing-contact energy so micro-gravity
            touchdowns settle in a couple of bounce cycles instead of ringing
            near-losslessly for tens of minutes. -->
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.15</damping><friction>0.00001</friction></dynamics></axis>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.05</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ── LEG 1 ── -->
@@ -1782,7 +1782,7 @@
              verified-stable operating point. Launch cost is small because separation joint
              speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
              0.134 N m actuator budget. -->
-        <dynamics><damping>0.15</damping></dynamics>
+        <dynamics><damping>0.05</damping></dynamics>
       </axis>
     </joint>
 
@@ -1919,7 +1919,7 @@
            hip joint above: dissipate landing-contact energy so micro-gravity
            touchdowns settle in a couple of bounce cycles instead of ringing
            near-losslessly for tens of minutes. -->
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.15</damping><friction>0.00001</friction></dynamics></axis>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.05</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ── LEG 2 ── -->
@@ -2048,7 +2048,7 @@
              verified-stable operating point. Launch cost is small because separation joint
              speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
              0.134 N m actuator budget. -->
-        <dynamics><damping>0.15</damping></dynamics>
+        <dynamics><damping>0.05</damping></dynamics>
       </axis>
     </joint>
 
@@ -2185,7 +2185,7 @@
            hip joint above: dissipate landing-contact energy so micro-gravity
            touchdowns settle in a couple of bounce cycles instead of ringing
            near-losslessly for tens of minutes. -->
-      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.15</damping><friction>0.00001</friction></dynamics></axis>
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.05</damping><friction>0.00001</friction></dynamics></axis>
     </joint>
 
     <!-- ══════════ JOINT CONTROLLER PLUGINS ══════════ -->
