@@ -454,8 +454,17 @@ class SwarmManager(Node):
         dist = math.hypot(dx, dy)
         yaw = math.atan2(dy, dx)
 
+        # Range-per-hop model (2026-07-16): a full-stroke directional hop
+        # covers ~9 m of ground (range-verified live). Requesting more than
+        # that per jump just saturates the stroke and wastes a re-hop slot,
+        # so long journeys are dispatched as properly-sized legs and the
+        # 5-attempt re-hop budget becomes an error-correction reserve
+        # rather than the primary navigation mechanism.
+        HOP_RANGE = 9.0  # m, measured full-stroke horizontal range
+        leg = min(dist, HOP_RANGE)
+
         self.yaw_pubs[agent].publish(Float64(data=yaw))
-        self.jump_pubs[agent].publish(Float64(data=dist))
+        self.jump_pubs[agent].publish(Float64(data=leg))
 
         if not corrective:
             self.get_logger().info(f"🚀 {agent} accepting bid for SAMPLER. Navigating to [{target[0]:.1f}, {target[1]:.1f}] via {dist:.1f}m jump.")
