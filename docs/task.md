@@ -192,3 +192,20 @@ full scientific-accuracy pass; update HANDOFF with an explicit checklist.
   directions in HANDOFF checklist item 2. ⛔ p=5/damping=0.4 freezes joints (item 1b).
 - `[ ]` OPEN: post-liftoff flight tumble measurement (HANDOFF item 3).
 - `[ ]` OPEN: full swarm mission cycle incl. drill dwell/stow/chain (HANDOFF item 5).
+
+
+## Phase J: Swarm hardening — the bridge break, righting, damping resolution (2026-07-16)
+
+- `[x]` **⛔ CRITICAL bridge fix** (`9fdc3d4`): JointPositionController only subscribes
+  the joint-INDEXED topic; the bridge published un-indexed → every leg/drill command
+  silently void. YAML config_file bridges now; verified leg obeys exactly.
+- `[x]` RW self-righting verified via forced inversion (~9 s, `09de868`).
+- `[x]` CPU starvation fixed: 515 Hz joint_state flood removed; landing confirm 7+ min → ~2 min.
+- `[x]` At-rest tilt gate (grounded tilt-drive was launching bots to 10 m).
+- `[x]` False mid-air LANDED fixed (altitude-drift guard on velocity-only rest path).
+- `[x]` DART sleep defeated properly: +0.5 mm wake nudge + 2 rad/s idle rotor.
+- `[x]` Post-landing fold REMOVED (0.128 m/s catapult with obedient legs).
+- `[x]` **Damping sweep resolved** (`a2ac862`): c=0.05 → 24.9 mm/s hops + settling
+  landings. V_FULL = 0.025 measured. HANDOFF item 2 closed.
+- `[ ]` OPEN: full mission cycle (drill dwell/stow/chain) observation; flight-tumble
+  measurement — watcher running at session end.

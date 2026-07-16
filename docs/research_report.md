@@ -627,3 +627,100 @@ a series-elastic launch element charged slowly and released through a latch, whi
 decouples launch delta-v from joint damping entirely (the mechanism spring-loaded
 hoppers and SpaceHopper's parabolic-flight prototype use). This is the primary open
 engineering item; HANDOFF.md checklist item 2 carries the working notes.
+
+## 13. The Silent Actuation Break, µg Ground-Ops Laws, and the Damping Resolution (2026-07-16)
+
+### 13.1 A command path that was never connected
+
+The damping sweep of §12.3 initially produced impossible data — jumps with zero
+separation velocity while the hopper's state machine logged complete crouch/ignition
+sequences. The instrument chain was interrogated end-to-end (command acceptance
+verified in the hopper log; gz-side wire-tap confirmed message delivery on the bridged
+topic; a verbose server run captured the plugin's own subscription announcement),
+converging on a one-line fact with project-wide consequences:
+
+> gz-sim 8's `JointPositionController` subscribes **only** to the joint-indexed topic
+> `/model/<m>/joint/<j>/0/cmd_pos`. The bridge published to the un-indexed variant —
+> a topic with **zero subscribers** (`gz topic -i` verified).
+
+Every leg and drill command crossing the bridge in the affected sessions vanished
+silently: post-landing folds were log-only fiction, and several "clean landings"
+were a rigid tripod frozen at the plugin's power-on zero target (stiff p=1.0 holds
+exactly that pose against any contact). A ROS remap rule cannot express the numeric
+`/0/` path token (bridges crash with `Failed to parse global arguments`), so the
+bridge was rewritten to per-agent YAML `config_file`s, which decouple the gz topic
+name (not ROS-restricted) from the ROS topic name. Verification: a −0.5 rad hip
+command moved the thigh from pitch 1.200 to 0.700 rad exactly.
+
+**Epistemic consequence**: every leg-dependent observation between the break and the
+fix is invalid and was re-measured. The general lesson for simulation work is the
+project's most transferable finding: *a message published to a mistyped topic fails
+silently and looks identical to a control-logic bug.* When actuation misbehaves,
+check `gz topic -i` (is the plugin's subscription actually on this topic?) before
+touching gains.
+
+### 13.2 Three laws of micro-gravity ground operations (all live-derived)
+
+1. **Every grounded actuator motion is a propulsion event.** Third and definitive
+   confirmation: once the bridge fix made legs obey, the 15 s post-landing stand-fold
+   ramp ejected a freshly-landed robot at 0.128 m/s — 3× a full jump stroke, a ~70 m
+   ballistic arc. The fold was removed outright; after LANDED the legs hold their
+   landing pose.
+2. **Free-fall from rest is disguised as rest.** From a standstill, |v| stays under a
+   5 mm/s rest gate for t = v/g ≈ 44 s of genuine falling; a velocity-only rest
+   detector confirmed LANDED at 1 m altitude while descending. Fix: an altitude-drift
+   guard — a resting robot cannot drift 5 cm; a falling one always does within the
+   window (gt²/2 = 5 cm at t ≈ 30 s).
+3. **The physics engine's quiescence heuristics are an adversary.** gz-sim 8's DART
+   integration sleeps a quiescent model regardless of `allow_auto_disable=false`, and
+   a sleeping model ignores all joint commands. An exactly-in-place `set_pose` does
+   NOT wake it (a no-op state change) — the historical wake only worked because
+   lagging odometry made the commanded pose accidentally stale. Deployed solution: a
+   *sleep-defeat rotor* — the yaw reaction wheel is never commanded below 2 rad/s, so
+   the skeleton always has a moving joint and can never satisfy the quiescence
+   criterion. Constant wheel speed exerts zero torque; the stored momentum
+   (5.4×10⁻⁴ N·m·s) is 0.2% of wheel capacity.
+
+### 13.3 Self-righting, rebuilt on the dominant actuator
+
+The leg-sweep self-righting maneuver failed all five attempts on every inverted bot
+once foot-only collisions removed its ground-hook leverage. It was rebuilt as a
+reaction-wheel roll — the same internal-momentum principle MINERVA-II used for
+mobility on the real Ryugu — with a ~500× torque margin over the tipping requirement
+(τ_tip ≈ m·g·w/2 ≈ 2.9×10⁻⁵ N·m vs the 0.015 N·m wheel motor). The maneuver is
+bang-bang (spin the wheel → body counter-rolls → command the wheel to zero → the
+braking torque stops the body's roll symmetrically), so net momentum returns to ~zero
+and the handback to attitude control is kick-free. An arbitration flag
+(`righting_active`) stands the attitude controller down for the duration — two
+publishers on one wheel topic is a silent last-write-wins fight, the same failure
+class as §13.1. Verified via forced inversion (`set_pose` flip): detection → roll →
+upright in ~9 s, with the axis/sign alternation self-correcting a wrong first guess.
+
+A related fix with system-wide effect: tilt correction now runs only when there is
+real motion to stabilize (|v| > 8 mm/s or |ω| > 0.15 rad/s). Grounded-but-unconfirmed
+robots were previously being rolled around the terrain and launched to 10 m by their
+own tilt controllers — internal torque against ground contact *is* a rover drive
+(MINERVA-II uses that physics on purpose; we were using it by accident).
+
+### 13.4 Damping sweep: resolved
+
+With the actuation path honest, the §12.3 sweep completed in one clean cycle:
+
+| c (N·m·s/rad) | Separation v | Landing behavior |
+|---|---|---|
+| 0.005 | 39.8 mm/s | restitution ≈0.96, non-decaying pogo |
+| **0.05 (deployed)** | **24.9 mm/s (apex +2.9 m)** | **settles, LANDED confirmed in ~14 min** |
+| 0.15 | (pre-fix data; legs frozen) | rigid-tripod artifact |
+| 0.4 | — | joints freeze entirely (⛔ do not use) |
+
+24.9 mm/s clears a 3 m hop's 18.5 mm/s requirement with 35% margin; V_FULL was
+recalibrated to 0.025 m/s. The launch-authority-versus-landing-dissipation tradeoff
+that §12.3 left open is closed.
+
+One systems-engineering lesson rounds out the section: a `JointStatePublisher`
+plugin added for a since-removed control experiment published at the physics rate
+(measured 515 Hz), and three Python subscribers deserializing it pinned every landing
+controller at 100% CPU — callback throughput collapsed from ~100 Hz to 2.6 Hz and the
+tick-counted state machines effectively froze. Never feed a per-physics-step topic to
+an interpreted-language subscriber; with it removed, landing confirmation went from
+7+ minutes (or never) to ~2 minutes.
