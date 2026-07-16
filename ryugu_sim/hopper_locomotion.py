@@ -64,6 +64,22 @@ class HopperLocomotion(Node):
         self.EXTEND_HIP = -0.42
         self.EXTEND_KNEE = -1.10
 
+        # Directional lean (added 2026-07-16). The symmetric vertical stroke
+        # that fixed foot grip also removed ALL horizontal range -- the first
+        # live 3-bot mission showed corrective re-hops repeating "23.2 m
+        # short of target" forever: the bots hop straight up and land in
+        # place. Fix: swarm_manager's target_yaw already turns the bot to
+        # FACE its target (RW yaw-hold, live-verified), so a modest forward
+        # lean in the crouch -- leg 0 (the +x leg) bent further, legs 1/2
+        # slightly less -- tilts the thrust vector toward body +x and
+        # converts part of the stroke into horizontal velocity
+        # (~15 deg lean -> roughly 1/4 of separation-v goes horizontal ->
+        # meters of range per hop at Ryugu gravity). The induced launch
+        # torque from unequal per-leg travel is real but bounded, and the
+        # torque-based attitude controller demonstrably damps larger
+        # transients (0.24 rad/s) within seconds of liftoff.
+        self.LEAN = 0.25  # rad, hip-space forward-lean differential
+
         # Latest odometry pose, for the in-place set_pose DART-sleep wake
         # (see _wake_model).
         self.last_pose = None
@@ -218,7 +234,14 @@ class HopperLocomotion(Node):
             # from an un-crouched stance, ~zero impulse). Last-write-wins
             # at the joint controller, so the active state machine must
             # keep asserting its targets for as long as it owns the legs.
-            self.set_joints(self.CROUCH_HIP, self.CROUCH_KNEE)
+            # Leaned crouch: leg 0 (+x) bent LEAN further; legs 1/2 give
+            # back LEAN/2 each so the mean hip angle (and thus stance
+            # height) is unchanged -- only the thrust direction tilts.
+            self.pubs['hip_joint_0'].publish(Float64(data=self.CROUCH_HIP + self.LEAN))
+            self.pubs['knee_joint_0'].publish(Float64(data=self.CROUCH_KNEE))
+            for i in (1, 2):
+                self.pubs[f'hip_joint_{i}'].publish(Float64(data=self.CROUCH_HIP - self.LEAN / 2))
+                self.pubs[f'knee_joint_{i}'].publish(Float64(data=self.CROUCH_KNEE))
             self.state_timer += 1
             # Keep-awake: re-nudge every 2 s through the crouch — a slow
             # crouch can cross DART's quiescence window mid-stroke and the
@@ -253,9 +276,19 @@ class HopperLocomotion(Node):
             # Re-assert every tick for the same last-write-wins reason as
             # the CROUCH block above.
             frac = self.launch_amplitude
-            hip = self.CROUCH_HIP + frac * (self.EXTEND_HIP - self.CROUCH_HIP)
             knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
-            self.set_joints(hip, knee)
+            # Each leg extends from ITS OWN leaned crouch angle toward the
+            # shared extension target -- the lean carries through the stroke
+            # so the thrust direction stays tilted toward body +x.
+            hip0_start = self.CROUCH_HIP + self.LEAN
+            hip12_start = self.CROUCH_HIP - self.LEAN / 2
+            self.pubs['hip_joint_0'].publish(Float64(
+                data=hip0_start + frac * (self.EXTEND_HIP + self.LEAN - hip0_start)))
+            self.pubs['knee_joint_0'].publish(Float64(data=knee))
+            for i in (1, 2):
+                self.pubs[f'hip_joint_{i}'].publish(Float64(
+                    data=hip12_start + frac * (self.EXTEND_HIP - self.LEAN / 2 - hip12_start)))
+                self.pubs[f'knee_joint_{i}'].publish(Float64(data=knee))
 
             self.state_timer += 1
             # 1.0 s launch window: extending the loaded stroke through its
