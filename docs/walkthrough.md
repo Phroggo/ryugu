@@ -417,3 +417,18 @@ damping (0.005→0.15) solved it where control could not (`bb922ee`): clean sett
 confirmed LANDED cycles, full mission loop. The remaining tradeoff — strong hops vs.
 damped landings — is quantified in HANDOFF checklist item 2 with all measured data
 points for the next session.
+
+
+## 2026-07-16 (later) — The day the legs turned out to be disconnected
+
+The damping sweep kept returning impossible zeros until a verbose-server run exposed
+the project's most consequential infrastructure bug yet: gz-sim 8's position
+controllers subscribe only to joint-INDEXED topics, and the bridge had been
+publishing leg/drill commands to an un-indexed topic with zero subscribers. Recent
+"clean landings" were a frozen rigid tripod; stand-folds were log-only fiction. ROS
+remaps can't express the numeric token, so the bridges moved to YAML config files —
+and the first honest sweep cycle then resolved the launch-vs-landing tradeoff in one
+pass (c=0.05: 24.9 mm/s hops, settling landings). Along the way: RW self-righting
+verified by forced inversion, the sleep-defeat rotor, the at-rest tilt gate, the
+altitude-guarded rest detector, and the removal of the fold-catapult. Three µg
+ground-ops laws now stand in research_report.md §13.2.

@@ -85,10 +85,15 @@ Assuming a leg stroke length of $d = 0.1 \text{ m}$, the total average linear th
 > real 134 mNm torque cap, the first verified liftoff was recorded: **separation
 > velocity 0.0398 m/s (vs. the 0.0185 m/s a 3 m hop requires), sustained multi-meter
 > ascent, textbook ballistic arc**. The measured full-stroke delta-v calibrates the
-> distance mapping (V_FULL = 0.04 m/s). Landing dissipation then required raising
-> physical joint damping (§3.3.1), which trades away most of that separation velocity
-> — the launch-authority-vs-landing-damping tradeoff is quantified in
-> `research_report.md` §12 and stands as the primary open tuning item.
+> distance mapping. Landing dissipation then required raising physical joint damping
+> (§3.3.1), and the resulting launch-authority-vs-landing-damping tradeoff was
+> resolved on 2026-07-16 at **c = 0.05 N·m·s/rad: separation velocity 24.9 mm/s
+> (apex +2.9 m, 35% margin over the 3 m-hop requirement) with landings that settle
+> and confirm** — the deployed operating point, V_FULL = 0.025 m/s (measured). The
+> resolution required first fixing a silently dead actuation path (the bridge
+> published leg commands to a topic the position-controller plugin never subscribed
+> to — `research_report.md` §13.1), which had invalidated a span of intermediate
+> measurements.
 
 #### 3.1.1 Escape Velocity Margin
 Ryugu's weak gravity is not merely a locomotion challenge — a sufficiently energetic
