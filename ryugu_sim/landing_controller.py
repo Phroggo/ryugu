@@ -450,43 +450,15 @@ class LandingController(Node):
             else:
                 self.liftoff_counter = 0
 
-            # Stay landed until next jump; after a short pause, SLOWLY fold
-            # the legs up to the neutral stance so the feet stop bearing
-            # load and can't wedge into the terrain (see stand_hip_target
-            # and STAND_RAMP_TICKS notes above).
+            # NO post-landing fold (removed 2026-07-16). The "fold to neutral
+            # stance" ramp was a launch catapult once the bridge fix made the
+            # legs actually obey: first landing at p=1.0/c=0.05 ejected the
+            # robot at 0.128 m/s (3x a full jump stroke; ~70 m ballistic arc),
+            # caught by the liftoff watchdog. Its original purpose (prevent
+            # foot wedge-in) is already handled by the foot-only sphere
+            # collisions. After LANDED the legs simply HOLD their landing
+            # pose -- the pre-jump crouch re-asserts its own targets anyway.
             self.landed_ticks += 1
-            if self.landed_ticks == self.STAND_DELAY_TICKS:
-                self.get_logger().info(
-                    f'[{self.robot_name}] 🧍 Folding legs to neutral stance '
-                    f'(ramped over {self.STAND_RAMP_TICKS/100:.0f} s — unload feet, '
-                    f'prevent terrain wedge-in)')
-            # Publish ONLY through the ramp, then go silent (position
-            # controllers hold the last target on their own). Found
-            # 2026-07-15: this block runs in the ~100 Hz IMU callback, and
-            # publishing the final stand pose forever after the ramp
-            # completed steamrolled every leg command hopper_locomotion sent
-            # (one-shot crouch/launch targets were overridden within ~10 ms
-            # -- gz-side echo showed a continuous 0.9 flood). This single
-            # override explains every "crouch stalls at millimetres" test
-            # failure across three sessions; the friction/geometry theories
-            # were secondary to it.
-            if self.STAND_DELAY_TICKS <= self.landed_ticks \
-                    <= self.STAND_DELAY_TICKS + self.STAND_RAMP_TICKS:
-                frac = min(1.0, (self.landed_ticks - self.STAND_DELAY_TICKS)
-                           / self.STAND_RAMP_TICKS)
-                # Anchor the ramp at whatever the legs were actually last
-                # commanded to: the soft posture after an impact landing, or
-                # the flight-retract pose (0,0) after a rest-path landing
-                # where the compliant snap was deliberately skipped.
-                from_hip = 0.0 if self.contact_via_rest else self.soft_hip_target
-                from_knee = 0.0 if self.contact_via_rest else self.soft_knee_target
-                hip = from_hip + frac * (self.stand_hip_target - from_hip)
-                knee = from_knee + frac * (self.stand_knee_target - from_knee)
-                for j, pub in self.joint_pubs.items():
-                    if 'hip' in j:
-                        pub.publish(Float64(data=hip))
-                    elif 'knee' in j:
-                        pub.publish(Float64(data=knee))
 
         # Publish landed status + righting arbitration flag
         self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
