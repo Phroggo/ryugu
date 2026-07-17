@@ -414,10 +414,10 @@ class LandingController(Node):
                             f'e.g. RW/leg motor reaction torque).',
                             throttle_duration_sec=2.0)
                         self.settle_counter = 0
-                    elif self._is_inverted(msg):
+                    elif self._is_badly_tilted(msg):
                         self.get_logger().warn(
-                            f'[{self.robot_name}] ⚠️ Landed INVERTED (upside-down) — '
-                            f'initiating self-righting maneuver')
+                            f'[{self.robot_name}] ⚠️ Settled badly tilted/inverted — '
+                            f'initiating RW righting roll')
                         self.state = self.RIGHTING
                         self.righting_ticks = 0
                         self.righting_attempt = 0
@@ -463,6 +463,17 @@ class LandingController(Node):
         # Publish landed status + righting arbitration flag
         self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
         self.righting_active_pub.publish(Bool(data=(self.state == self.RIGHTING)))
+
+    def _is_badly_tilted(self, msg):
+        """True if the chassis is settled more than ~45 deg from upright
+        (u_z < 0.7). Widened from inverted-only (u_z < 0) on 2026-07-17:
+        a bot that settles 51 deg tilted passes the old check, then fires
+        its next leaned hop 51 deg sideways -- observed live driving bots
+        AWAY from their targets. The RW righting roll handles partial
+        tilts with the same arbitration and bang-bang structure."""
+        qx = msg.orientation.x
+        qy = msg.orientation.y
+        return (1.0 - 2.0 * (qx * qx + qy * qy)) < 0.7
 
     def _is_inverted(self, msg):
         """True if the chassis +Z axis is currently pointing mostly downward
@@ -528,7 +539,7 @@ class LandingController(Node):
             # torque stops the body's roll as symmetrically as it started.
             self.rw_pubs[axis].publish(Float64(data=0.0))
             self.rw_pubs[other].publish(Float64(data=0.0))
-            if u_z > 0.75:
+            if u_z > 0.9:
                 self.get_logger().info(
                     f'[{self.robot_name}] ✅ Self-righting successful '
                     f'(attempt {self.righting_attempt + 1}, RW roll about '

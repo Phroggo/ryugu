@@ -139,8 +139,15 @@ class AttitudeController(Node):
         # those bounds the loop is smooth and overdamped. A hop's coast
         # phase lasts minutes at Ryugu gravity, so a ~5 s convergence is
         # comfortably fast.
-        self.K_ang = 0.02   # N m / rad      (attitude stiffness)
-        self.K_rate = 0.05  # N m / (rad/s)  (rate damping)
+        # Retuned 2026-07-17 (bots visibly slow to stabilize; yaw slews
+        # outlasted the pre-jump crouch): K_ang 0.02 -> 0.05 raises the
+        # closed-loop bandwidth ~1.6x (wn ~1.8-2 rad/s); K_rate re-sized to
+        # keep the response overdamped (zeta ~1.1 at the flight-posture
+        # inertia). Torque still clips at the same 15 mNm motor budget, so
+        # large errors remain bang-bang at unchanged authority -- only the
+        # small-error creep gets faster.
+        self.K_ang = 0.05    # N m / rad      (attitude stiffness)
+        self.K_rate = 0.066  # N m / (rad/s)  (rate damping)
         self.I_wheel = 0.00027  # kg m^2, RW spin-axis inertia (model.sdf)
         self.tau_max = 0.015    # N m, RW motor torque budget (SS3.2)
 
@@ -284,7 +291,11 @@ class AttitudeController(Node):
         # to stabilize; a resting-but-tilted body is landing_controller's
         # problem (rest-confirm -> inversion check -> RW righting).
         rate_mag = math.sqrt(wx * wx + wy * wy + wz * wz)
-        really_moving = (self.velocity_mag > 0.008) or (rate_mag > 0.15)
+        # Rate threshold lowered 0.15 -> 0.03 (2026-07-17): a 0.1 rad/s
+        # tumble is visually violent yet sat below the old gate and went
+        # uncorrected. 0.03 is still 30x above resting sensor noise, so the
+        # grounded rover-drive hazard the gate exists for stays closed.
+        really_moving = (self.velocity_mag > 0.008) or (rate_mag > 0.03)
 
         if self.in_flight and really_moving:
             # Local +Z ("up") axis rotated into the world frame -- this is

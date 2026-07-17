@@ -106,6 +106,16 @@ class HopperLocomotion(Node):
         # Subscriber for Landed Status (From Landing Controller)
         self.sub_landed = self.create_subscription(Bool, f'/{self.robot_name}/landed', self.landed_callback, 10)
 
+        # Attitude error (rad) from attitude_controller: while grounded it
+        # reports the YAW error to the commanded heading -- exactly what
+        # the crouch must wait on before firing a leaned (directional)
+        # stroke. Launching mid-slew scatters hops off-heading (observed
+        # live 2026-07-17: bots hopping AWAY from their targets).
+        self.attitude_error = 0.0
+        self.create_subscription(
+            Float64, f'/{self.robot_name}/attitude_error',
+            lambda m: setattr(self, 'attitude_error', m.data), 10)
+
         # Timer for State Machine (10 Hz)
         self.timer = self.create_timer(0.1, self.tick)
 
@@ -254,7 +264,16 @@ class HopperLocomotion(Node):
             # IGNITION firing while the body had only risen 3 mm, so the
             # launch stroke started from unloaded, mid-swing legs and
             # delivered ~nothing. 10 s also still covers the RW yaw slew.
-            if self.state_timer > 100:
+            # Fire only once the RW yaw slew has actually aligned the body
+            # to the commanded heading (error < ~9 deg), with a 45 s cap so
+            # a stuck slew cannot deadlock the mission. Minimum 10 s stroke
+            # loading is unchanged.
+            if self.state_timer > 100 and (self.attitude_error < 0.15
+                                           or self.state_timer > 450):
+                if self.attitude_error >= 0.15:
+                    self.get_logger().warn(
+                        f"[{self.robot_name}] Launching despite yaw error "
+                        f"{self.attitude_error:.2f} rad (alignment timeout)")
                 self.state = self.LAUNCH
                 self.state_timer = 0
 
