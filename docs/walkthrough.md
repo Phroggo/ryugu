@@ -43,9 +43,9 @@ To bridge the gap between anomaly detection and physical locomotion:
 
 ---
 
-## 2026-07-14: Moved to Claude Code — git recovery + critical physics bug fix
+## 2026-07-14: Toolchain migration — git recovery + critical physics bug fix
 
-The project moved from Antigravity to Claude Code. First pass turned up a serious gap:
+The project moved to a new development toolchain. First pass turned up a serious gap:
 almost everything built after the Jul 8 checkpoint — every control node, the detailed
 robot model, the launch file — existed only on local disk, never committed. All of it
 is now committed and pushed to `github.com/Phroggo/ryugu`.
@@ -310,7 +310,7 @@ in the "Verify Safe Landing" work is done and live-verified.
 
 ---
 
-# Deep Actuation Tuning & the Physics of Standing Still (Fable, 2026-07-15)
+# Deep Actuation Tuning & the Physics of Standing Still (2026-07-15)
 
 This session's through-line: **in micro-gravity, the hard part isn't flying — it's
 being on the ground.** Every fix below traces to real telemetry, and several "verified"

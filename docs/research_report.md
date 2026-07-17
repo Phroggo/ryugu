@@ -37,7 +37,7 @@ The heightmap was derived from the official JAXA Hayabusa2 Structure-from-Motion
 6. The result was normalized and saved as a 16-bit PNG (65,536 gray levels) for maximum depth precision.
 7. In Gazebo, the geometry is mapped to `<size>100 100 5</size>`, flattening the massive ridge into a massive walkable terrain map.
 
-![Heightmap derived from the official JAXA Hayabusa2 SfM shape model (SHAPE_SFM_49k_v20180804.obj). This represents a lateral X-axis projection of Ryugu's equatorial ridge. Brighter regions indicate higher elevation (the ridge peak); darker regions indicate lower elevation.](/home/melvin/.gemini/antigravity-ide/brain/534489f2-c8bd-42c2-9a8a-eaadee7ee2f9/heightmap_preview.png)
+![Heightmap derived from the official JAXA Hayabusa2 SfM shape model (SHAPE_SFM_49k_v20180804.obj). This represents a lateral X-axis projection of Ryugu's equatorial ridge. Brighter regions indicate higher elevation (the ridge peak); darker regions indicate lower elevation.](heightmap_preview.png)
 
 ### 1.3 Surface Texture (Diffuse Map)
 To provide realistic visual rendering while avoiding data artifacts:

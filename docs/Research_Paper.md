@@ -20,7 +20,7 @@ Accurate physical evaluation of locomotion strategies necessitates a high-fideli
 
 A 1025×1025 collision heightmap was derived from the official Hayabusa2 Structure-from-Motion shape model (`SHAPE_SFM_49k_v20180804.obj`) [3]. The selected cross-section reflects the dense cratering and rocky ridges characteristic of Ryugu's equatorial band, mapped onto a 100 m × 100 m traversal field with 5 m of vertical relief.
 
-![Figure 1: Lateral X-axis projection heightmap derived from the Hayabusa2 SfM shape model, detailing Ryugu's equatorial ridge.](/home/melvin/.gemini/antigravity-ide/brain/534489f2-c8bd-42c2-9a8a-eaadee7ee2f9/heightmap_preview.png)
+![Figure 1: Lateral X-axis projection heightmap derived from the Hayabusa2 SfM shape model, detailing Ryugu's equatorial ridge.](heightmap_preview.png)
 
 ### 2.2 Microgravity and Illumination
 
@@ -41,7 +41,7 @@ The SpaceHopper is a compact, 2.50 kg tri-pedal robot whose mass distribution ke
 | **Thermal & Solar** | GaAs solar arrays, Kapton MLI blankets | 0.15 | 6% |
 | **Total Operational Mass** | | **2.50 kg** | **100%** |
 
-![Figure 2: Rendering of the SpaceHopper concept, showcasing the GaAs solar arrays, thermal louvers, and articulated legs.](/home/melvin/.gemini/antigravity-ide/brain/534489f2-c8bd-42c2-9a8a-eaadee7ee2f9/spacehopper_concept_1783933381656.png)
+![Figure 2: Rendering of the SpaceHopper concept, showcasing the GaAs solar arrays, thermal louvers, and articulated legs.](spacehopper_concept_1783933381656.png)
 
 ### 3.1 Jumping Dynamics
 

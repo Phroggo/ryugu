@@ -32,7 +32,7 @@
 > and do not raise joint damping ≥0.4 (freezes the joints — see checklist 1b).
 
 > [!IMPORTANT]
-> **Superseded 2026-07-15 status (kept for history — Fable deep-tuning session).**
+> **Superseded 2026-07-15 status (kept for history — deep-tuning session).**
 > This session rewrote the RW attitude
 > controller to torque-based momentum pumping (the persistent yaw spin was a
 > control-STRUCTURE bug: wheel-velocity-proportional commands transfer zero momentum at
@@ -87,15 +87,15 @@
 > the sandboxed environment tearing down. **Recovery is fast and mechanical**: (1)
 > confirm nothing survived (`ps aux | grep -E "gz sim|ros2 launch"`), (2) re-launch per
 > the Build & Run Commands below, (3) if you had a background monitoring script running
-> in the scratchpad (`/tmp/claude-*/.../scratchpad/`), check if the directory survived —
+> in the scratchpad (`/tmp/**/scratchpad/`), check if the directory survived —
 > it may have been wiped too, in which case just recreate the script and restart it. Git
 > state survives these crashes fine (already-committed/pushed work is untouched) — only
 > ephemeral background processes and scratch files are at risk. Don't panic-diagnose the
 > sim itself when this happens; just check `ps aux` first.
 
 > [!IMPORTANT]
-> **2026-07-14: Project moved from Antigravity to Claude Code.**
-> Claude Code now works from `/home/melvin/ryugu_v2_ws/CLAUDE.md`, which points back to
+> **2026-07-14: Project moved to a new development toolchain.**
+> Development now works from the workspace root, which points back to
 > this file. This file, `task.md`, and `walkthrough.md` are being kept updated per the
 > user's request as work continues. This session also discovered and fixed a **real gap**:
 > almost everything built after "Checkpoint 1" (Jul 8) was never committed to git — see
@@ -167,12 +167,12 @@ sync, working tree clean). Commit-by-commit history:
   a single test flight. **If you ever see the robot registering `LANDED` while visibly
   airborne again, this class of bug is the first thing to suspect** — check
   `landing_controller.py`'s new velocity gate and its log warnings.
-- `cb470b7` (Jul 15, Fable): **torque-based momentum-pumping rewrite of
+- `cb470b7` (Jul 15): **torque-based momentum-pumping rewrite of
   `attitude_controller.py`** (fixes the persistent yaw spin at its structural root) +
   micro-gravity landing-detection rebuild (rest-window detector, bounce velocity gate,
   IDLE self-arming) + post-landing stand-up + idle-recovery timer 30s→5min. See
   `research_report.md` §4.1.2 and §10 for full derivations.
-- `c2a1e1b` (Jul 15, Fable): **fixed the LANDED→liftoff kick loop** (grounded RW bleed
+- `c2a1e1b` (Jul 15): **fixed the LANDED→liftoff kick loop** (grounded RW bleed
   50→0.2 rad/s² — was dumping wheel momentum 240x faster than Ryugu-weight friction can
   absorb, launching the robot ~2s after every landing; rest-path contacts no longer
   snap the compliant posture; stand-up ramps over 15s) + **swarm_manager auction
@@ -180,13 +180,13 @@ sync, working tree clean). Commit-by-commit history:
   requeue, ±45m anomaly clamp, 8s drill dwell) + real leg joint damping (1e-5→5e-3;
   touchdowns previously bounced near-losslessly for tens of minutes) + RW speed clamp
   corrected to the motor datasheet (1396→982 rad/s).
-- `271e56d` (Jul 15, Fable): untrack `__pycache__`, add `.gitignore`.
-- `199fae4` (Jul 15, Fable): velocity-only rest path (breaks the tilt-pump/
+- `271e56d` (Jul 15): untrack `__pycache__`, add `.gitignore`.
+- `199fae4` (Jul 15): velocity-only rest path (breaks the tilt-pump/
   landing-confirm deadlock), launch window 0.2s→0.5s, foot-only leg collisions +
   2.5cm foot spheres (wedge-jam fix), amplitude recalibration.
 - `c38cf8e` (Jul 15): drill mid-flight jiggle fix, per-leg-delta launch (asymmetric
   launch-torque fix), RW command slew limiter (superseded by `cb470b7`'s rewrite).
-- `41bb472` (Jul 15, Fable): DART-sleep `set_pose` wake before CROUCH/IGNITION +
+- `41bb472` (Jul 15): DART-sleep `set_pose` wake before CROUCH/IGNITION +
   stroke-fraction launch scaffolding.
 - `ecf1100` (Jul 15): zigzag stroke targets (feet directly under hips — µg friction
   fix; feet grip instead of sliding).
@@ -227,7 +227,7 @@ The swarm is managed by a central `swarm_manager` node that assigns exploration 
 
 | Path | Description |
 |------|-------------|
-| `/home/melvin/ryugu_v2_ws/` | **ROS 2 workspace root** — see `CLAUDE.md` there for the Claude Code-oriented version of this map |
+| `/home/melvin/ryugu_v2_ws/` | **ROS 2 workspace root** — see the workspace notes there for the tool-oriented version of this map |
 | `src/ryugu_sim/` | Main ROS 2 package (**and the actual git repo root**) |
 | `src/ryugu_sim/ryugu_sim/attitude_controller.py` | Reaction-wheel attitude controller. **Torque-based momentum pumping** (rewritten again `cb470b7` — PD attitude law → body torque clipped to the real 15 mNm budget → wheel-acceleration integral; the earlier velocity-proportional law could not null steady-state error at all). Quaternion cross-product tilt error (`086c7bc`), 1° angle deadband (windup guard), rate damping always active, per-axis 982 rad/s clamp, GENTLE grounded bleed (0.2 rad/s² — see the µg ground-handling gotcha). `in_flight` tracks `/landed` in both directions. |
 | `src/ryugu_sim/ryugu_sim/hopper_locomotion.py` | Tri-pedal jump state machine: IDLE→CROUCH→LAUNCH→FLIGHT→(back to IDLE on landing). Launch is a per-leg **delta** from each leg's crouch pose (balanced thrust), 0.5s launch window, amplitude scales with `v_req` (calibration redone 2026-07-15 against measured delivered delta-v). 5-min idle recovery hop, gated on actually-landed. |
@@ -764,7 +764,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
    actually lights up vs. just looks colored, whether a mechanism looks mounted vs.
    free-floating) and will tell you directly if something looks wrong — take that
    feedback at face value and fix it, don't argue that "it's probably fine."
-5. **If you're Antigravity (or any agent unfamiliar with this session) picking this up
+5. **If you're an agent unfamiliar with this session picking this up
    cold**, the single most important thing to internalize is the ros_gz_bridge gotcha
    near the top of this file. It cost significant debugging time to find because it
    produces *no errors* — topics look like they exist, nodes look connected, and the
@@ -853,4 +853,4 @@ that's what forced the revert last time, not anything wrong with the lights them
 
 ---
 
-*Last updated: 2026-07-15 (Fable — deep actuation tuning, swarm auction, docs accuracy pass; see the ✅ CHECKLIST section)*
+*Last updated: 2026-07-16 (project close-out; see the ✅ CHECKLIST section)*
