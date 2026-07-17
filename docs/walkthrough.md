@@ -231,7 +231,7 @@ nodes, in any prior session:**
 
 Also did a full visual/material realism pass in between (PBR materials, gold MLI foil
 on all 6 chassis faces, 16 real lights including 2 headlight spotlights, differentiated
-leg materials) — see commits `ccca17f` and the git log for detail; skipping a full
+leg materials) — see commits `36e03e1` and the git log for detail; skipping a full
 writeup here since it's mostly visual and already covered in commit messages.
 
 **The main event**: after killing `swarm_manager` and triggering a short controlled 3m
@@ -272,7 +272,7 @@ landing) — and it traced to two compounding issues**:
    `landing_controller`'s own self-righting attempts. Live-confirmed via IMU:
    `angular_velocity.z = 4.12 rad/s` minutes after the robot was already marked
    `LANDED`. Fixed by subscribing to `/landed` and clearing `in_flight` (+ integral
-   windup) on touchdown — committed as `7ba3977`. **Re-verification in progress** with
+   windup) on touchdown — committed as `b1dc012`. **Re-verification in progress** with
    a fresh controlled hop as this is written; not yet confirmed the fix eliminates the
    post-landing spin (yaw correction is intentionally always-active even when grounded,
    by original design, so some residual rotation while it seeks `target_yaw` is
@@ -305,7 +305,7 @@ is a strict improvement at large angles, not a behavior change at small ones.
   spinning) before the fix. This was the user's original live observation ("it's
   spinning around in the air") that kicked off this whole investigation.
 
-Committed as `b68ca4f`. This closes out `task.md` B6 — as of this writing, every item
+Committed as `086c7bc`. This closes out `task.md` B6 — as of this writing, every item
 in the "Verify Safe Landing" work is done and live-verified.
 
 ---
@@ -404,7 +404,7 @@ gz-side topic echo: while the hopper published its crouch targets ONCE, the land
 controller had been re-publishing its stand pose at ~100 Hz forever after every
 landing — silently overwriting every leg command within ~10 ms. Every "the crouch
 stalls at millimetres" measurement, and the µg-friction/geometry theories built on
-top of them, had been contaminated by this override. Four fixes later (`5d37147`):
+top of them, had been contaminated by this override. Four fixes later (`7e9e90f`):
 first verified liftoff in project history, separation 0.0398 m/s, multi-meter ascent,
 textbook ballistic arc.
 
@@ -413,7 +413,7 @@ near-lossless springs (restitution ~0.96), and — this is the µg lesson of the
 project — every ACTIVE attempt to soften contact (stepped posture, 2 s ramped
 posture, zero-stiffness catch mirroring measured joint angles) measurably ADDED
 energy, the last because bridged feedback lags and pumps the rebound. Physical joint
-damping (0.005→0.15) solved it where control could not (`bb922ee`): clean settles,
+damping (0.005→0.15) solved it where control could not (`929ab95`): clean settles,
 confirmed LANDED cycles, full mission loop. The remaining tradeoff — strong hops vs.
 damped landings — is quantified in HANDOFF checklist item 2 with all measured data
 points for the next session.

@@ -28,14 +28,14 @@
   real bug: `attitude_controller.py` never reset `in_flight` after landing (no
   subscription to `/landed` existed at all), so roll/pitch correction ran forever
   post-touchdown, actively fighting self-righting. Live-confirmed via IMU
-  (`wz=4.12 rad/s` minutes after LANDED). Fixed, committed `7ba3977`, re-verification
+  (`wz=4.12 rad/s` minutes after LANDED). Fixed, committed `b1dc012`, re-verification
   with a fresh hop in progress as of this writing.
 - `[x]` B6. **Fixed** — rewrote tilt (roll/pitch-equivalent) correction from
   Euler-angle PID to quaternion cross-product feedback (rotate local +Z into world
   frame, cross with world +Z), which is valid at any tilt magnitude instead of only
   small angles. Also switched from accumulated-acceleration to direct velocity
   commands, and removed integral terms (no persistent disturbance torque in free
-  flight for an I-term to compensate for). Committed `b68ca4f`. **Live-verified**: a
+  flight for an I-term to compensate for). Committed `086c7bc`. **Live-verified**: a
   fresh hop landed cleanly with self-righting succeeding on the *first* attempt
   (previously needed all 5 retries), a follow-on idle-recovery hop completed just as
   cleanly, and post-landing `angular_velocity` read ~1e-15 rad/s (float noise) vs.
@@ -72,7 +72,7 @@
 - `[x]` G2. Invisible boundary walls + ceiling added (`worlds/ryugu.sdf`, static
   `world_boundary` model, collision-only/no `<visual>`) fully enclosing the 100x100m
   terrain — 4 walls just inside the heightmap's edge (49m) plus a ceiling at 100m
-  (far above any observed jump apex, ~5.6m largest so far). Committed `13f6011`.
+  (far above any observed jump apex, ~5.6m largest so far). Committed `f2fa099`.
   Verified: loads cleanly (`gz model -m world_boundary -p` confirms correct pose),
   confirmed genuinely invisible in a wide-angle screenshot. **Not yet observed live**
   — no test flight has actually reached a boundary to confirm the collision response
@@ -93,7 +93,7 @@
 - `[ ]` `monitor_height.py`/`monitor_joints.py` are dead (subscribe to nonexistent topics) — use `monitor_gz_pose.py`/`monitor_height2.py` instead.
 - `[x]` All uncommitted work committed and pushed to `github.com/Phroggo/ryugu`.
 - `[x]` Fixed `setup.py` packaging gap (worlds/models never synced to install/).
-- `[x]` Committed the auto-sleep + setup.py fixes locally (`a18928b`) — **not yet pushed**, push deferred per user request.
+- `[x]` Committed the auto-sleep + setup.py fixes locally (`5df8756`) — **not yet pushed**, push deferred per user request.
 
 ---
 
@@ -128,7 +128,7 @@ full scientific-accuracy pass; update HANDOFF with an explicit checklist.
   Rewrote to torque-based momentum pumping (PD -> body torque clipped to 0.015 Nm ->
   wheel accel integral), gains sized to whole-robot inertia, overdamped (zeta ~1.1-1.6).
   Live-verified: 107° yaw slew converges + holds at zero rate; 165° tumble damped to
-  3.6° in ~20s. (`9de61d2`)
+  3.6° in ~20s. (`cb470b7`)
 - `[x]` 1° attitude deadband (stops overnight windup-to-saturation against terrain
   tilt); no rate deadband (caused ±1.2° limit cycle, verified + removed); per-axis
   speed clamp; RW speed ceiling corrected to the Maxon EC 20 flat datasheet (982 rad/s).
@@ -136,25 +136,25 @@ full scientific-accuracy pass; update HANDOFF with an explicit checklist.
   an accelerometer (~1e-4 m/s²); old logic bounced back to FLIGHT forever on a settled
   robot. Now: velocity-gated bounce discrimination + rest-window detector (2cm/60s +
   5mm/s, two-sided apex-dwell analysis) + liftoff watchdog in LANDED + IDLE self-arming
-  both directions. Each mechanism live-verified at least once. (`9de61d2`, `b876c87`)
+  both directions. Each mechanism live-verified at least once. (`cb470b7`, `c2a1e1b`)
 - `[x]` **Found + fixed the LANDED→liftoff kick loop**: grounded RW bleed at 50 rad/s²
   dumps wheel momentum 240x faster than ground friction can absorb → ~0.5 rad/s body
   spin → legs slap terrain → unplanned hop after every landing. Bleed now 0.2 rad/s²
   (at friction capacity). Also: rest-path contacts no longer snap the compliant
   posture (a posture step at rest is itself a launch impulse — measured 0.023-0.055
-  m/s kicks), and the post-landing stand-up ramps over 15s. (`b876c87`)
+  m/s kicks), and the post-landing stand-up ramps over 15s. (`c2a1e1b`)
 - `[x]` **Terrain wedge-in jam found**: feet left splayed under position-controller
   load wedge into heightmap crevices — leg commands then move NOTHING (verified: gz
   topic echo fine, link poses bit-identical) until lifted clear. Post-landing stand-up
-  to unloaded neutral stance prevents it. (`9de61d2`)
+  to unloaded neutral stance prevents it. (`cb470b7`)
 - `[x]` Leg joints given real damping (1e-5 → 5e-3 N·m·s/rad in the generator): with
-  none, touchdown bounced near-losslessly for tens of minutes. (`b876c87`)
+  none, touchdown bounced near-losslessly for tens of minutes. (`c2a1e1b`)
 - `[x]` Idle-recovery timer 30s → 5 min and landed-gated (kept kicking the robot
   between normal mission phases; a µg land+settle cycle alone takes ~45-60s).
 - `[x]` **swarm_manager role assignment reworked**: real auction (distance + battery +
   carousel bid, 30% SoC reserve), corrective re-hops for short landings (90s cooldown,
   max 5, then requeue), task requeue on RECHARGE-flee/offline, 10s odometry liveness
-  watchdog, anomalies clamped to ±45m (walls at ±49m), 8s drill dwell. (`b876c87`)
+  watchdog, anomalies clamped to ±45m (walls at ±49m), 8s drill dwell. (`c2a1e1b`)
   *Auction/re-hop logic is code-complete but not yet observed end-to-end live.*
 - `[x]` Research_Paper.md + research_report.md: corrected I_bot (0.0055 → 0.012-0.020
   posture-dependent, derivation shown), H_max (0.377 → 0.265 N·m·s per motor spec),
@@ -163,7 +163,7 @@ full scientific-accuracy pass; update HANDOFF with an explicit checklist.
   (momentum-pumping rewrite), §3.3/§10 (µg landing detection + ground handling),
   §4.3/§11 (swarm auction); references extended with Sidi, Wie, MINERVA, MASCOT,
   Maxon datasheets, Gerkey & Matarić.
-- `[x]` **✅ SOLVED: ground-jump liftoff (5th session, `5d37147`)** — first verified
+- `[x]` **✅ SOLVED: ground-jump liftoff (5th session, `7e9e90f`)** — first verified
   liftoff ever: separation 0.0398 m/s (2.2× threshold), sustained multi-meter ascent.
   Decisive root cause: landing_controller published the stand pose at 100 Hz forever
   post-landing, overwriting every hopper leg command — all prior "stalled crouch"
@@ -179,10 +179,10 @@ full scientific-accuracy pass; update HANDOFF with an explicit checklist.
 
 ## Phase I: Liftoff completion + landing settle (2026-07-15/16)
 
-- `[x]` **🚀 LIFTOFF** (`5d37147`, pushed): sep-v 0.0398 m/s, multi-meter ascent. Root
+- `[x]` **🚀 LIFTOFF** (`7e9e90f`, pushed): sep-v 0.0398 m/s, multi-meter ascent. Root
   cause of every prior stall: landing_controller's 100 Hz stand-pose flood overwriting
   hopper leg commands. + tick re-assertion, leg PID p 0.05→1.0, ramped impact posture.
-- `[x]` **Landing settle** (`bb922ee`, pushed): hands-off contact + physical joint
+- `[x]` **Landing settle** (`929ab95`, pushed): hands-off contact + physical joint
   damping 0.15 (three active-control approaches all ADDED energy — full data in commit
   msg + HANDOFF checklist 1b). Spawn settle AND post-hop impact landing both confirmed
   LANDED with decaying bounces; full mission loop ran under swarm_manager.
@@ -196,16 +196,16 @@ full scientific-accuracy pass; update HANDOFF with an explicit checklist.
 
 ## Phase J: Swarm hardening — the bridge break, righting, damping resolution (2026-07-16)
 
-- `[x]` **⛔ CRITICAL bridge fix** (`9fdc3d4`): JointPositionController only subscribes
+- `[x]` **⛔ CRITICAL bridge fix** (`ca87b42`): JointPositionController only subscribes
   the joint-INDEXED topic; the bridge published un-indexed → every leg/drill command
   silently void. YAML config_file bridges now; verified leg obeys exactly.
-- `[x]` RW self-righting verified via forced inversion (~9 s, `09de868`).
+- `[x]` RW self-righting verified via forced inversion (~9 s, `c91e0d1`).
 - `[x]` CPU starvation fixed: 515 Hz joint_state flood removed; landing confirm 7+ min → ~2 min.
 - `[x]` At-rest tilt gate (grounded tilt-drive was launching bots to 10 m).
 - `[x]` False mid-air LANDED fixed (altitude-drift guard on velocity-only rest path).
 - `[x]` DART sleep defeated properly: +0.5 mm wake nudge + 2 rad/s idle rotor.
 - `[x]` Post-landing fold REMOVED (0.128 m/s catapult with obedient legs).
-- `[x]` **Damping sweep resolved** (`a2ac862`): c=0.05 → 24.9 mm/s hops + settling
+- `[x]` **Damping sweep resolved** (`89f3331`): c=0.05 → 24.9 mm/s hops + settling
   landings. V_FULL = 0.025 measured. HANDOFF item 2 closed.
 - `[ ]` OPEN: full mission cycle (drill dwell/stow/chain) observation; flight-tumble
   measurement — watcher running at session end.

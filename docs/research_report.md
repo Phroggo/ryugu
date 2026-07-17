@@ -261,7 +261,7 @@ behavior change at small ones.
 before), a follow-on autonomous idle-recovery hop landing cleanly with zero righting
 needed, and post-landing `angular_velocity` of $\sim10^{-15}$ rad/s (numerical noise)
 versus 4.12 rad/s before. Implementation: `ryugu_sim/attitude_controller.py`,
-committed `b68ca4f`.
+committed `086c7bc`.
 
 ### 6.3 Case Note: From Velocity Commands to Torque-Based Momentum Pumping
 
@@ -314,7 +314,7 @@ Guards, each traced to a live failure:
 
 **Live verification:** a 107° commanded yaw slew converged overdamped and held
 within 1° at zero measured rate; an accidental 165° tumble damped to 3.6° in ~20 s; a
-grounded robot no longer holds phantom wheel-speed offsets. Committed `9de61d2`.
+grounded robot no longer holds phantom wheel-speed offsets. Committed `cb470b7`.
 
 ## 7. Power Budget & Battery Calculations
 
@@ -585,7 +585,7 @@ this override active; the theories built on those measurements were fitted to
 contaminated data. Two structural fixes: (1) publishers stop when their phase ends —
 the ramp goes silent on completion; (2) the hopper re-asserts its targets every
 control tick for as long as it owns the legs, so a last-write-wins race can never be
-lost silently again (commit `5d37147`).
+lost silently again (commit `7e9e90f`).
 
 With the override gone, one further authority fix (leg PID p 0.05 → 1.0; at p = 0.05
 the stroke tracked at ~4 mm/s, rate-limited 25× below the untouched 134 mNm torque
@@ -618,7 +618,7 @@ there is no weight margin to eat the error. Generalization (now thrice-confirmed
 this project): **on a milli-g body, every commanded leg motion while grounded is a
 thruster firing.**
 
-Physical joint damping — phase-perfect by construction — solved it (commit `bb922ee`):
+Physical joint damping — phase-perfect by construction — solved it (commit `929ab95`):
 c raised 5×10⁻³ → 0.15 N·m·s/rad, giving contact ζ ≈ 0.45, restitution ≈ 0.2. Verified
 live: spawn-descent settle and post-hop impact landing both reached confirmed LANDED
 in 2.5–3.5 min with decaying bounces, and the full autonomous mission loop ran
