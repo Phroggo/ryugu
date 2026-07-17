@@ -81,12 +81,12 @@
 
 ---
 
-## Previously active: Verify Safe Landing (Claude Code, 2026-07-14) — folded into Phase B/A above
+## Previously active: Verify Safe Landing (2026-07-14) — folded into Phase B/A above
 - `[x]` Found & fixed the actual blocker: DART auto-sleep was freezing the robot mid-flight. No jump had ever completed a landing before this fix.
 - `[ ]` Ensure legs act as dampeners upon ground contact (restitution coefficient $= 0.15$) — restitution confirmed present in `regolith_plane/model.sdf`, landing_controller logic confirmed sound by code review, but a live end-to-end landing was not yet observed (Ryugu's gravity makes flights very slow; ~5-6x real-time-factor ceiling on this hardware). Revisit as part of Phase B live-testing above.
 - `[ ]` Verify self-righting (leg inversion) capabilities if landing fails — **FOUND: not implemented anywhere in code.** Joint range physically supports it (±3.14 rad hip limits) but nothing drives it. **Scoping decision (user, 2026-07-14): documented as future work, not blocking.**
 
-## Bugs found during verification (Claude Code, 2026-07-14)
+## Bugs found during verification (2026-07-14)
 - `[x]` **DART auto-sleep bug (critical)**: fixed with `<allow_auto_disable>false</allow_auto_disable>`.
 - `[x]` **Generator/model.sdf drift**: generator referenced a non-existent plugin and had different mass/inertia than the tested, committed model.sdf. Restored to match known-good + the one fix.
 - `[ ]` `hopper_locomotion.py` computes `v_req` but never uses it — folded into Phase A3 above.
@@ -117,7 +117,7 @@
 
 ---
 
-## Phase H: Deep actuation tuning + swarm logic + docs pass (Fable, 2026-07-15)
+## Phase H: Deep actuation tuning + swarm logic + docs pass (2026-07-15)
 
 User request: go through all actuation (RWs, drill, legs), tune properly, kill RW
 oscillation; improve swarm role-assignment; upgrade research docs with references;
