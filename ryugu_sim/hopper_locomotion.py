@@ -41,7 +41,13 @@ class HopperLocomotion(Node):
         # small recovery nudge if idle that long.
         self.idle_ticks = 0
         self.IDLE_RECOVERY_TICKS = 3000
-        self.RECOVERY_AMPLITUDE = 0.3  # stroke fraction for recovery hops
+        # Recovery hops use a fixed medium-slow ramp (see the rate-limited
+        # launch redesign in jump_target_callback): ~4 s over the full
+        # stroke -> ~0.025 m/s separation -> a few metres of travel.
+        self.RECOVERY_RAMP_TICKS = 40
+        # Per-jump launch ramp duration in 10 Hz ticks; set by
+        # jump_target_callback, consumed by the LAUNCH state.
+        self.ramp_ticks = 40
 
         # Redesigned stroke endpoints (2026-07-15) -- see CROUCH/LAUNCH in
         # tick() for the geometry derivation from the empirical joint-angle
@@ -134,31 +140,50 @@ class HopperLocomotion(Node):
             
         distance = msg.data
         g = 0.000114 # Ryugu gravity
-        v_req = math.sqrt(max(distance, 0.0) * g)
 
-        # Stroke-fraction scaling (2026-07-15 launch-kinematics redesign):
-        # launch_amplitude is now the FRACTION [0..1] of the full crouch->
-        # extension stroke (see CROUCH/LAUNCH below for the geometry). The
-        # full stroke extends the legs from a compressed feet-under-body
-        # crouch to nearly straight-down, ~0.10 m of vertical travel, with
-        # an estimated full-stroke delta-v of V_FULL (provisional -- refine
-        # from the first measured hop). Floor 0.2 keeps short hops from
-        # degenerating into no-ops; cap 1.0 is the physical stroke limit
-        # (full stroke is estimated ~0.08 m/s, ~25% of escape velocity, so
-        # even the cap is containment-safe).
-        # Re-measured 2026-07-17 after the stabilization retune: with the
-        # attitude controller standing down through ground contact (it was
-        # previously counter-torquing the launch) and crouches firing only
-        # when aligned, the full stroke now delivers ~0.12 m/s -- 5x the
-        # old calibration. Uncalibrated, every 9 m leg maxed the stroke and
-        # overflew its target by ~60 m on a ~30-minute flight (observed
-        # live: re-hop distances oscillating instead of shrinking). At
-        # V_FULL=0.12 a 9 m leg uses frac~0.27: apex ~3 m, ~8 min flight,
-        # ~9 m range -- consistent with the leg-range model.
-        V_FULL = 0.12    # m/s, measured full-stroke delta-v (2026-07-17)
-        self.launch_amplitude = max(0.2, min(1.0, v_req / V_FULL))
+        # RATE-limited launch (2026-07-17 redesign, third calibration era).
+        # The previous scheme modulated the stroke FRACTION (amplitude) and
+        # assumed delta-v scales linearly with it (v = frac * V_FULL). Live
+        # measurement killed that assumption: the leg joints are position-
+        # PID driven with cmd_max = 0.134 Nm, and even a 27% stroke step
+        # keeps the PID torque-saturated through most of its travel, so the
+        # joints race at near-terminal speed REGARDLESS of frac. Measured
+        # 2026-07-17 (hop_telemetry): a frac=0.27 "9 m" hop separated at
+        # ~0.19 m/s horizontal and flew >76 m. Delta-v being amplitude-
+        # independent is exactly why re-hop distances oscillated instead of
+        # converging: every corrective hop was a 50-150 m ballistic shot
+        # inside a +/-49 m walled world.
+        #
+        # New scheme: ALWAYS use the full stroke geometry (amplitude 1.0,
+        # preserving the proven foot-under-hip force direction) and
+        # modulate the stroke RATE instead: the LAUNCH state interpolates
+        # the joint targets from crouch to extension over ramp_ticks. In
+        # micro-gravity the body tracks a slow stroke quasi-statically
+        # (PID force budget ~0.2 N >> 2.9e-4 N weight) and separates at
+        # roughly the stroke's vertical rate: v_sep ~= EFF_STROKE_H / T.
+        # Ramp duration is therefore a direct, LINEAR velocity knob with
+        # no dependence on the PID saturation curve (valid for T >= ~1.5 s;
+        # below that the PID's own terminal speed takes over, which caps
+        # per-hop delta-v around the old wild-launch regime).
+        #
+        # Ballistics: thrust is tilted ~14 deg off vertical by the LEAN
+        # crouch (launch elevation ~76 deg), so range = v^2*sin(2*76deg)/g
+        # = SIN2TH * v^2 / g with SIN2TH ~= 0.47 -- NOT the 45-deg-optimal
+        # v^2/g the old code assumed. RANGE_CAL is the single empirical
+        # trim knob (multiplies v_req; recalibrate from hop_telemetry data
+        # if measured ranges drift from commanded distances).
+        SIN2TH = 0.47
+        EFF_STROKE_H = 0.10   # m, vertical stroke travel crouch->extend
+        RANGE_CAL = 1.0       # empirical trim, refine from measured hops
+        v_req = RANGE_CAL * math.sqrt(max(distance, 0.5) * g / SIN2TH)
+        ramp_T = max(1.5, min(20.0, EFF_STROKE_H / v_req))
+        self.ramp_ticks = max(1, round(ramp_T * 10))
+        self.launch_amplitude = 1.0
 
-        self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s. Launch amplitude: {self.launch_amplitude:.2f} rad")
+        self.recovery_hop = False
+        self.get_logger().info(
+            f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: "
+            f"{v_req:.4f} m/s. Launch ramp: {ramp_T:.1f}s (full stroke)")
         self.get_logger().info(f"[{self.robot_name}] Initiating Tri-Pedal Jump Sequence!")
         
         self.state = self.CROUCH
@@ -169,6 +194,22 @@ class HopperLocomotion(Node):
         p = msg.pose.pose.position
         q = msg.pose.pose.orientation
         self.last_pose = (p.x, p.y, p.z, q.x, q.y, q.z, q.w)
+        # Stance-quality telemetry for the launch gate: uprightness (world-z
+        # component of the body z axis; 1.0 = upright, -1.0 = inverted) and
+        # speed (|linear twist|; magnitude is frame-invariant, so the body-
+        # frame twist is fine).
+        self.last_uz = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
+        v = msg.twist.twist.linear
+        self.last_speed = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+
+    def _stance_ok(self):
+        """True when the robot is upright and quiescent enough to deliver a
+        predictable directional stroke. Launching from a tilted or still-
+        bouncing stance was measured (2026-07-17) to scatter both delta-v
+        and azimuth wildly -- e.g. an IGNITION 0.17 s after a bounce-
+        interrupted LANDED left at 0.10 m/s on a ~76 deg-off heading."""
+        return (getattr(self, 'last_uz', 1.0) > 0.85
+                and getattr(self, 'last_speed', 0.0) < 0.012)
 
     def _wake_model(self):
         """In-place set_pose to wake the model out of DART sleep (gz-sim8
@@ -213,7 +254,14 @@ class HopperLocomotion(Node):
                 self.get_logger().info(
                     f"[{self.robot_name}] 🦵 Idle {self.idle_ticks/10:.0f}s with no jump command "
                     f"-- self-initiating recovery hop (legs).")
-                self.launch_amplitude = self.RECOVERY_AMPLITUDE
+                self.launch_amplitude = 1.0
+                self.ramp_ticks = self.RECOVERY_RAMP_TICKS
+                # Recovery hops BYPASS the stance gate: they are the only
+                # unstick mechanism for a bot stranded inverted after a
+                # failed RW righting (marked landed anyway), and a kick from
+                # a bad stance -- however scattered -- re-tumbles the body
+                # and gives the righting logic a fresh chance.
+                self.recovery_hop = True
                 self.state = self.CROUCH
                 self.state_timer = 0
                 self.idle_ticks = 0
@@ -269,12 +317,32 @@ class HopperLocomotion(Node):
             # IGNITION firing while the body had only risen 3 mm, so the
             # launch stroke started from unloaded, mid-swing legs and
             # delivered ~nothing. 10 s also still covers the RW yaw slew.
-            # Fire only once the RW yaw slew has actually aligned the body
-            # to the commanded heading (error < ~9 deg), with a 45 s cap so
-            # a stuck slew cannot deadlock the mission. Minimum 10 s stroke
-            # loading is unchanged.
-            if self.state_timer > 100 and (self.attitude_error < 0.15
-                                           or self.state_timer > 450):
+            # Fire only once (a) the RW yaw slew has actually aligned the
+            # body to the commanded heading (error < ~9 deg) AND (b) the
+            # stance is upright and quiescent (_stance_ok -- added
+            # 2026-07-17 after telemetry showed launches from tilted /
+            # still-bouncing stances scattering delta-v and azimuth). 45 s
+            # cap so a stuck slew cannot deadlock the mission -- but a cap
+            # expiry with a BAD STANCE aborts back to IDLE instead of
+            # firing a garbage hop (the swarm re-dispatches every 90 s;
+            # wasting a re-hop slot beats teleporting 100 m off-target).
+            # NOTE: the gate deliberately does NOT use self.landed -- the
+            # crouch stand-up itself rises at ~0.03 m/s, which the landing
+            # controller flags as "liftoff while LANDED" (81 occurrences in
+            # launch33.log), so the landed flag flickers false mid-crouch.
+            stance_ok = self._stance_ok() or getattr(self, 'recovery_hop', False)
+            if self.state_timer > 450 and not stance_ok:
+                self.get_logger().warn(
+                    f"[{self.robot_name}] Aborting hop: stance still bad at crouch "
+                    f"timeout (uz={getattr(self, 'last_uz', 1.0):.2f}, "
+                    f"speed={getattr(self, 'last_speed', 0.0):.3f} m/s). Back to IDLE.")
+                self.set_joints(0.0, 0.0)
+                self.state = self.IDLE
+                self.state_timer = 0
+                self.idle_ticks = 0
+                return
+            if self.state_timer > 100 and stance_ok and (
+                    self.attitude_error < 0.15 or self.state_timer > 450):
                 if self.attitude_error >= 0.15:
                     self.get_logger().warn(
                         f"[{self.robot_name}] Launching despite yaw error "
@@ -284,22 +352,23 @@ class HopperLocomotion(Node):
 
         elif self.state == self.LAUNCH:
             if self.state_timer == 0:
-                self.get_logger().info(f"2. IGNITION (stroke fraction={self.launch_amplitude:.2f})")
-                # Re-wake in case the 2s crouch settled into quiescence.
+                self.get_logger().info(
+                    f"2. IGNITION (stroke fraction={self.launch_amplitude:.2f}, "
+                    f"ramp={self.ramp_ticks / 10.0:.1f}s)")
+                # Re-wake in case the crouch settled into quiescence.
                 self._wake_model()
-                # Redesigned launch (2026-07-15): extend the legs from the
-                # compressed crouch TOWARD straight-down (full stroke: thigh
-                # 1.2 -> 0.15 rad from vertical, calf 0.35 -> 0.15), pressing
-                # the planted feet into the ground through ~0.10 m of
-                # vertical travel. launch_amplitude is the FRACTION of that
-                # full stroke, so per-leg travel stays symmetric (equal
-                # thrust, no launch torque impulse) at every commanded
-                # distance. The previous delta scheme swept the feet inward
-                # PAST vertical (a sideways scoop) and delivered ~zero
-                # impulse -- direction, not magnitude, was the flaw.
+            # Rate-limited stroke (2026-07-17): interpolate the joint
+            # targets from the leaned crouch to the full extension over
+            # ramp_ticks. The joints track the slowly-moving target (PID
+            # never saturates for ramps >= ~1.5 s), the body rises quasi-
+            # statically with the stroke, and separation velocity is set by
+            # the ramp rate -- see jump_target_callback for the rationale
+            # (a stepped target races at PID terminal speed no matter the
+            # amplitude; measured 0.19 m/s on a "9 m" hop).
             # Re-assert every tick for the same last-write-wins reason as
             # the CROUCH block above.
-            frac = self.launch_amplitude
+            s = min(1.0, (self.state_timer + 1) / self.ramp_ticks)
+            frac = self.launch_amplitude * s
             knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
             # Each leg extends from ITS OWN leaned crouch angle toward the
             # shared extension target -- the lean carries through the stroke
@@ -315,12 +384,15 @@ class HopperLocomotion(Node):
                 self.pubs[f'knee_joint_{i}'].publish(Float64(data=knee))
 
             self.state_timer += 1
-            # 1.0 s launch window: extending the loaded stroke through its
-            # ~0.10 m of vertical travel at ~0.33 m/s^2 of body acceleration
-            # takes ~0.8 s; retracting earlier truncates the push. Pushing
-            # "too long" is harmless in micro-gravity: once the feet leave
-            # the ground there is no contact force left to apply.
-            if self.state_timer >= 10: # 1.0 second (10 * 0.1s tick)
+            # Keep-awake through long (up to 20 s) ramps: a slow stroke can
+            # cross DART's quiescence window mid-push just like the crouch.
+            if self.state_timer % 20 == 0:
+                self._wake_model()
+            # Hold the extension briefly past ramp end (0.5 s) so the body
+            # separates cleanly at ramp speed, then retract. Pushing "too
+            # long" is harmless in micro-gravity: once the feet leave the
+            # ground there is no contact force left to apply.
+            if self.state_timer >= self.ramp_ticks + 5:
                 self.get_logger().info("3. Retracting for Landing Phase (FLIGHT Mode)")
                 self.set_joints(0.0, 0.0)
                 self.state = self.FLIGHT

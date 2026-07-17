@@ -454,13 +454,18 @@ class SwarmManager(Node):
         dist = math.hypot(dx, dy)
         yaw = math.atan2(dy, dx)
 
-        # Range-per-hop model (2026-07-16): a full-stroke directional hop
-        # covers ~9 m of ground (range-verified live). Requesting more than
-        # that per jump just saturates the stroke and wastes a re-hop slot,
-        # so long journeys are dispatched as properly-sized legs and the
-        # 5-attempt re-hop budget becomes an error-correction reserve
-        # rather than the primary navigation mechanism.
-        HOP_RANGE = 9.0  # m, measured full-stroke horizontal range
+        # Range-per-hop model (2026-07-17, rate-limited-launch era): the
+        # hopper delivers a requested distance by modulating stroke RATE
+        # (see hopper_locomotion.jump_target_callback), controllable up to
+        # ~18 m per hop (1.5 s minimum ramp). 9 m legs sit comfortably
+        # inside that band (2.1 s ramp, ~0.047 m/s separation), keep
+        # landing speeds gentle enough to settle without bounce cascades,
+        # and leave the 5-attempt re-hop budget as an error-correction
+        # reserve rather than the primary navigation mechanism. NOTE: a
+        # 9 m leg flies ~13 minutes at Ryugu gravity -- mid-flight
+        # dispatches are ignored by the hopper and gated here by the
+        # landed flag; that is normal pacing, not a stall.
+        HOP_RANGE = 9.0  # m, per-leg dispatch cap
         leg = min(dist, HOP_RANGE)
 
         self.yaw_pubs[agent].publish(Float64(data=yaw))
