@@ -269,9 +269,8 @@ class AttitudeController(Node):
         self.righting_active = msg.data
 
     def imu_callback(self, msg):
-        # landing_controller owns the wheels during a righting roll, and
-        # NOBODY torques the wheels while the feet/chassis touch ground.
-        if self.righting_active or self.ground_contact:
+        # landing_controller owns the wheels during a righting roll.
+        if self.righting_active:
             return
 
         q = msg.orientation
@@ -294,6 +293,35 @@ class AttitudeController(Node):
                  - self.K_rate * wz)
 
         total_error = abs(error_yaw)
+
+        # GROUND-CONTACT RATE-KILL (2026-07-17): during contact, attitude
+        # (position) terms are forbidden -- torque against a persistent
+        # attitude error does WORK against the ground and pumps bounces
+        # (the pogo lesson, twice over). But PURE rate damping is
+        # dissipation by construction (tau opposes omega, P = -tau*omega
+        # < 0 always), and it is exactly what a hot, tumbling, rolling
+        # landing needs: observed live, a bot landing at 0.2 m/s rolled
+        # across the terrain at ~1 rad/s indefinitely because the airborne
+        # windows between bounces were too short for flight-mode damping
+        # to bite. Reduced torque budget for gentleness.
+        if self.ground_contact:
+            tau_cap = 0.006  # N m, gentle dissipation-only budget
+            now = self.get_clock().now()
+            dt = 0.01 if self.last_imu_time is None else min(max(
+                (now - self.last_imu_time).nanoseconds / 1e9, 0.0), 0.05)
+            self.last_imu_time = now
+            for axis, w in (('x', wx), ('y', wy), ('z', wz)):
+                tau = max(-tau_cap, min(tau_cap, -self.K_rate * w))
+                # Same convention as the main law: wheel acceleration
+                # -tau/I_w produces body torque +tau (Newton's 3rd across
+                # the motor).
+                delta = (-tau / self.I_wheel) * dt
+                delta = max(-self.max_wheel_accel * dt,
+                            min(self.max_wheel_accel * dt, delta))
+                self.cmd_vel[axis] = max(-self.max_rw_speed, min(
+                    self.max_rw_speed, self.cmd_vel[axis] + delta))
+                self.pubs[axis].publish(Float64(data=self.cmd_vel[axis]))
+            return
 
         # At-rest gate (2026-07-16): even with in_flight armed (landed has
         # not confirmed), a body that is essentially motionless must NOT be
