@@ -205,6 +205,13 @@ class LandingController(Node):
             for axis in ('x', 'y')}
         self.righting_active_pub = self.create_publisher(
             Bool, f'/{self.robot_name}/righting_active', 10)
+        # Ground-contact flag (2026-07-17): attitude control must stand
+        # down for the duration of EVERY ground contact, not just righting.
+        # A tumbling bot's bounce contacts otherwise convert wheel torque
+        # into launch impulses (rover-drive physics), observed live as
+        # bounces GROWING 0.025 -> 0.15 m/s with spin climbing to 1.7 rad/s.
+        self.contact_pub = self.create_publisher(
+            Bool, f'/{self.robot_name}/ground_contact', 10)
         # Wheel speed used for the righting roll. Momentum budget: 150 rad/s
         # x I_w=2.7e-4 = 0.04 N*m*s -> free-body counter-roll ~3 rad/s about
         # the ~0.012 kg*m^2 roll axis; tipping torque needed against Ryugu
@@ -463,6 +470,7 @@ class LandingController(Node):
         # Publish landed status + righting arbitration flag
         self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
         self.righting_active_pub.publish(Bool(data=(self.state == self.RIGHTING)))
+        self.contact_pub.publish(Bool(data=(self.state == self.CONTACT_DETECTED)))
 
     def _is_badly_tilted(self, msg):
         """True if the chassis is settled more than ~45 deg from upright

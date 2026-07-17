@@ -52,6 +52,17 @@ class AttitudeController(Node):
             Bool, f'/{self.robot_name}/righting_active',
             self.righting_callback, 10)
 
+        # Full stand-down during ANY ground contact (2026-07-17): wheel
+        # torque against a touching surface is a launch impulse; a bouncing
+        # bot was being pumped harder each contact. Unlike the righting
+        # handback, cmd_vel is NOT reset here -- the wheels hold their last
+        # commanded speed through the contact (constant speed = zero
+        # torque) and control resumes seamlessly when contact ends.
+        self.ground_contact = False
+        self.create_subscription(
+            Bool, f'/{self.robot_name}/ground_contact',
+            lambda m: setattr(self, 'ground_contact', m.data), 10)
+
         # We command wheel velocity directly (proportional to error and
         # damped by body rate), not accumulated acceleration -- see the
         # rewrite note below for why.
@@ -258,8 +269,9 @@ class AttitudeController(Node):
         self.righting_active = msg.data
 
     def imu_callback(self, msg):
-        # landing_controller owns the wheels during a righting roll.
-        if self.righting_active:
+        # landing_controller owns the wheels during a righting roll, and
+        # NOBODY torques the wheels while the feet/chassis touch ground.
+        if self.righting_active or self.ground_contact:
             return
 
         q = msg.orientation
