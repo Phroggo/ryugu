@@ -60,7 +60,7 @@
 
 ### Phase F — Final verification + doc sync (item 6)
 - `[x]` F1. Final rebuild + relaunch after every change this session (many iterations); no runtime errors on the final swarm-manager-improvements build.
-- `[x]` F2. Final sweep of `HANDOFF.md`/`task.md`/`walkthrough.md`/research docs completed — see `HANDOFF.md`'s "Guidance for next agent" section for what's still open and how to approach it.
+- `[x]` F2. Final sweep of `HANDOFF.md`/`task.md`/`walkthrough.md`/research docs completed — see `HANDOFF.md`'s "Guidance for Future Work" section for what's still open and how to approach it.
 
 ### Phase G — World containment safety (user-requested, later same day)
 - `[x]` G1. Prevent the bot from ever exceeding escape velocity / flying off into
