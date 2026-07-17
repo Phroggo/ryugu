@@ -357,9 +357,14 @@ class AttitudeController(Node):
         # otherwise be near-stopped, idle it at a tiny constant speed.
         # Constant speed = zero motor torque = zero disturbance; stored
         # momentum is 2 x 2.7e-4 = 5.4e-4 N*m*s, 0.2% of wheel capacity.
-        # Applied on the ground AND in flight -- insomnia must be permanent.
+        # GROUNDED ONLY (corrected 2026-07-16): a flying body is never
+        # quiescent, so sleep cannot engage mid-flight -- but the rotor's
+        # stored momentum in flight makes the whole body counter-rotate
+        # visibly (~0.04 rad/s, below the tilt gate) with the wheel floor
+        # blocking the yaw-hold from absorbing it. On the ground, contact
+        # friction resists the reaction and the rotor does its real job.
         z_cmd = self.cmd_vel['z']
-        if abs(z_cmd) < self.IDLE_ROTOR_SPEED:
+        if (not self.in_flight) and abs(z_cmd) < self.IDLE_ROTOR_SPEED:
             z_cmd = self.IDLE_ROTOR_SPEED if z_cmd >= 0.0 else -self.IDLE_ROTOR_SPEED
 
         self.pubs['x'].publish(Float64(data=self.cmd_vel['x']))
