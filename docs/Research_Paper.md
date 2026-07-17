@@ -80,7 +80,7 @@ The SpaceHopper is a compact, 2.50 kg tri-pedal robot whose mass distribution ke
 
 ![The SpaceHopper model](fig_robot_closeup.png)
 
-*Figure 4: The SpaceHopper model on the simulated regolith — tri-pedal articulated legs with spherical feet, solar array, stereo hazard cameras, and hip status LEDs casting the characteristic green underglow.*
+*Figure 4: The SpaceHopper model — face-on view showing the stereo hazard cameras and navigation camera, UHF antenna, solar array, and the tri-pedal articulated legs with spherical feet.*
 
 ### 3.1 Jumping Dynamics
 
@@ -149,6 +149,10 @@ Touchdown detection on a milli-g body faces a fundamental ambiguity: an accelero
 * **Rest windows** — altitude confined to a ±2 cm band for 60 s with velocity below 5 mm/s. The window length is set against worst-case *two-sided apex dwell*: a ballistic coast lingers within a ±b band around apex for up to $2\sqrt{2b/g}$ ≈ 37.5 s at b = 2 cm, so a 60 s window cannot false-fire in flight. A velocity-only fallback (|v| < 5 mm/s for 120 s) carries an altitude-drift guard, because free-fall *from rest* also satisfies a pure velocity gate for its first ~44 s ($v = gt$) — a resting robot cannot drift 5 cm; a falling one always does within the window.
 * **Liftoff watchdog** — LANDED is not terminal: sustained velocity above 2 cm/s reverts the state machine to FLIGHT, because "landed" must remain true in the physics, not merely in the software.
 
+![Final descent over uneven terrain](fig_descent_terrain.png)
+
+*Figure 6: Final descent over the ridged heightmap terrain — the antenna shadow on the regolith below marks the touchdown point the detector must confirm.*
+
 After confirmation, the legs simply hold their landing pose. No posture is commanded at or after touchdown — a design rule with an empirical basis (§3.4.1). The complete locomotion cycle, spanning both controllers, is:
 
 ```mermaid
@@ -167,7 +171,7 @@ stateDiagram-v2
     LANDED --> IDLE : next task accepted
 ```
 
-*Figure 6: The hop–land–right cycle. Attitude control runs during FLIGHT (motion-gated), stands down during RIGHTING, and holds yaw only when grounded.*
+*Figure 7: The hop–land–right cycle. Attitude control runs during FLIGHT (motion-gated), stands down during RIGHTING, and holds yaw only when grounded.*
 
 #### 3.4.1 Impact Dissipation: Why Active Compliance Fails in Milli-Gravity
 
@@ -191,6 +195,10 @@ The deployed solution places dissipation where phase lag cannot exist: passive j
 
 At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective vertical stiffness ≈48 N/m against the 2.5 kg mass), giving restitution $e \approx e^{-\pi\zeta/\sqrt{1-\zeta^2}} \approx 0.2$ — bounces decay within two to three cycles — while the launch stroke retains a 35% separation-velocity margin over the 3 m-hop requirement. Series-elastic launch elements, which decouple launch delta-v from joint damping entirely, remain the recommended mechanism for flight hardware [5].
 
+![A settled landing](fig_landed_scout.png)
+
+*Figure 8: The end state the landing stack is built to reach — a scout settled upright on its legs after a completed hop, holding its landing pose with no commanded motion.*
+
 ## 4. Power and Communication Systems
 
 ### 4.1 Energy Budget
@@ -206,6 +214,10 @@ Powered by a 37.0 Wh space-grade lithium-ion pack:
 | | **Total estimated draw** | **16.00** | **3.53** |
 
 Continuous operation yields an estimated 10.5 h of shadowed endurance; the top-mounted GaAs arrays (28% efficiency) generate ~3.5 W net at 1.2 AU, allowing full recovery over the diurnal cycle. In the swarm layer, recharge is modeled as a dedicated RECHARGE role with battery-reserve gating (§4.3).
+
+![Battery management in action](fig_recharge_dashboard.png)
+
+*Figure 9: The power model operating live — a scout depleted to 25% has been reassigned to RECHARGE and regains charge at +0.60%/tick while its squadmates continue their own tasks.*
 
 ### 4.2 Swarm Communication
 
@@ -243,13 +255,13 @@ sequenceDiagram
     end
 ```
 
-*Figure 7: Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.*
+*Figure 10: Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.*
 
 Robustness mechanisms, each mapped to an observed failure mode of naive dispatching: unfinished tasks are re-queued when an agent is forced to RECHARGE or drops offline (10 s odometry-liveness watchdog); arrival is gated on real odometry (within 3 m *and* landed); journeys are dispatched as range-matched legs of at most the measured 9 m hop range, with up to five cooldown-paced corrective re-hops held as an error-correction reserve; core extraction occupies a finite 8 s drill dwell so the power model reflects a real duty cycle; and task coordinates are clamped inside the physical containment boundary, so no assignment is unreachable by construction.
 
 ![Mission telemetry dashboard](fig_dashboard.png)
 
-*Figure 8: The mission telemetry dashboard during a live run — differentiated roles (one RELAY, two SAMPLERs en route), per-agent battery and charge rate, attitude indicators, leg and reaction-wheel state.*
+*Figure 11: The mission telemetry dashboard during a live run — differentiated roles (one RELAY, two SAMPLERs en route), per-agent battery and charge rate, attitude indicators, leg and reaction-wheel state.*
 
 ## 5. Scientific Payload
 
@@ -260,11 +272,11 @@ Unlike explosive kinetic impactors, the SpaceHopper performs delicate, non-destr
 All results below are from live closed-loop simulation telemetry (IMU, odometry, and physics-engine ground truth), not open-loop estimates.
 
 * **Launch:** full-stroke separation velocity 24.9 mm/s at the deployed damping — 35% margin over the 18.5 mm/s a 3 m hop requires. Clean ballistic arcs with apex energy matching $v^2/2g$ within measurement noise.
-* **Directional range:** 9.1 m horizontal displacement per full-stroke hop (thrust tilt ≈34°, ~15 mm/s horizontal / ~22 mm/s vertical), landing settled and confirmed. Figure 9 shows the measured trajectory.
+* **Directional range:** 9.1 m horizontal displacement per full-stroke hop (thrust tilt ≈34°, ~15 mm/s horizontal / ~22 mm/s vertical), landing settled and confirmed. Figure 12 shows the measured trajectory.
 
 ![Measured hop trajectory](fig_hop_trajectory.png)
 
-*Figure 9: Measured single-hop trajectory from odometry telemetry — (a) the ballistic altitude profile (apex +2.2 m over a ~13-minute flight) and (b) the straight-line ground track covering 9.1 m.*
+*Figure 12: Measured single-hop trajectory from odometry telemetry — (a) the ballistic altitude profile (apex +2.2 m over a ~13-minute flight) and (b) the straight-line ground track covering 9.1 m.*
 * **Flight stabilization:** in-flight body rates damped to 0.005–0.015 rad/s; launch transients of 0.24 rad/s removed within seconds; no persistent yaw spin. A commanded 107° yaw slew converged overdamped and held within 1° at zero rate; a 165° tumble was damped to 3.6° in ~20 s.
 * **Self-righting:** recovery from forced full inversion in ~9 s via the reaction-wheel roll, including self-correction of an initial wrong-direction guess.
 * **Landing:** decaying-bounce settle and confirmed LANDED in ~14 min after a full-stroke hop; no false confirmations in flight and no post-landing self-ejection across the final verification runs.
