@@ -146,11 +146,16 @@ class HopperLocomotion(Node):
         # degenerating into no-ops; cap 1.0 is the physical stroke limit
         # (full stroke is estimated ~0.08 m/s, ~25% of escape velocity, so
         # even the cap is containment-safe).
-        # Re-measured 2026-07-16 at the locked-in damping c=0.05 with the
-        # bridge fix in place (the first honest full-stack measurement):
-        # separation velocity 0.0249 m/s, apex +2.9 m. (The earlier 0.0398
-        # was measured at c=0.005, which pogos on landing.)
-        V_FULL = 0.025   # m/s, measured full-stroke delta-v at c=0.05
+        # Re-measured 2026-07-17 after the stabilization retune: with the
+        # attitude controller standing down through ground contact (it was
+        # previously counter-torquing the launch) and crouches firing only
+        # when aligned, the full stroke now delivers ~0.12 m/s -- 5x the
+        # old calibration. Uncalibrated, every 9 m leg maxed the stroke and
+        # overflew its target by ~60 m on a ~30-minute flight (observed
+        # live: re-hop distances oscillating instead of shrinking). At
+        # V_FULL=0.12 a 9 m leg uses frac~0.27: apex ~3 m, ~8 min flight,
+        # ~9 m range -- consistent with the leg-range model.
+        V_FULL = 0.12    # m/s, measured full-stroke delta-v (2026-07-17)
         self.launch_amplitude = max(0.2, min(1.0, v_req / V_FULL))
 
         self.get_logger().info(f"[{self.robot_name}] Target distance: {distance:.2f}m. Required Delta-V: {v_req:.4f} m/s. Launch amplitude: {self.launch_amplitude:.2f} rad")
