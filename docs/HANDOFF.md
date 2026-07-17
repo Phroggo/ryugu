@@ -8,7 +8,7 @@
 > form — `Research_Paper.md` is submission-standard (all dev notes folded into
 > Methods/Results/Discussion), `research_report.md` is a structured study companion
 > (Parts I–III with engineering case studies). Everything is pushed to
-> `origin/master`; `docs/` in the repo mirrors the brain-dir documents.
+> `origin/master`; `docs/` in the repo mirrors the working documents.
 > Genuinely open if anyone continues: observing the drill-dwell → carousel-chain tail
 > live (machinery verified, needs a completed multi-hop journey), the LIDAR decision
 > (checklist item 8), and a series-elastic launch mechanism as the hardware-oriented
@@ -16,7 +16,7 @@
 
 > [!IMPORTANT]
 > **2026-07-16 (LATEST): LIFTOFF ACHIEVED AND LANDING SETTLE SOLVED — READ THE
-> "✅ CHECKLIST FOR THE NEXT AGENT" SECTION FIRST (user-mandated).** The first
+> "✅ PROJECT CHECKLIST" SECTION FIRST.** The first
 > verified ground jump in project history happened 2026-07-15 (separation velocity
 > 0.0398 m/s, multi-meter ascent — commit `7e9e90f`); the decisive root cause of every
 > historical "crouch stalls / legs pinned" failure was **landing_controller publishing
@@ -72,7 +72,7 @@
 > auto-docked at the right 1/4 of the screen via `wmctrl` on every launch (sim takes the
 > left 3/4). **Nothing is pushed to `origin/master` past `36e03e1` yet** — see the Git
 > Checkpoint section immediately below for the exact commit list and what's local-only.
-> **If picking this up cold, read the "Guidance for next agent" section near the bottom
+> **If picking this up cold, read the "Guidance for Future Work" section near the bottom
 > of this file first** — it lists exactly what's still open (LIDAR decision,
 > multi-agent scaling) and how to approach each item. `task.md` has the full checkbox
 > detail; `walkthrough.md` has the narrative version; `research_report.md` §9 has the
@@ -127,7 +127,7 @@ root — `ryugu_v2_ws/` itself is not a repo). Remote: `https://github.com/Phrog
 - `3b554a9` (Jul 14): the full realism + swarm intelligence pass — drill/sampler
   SAMPLER-role fixes, real odometry tracking, jump-distance targeting, idle recovery,
   self-righting, drill housing geometry, LEDs/hazcams, and the IMU/odometry
-  gz-transport bridge fix (see "Guidance for next agent" below for the bridge fix
+  gz-transport bridge fix (see "Guidance for Future Work" below for the bridge fix
   specifically — it's the single most important thing to know about this environment).
 - `c199d45` (Jul 14): reverted an initial attempt at real LED point lights back to
   emissive-only (Gazebo GUI gizmo clutter issue, later actually fixed — see `36e03e1`).
@@ -246,11 +246,11 @@ The swarm is managed by a central `swarm_manager` node that assigns exploration 
 ### SDF Generator Script
 | Path | Description |
 |------|-------------|
-| `/home/melvin/.gemini/antigravity-ide/brain/a61c73d1-b230-4862-89c8-26d7f5a72a09/scratch/generate_detailed_spacehopper.py` | **Python script that generates model.sdf** — all model changes go here, then run `python3` on it to regenerate |
+| `scripts/generate_detailed_spacehopper.py (repo)` | **Python script that generates model.sdf** — all model changes go here, then run `python3` on it to regenerate |
 
 ### Agent Tracking Documents (Artifact Directory)
 
-**Artifact root (current)**: `/home/melvin/.gemini/antigravity-ide/brain/534489f2-c8bd-42c2-9a8a-eaadee7ee2f9/`
+**Documentation**: canonical copies live in the repository under `docs/`; local working copies are kept in the project-notes directory outside the repo.
 An older/superseded artifact dir `a61c73d1-b230-4862-89c8-26d7f5a72a09/` has stale
 duplicate filenames from the Jul 7-8 session — the `534489f2-...` dir is authoritative.
 
@@ -282,7 +282,7 @@ cd /home/melvin/ryugu_v2_ws && colcon build
 source install/setup.bash && ros2 launch ryugu_sim ryugu_swarm.launch.py
 
 # Regenerate robot SDF from generator script
-python3 /home/melvin/.gemini/antigravity-ide/brain/a61c73d1-b230-4862-89c8-26d7f5a72a09/scratch/generate_detailed_spacehopper.py
+python3 scripts/generate_detailed_spacehopper.py
 
 # Trigger a jump manually (swarm_manager will race this within a few seconds of
 # spawn unless killed first — pkill -9 -f "lib/ryugu_sim/swarm_manager")
@@ -475,7 +475,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       proper mounting turret), IMU, full visual detail (MLI, antenna, cameras + stereo
       hazcams, louvers, brackets, emissive-material LEDs, foot pads + proximity sensors,
       joint housings) — **no LIDAR sensor exists despite being listed in the mass table;
-      see "Guidance for next agent" below**. LEDs: after an initial revert (GUI gizmo
+      see "Guidance for Future Work" below**. LEDs: after an initial revert (GUI gizmo
       clutter), they now have real point lights using `<visualize>false</visualize>` to
       suppress the gizmos (`36e03e1`) — the "reverted to emissive-only" note that used
       to live here is stale. Leg collisions are **foot-sphere-only** since 2026-07-15
@@ -556,7 +556,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
 
 ---
 
-## ✅ CHECKLIST FOR THE NEXT AGENT (user-mandated, 2026-07-15 — work through this IN ORDER)
+## ✅ PROJECT CHECKLIST (2026-07-15 — work through this IN ORDER)
 
 **Done and live-verified this session** (don't redo, but don't regress either):
 - [x] RW attitude control: torque-based momentum pumping; 107° yaw slew converges +
@@ -746,13 +746,13 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       strong hops, update `Research_Paper.md` §3.1's "still open" caveat and the
       addendum's closing status line.
 
-## Instructions for Receiving Agent
+## Instructions for Whoever Resumes This Project
 
 1. **Read this file first**, then `task.md` for the checkbox-level detail, then
    `walkthrough.md` for the narrative version if you want more context on *why*.
 2. **After each significant step**: update `task.md`'s checkboxes, and this file's
    "Completed/Remaining Work" sections if the change is significant enough to matter to
-   the next agent. Don't let uncommitted work pile up — commit locally after each
+   whoever works on this next. Don't let uncommitted work pile up — commit locally after each
    coherent chunk (ask before pushing).
 3. **To test changes**: kill any running gz/ros2 processes **by PID** (see Process
    hygiene above — this environment accumulates orphaned processes across sessions,
@@ -764,7 +764,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
    actually lights up vs. just looks colored, whether a mechanism looks mounted vs.
    free-floating) and will tell you directly if something looks wrong — take that
    feedback at face value and fix it, don't argue that "it's probably fine."
-5. **If you're an agent unfamiliar with this session picking this up
+5. **If you're picking this up
    cold**, the single most important thing to internalize is the ros_gz_bridge gotcha
    near the top of this file. It cost significant debugging time to find because it
    produces *no errors* — topics look like they exist, nodes look connected, and the
@@ -774,7 +774,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
    "isn't working," check the bridge first**, especially after any environment change
    (fresh machine, `apt upgrade`, container rebuild).
 
-## Guidance for Next Agent — What's Open and How to Approach It
+## Guidance for Future Work — What's Open and How to Approach It
 
 ### 1. Watch a full landing cycle complete — ✅ DONE (2026-07-14)
 **Confirmed.** A short controlled 3m hop (after killing `swarm_manager` with
