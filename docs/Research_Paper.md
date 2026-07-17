@@ -26,6 +26,39 @@ A 1025×1025 collision heightmap was derived from the official Hayabusa2 Structu
 
 The gravity vector was set to 1.14×10⁻⁴ m/s², the lower bound of Ryugu's latitude-dependent surface gravity [1] and the most demanding case for traction and rebound control. The celestial backdrop is the ESO/S. Brunier Milky Way panorama mapped onto an equirectangular sky sphere [4]; scene illumination is a single directional source representing the Sun, consistent with Ryugu's atmosphere-free lighting. Solar power is physically plausible at Ryugu's 0.96–1.42 AU orbit (~960 W/m² at the 1.19 AU semi-major axis — the same regime in which the solar-powered MINERVA-II rovers operated [8]).
 
+![Figure 3: The simulated environment — heightmap regolith terrain beneath the ESO Milky Way panorama, with a scout (green status LEDs, center-left) descending toward the surface.](fig_swarm_terrain.png)
+
+### 2.3 Software Architecture
+
+Each agent runs an identical four-node control stack; a single swarm-coordination node and a telemetry dashboard serve the fleet. All actuator and sensor traffic crosses a per-agent ROS–Gazebo bridge:
+
+```mermaid
+flowchart LR
+    subgraph Coordination
+        SM[swarm manager<br/>auction / roles / tasking]
+        GUI[telemetry dashboard]
+    end
+    subgraph Per-agent controllers
+        HOP[hopper locomotion<br/>crouch–launch state machine]
+        ATT[attitude controller<br/>torque-based RW control]
+        LAND[landing controller<br/>touchdown / righting]
+    end
+    subgraph Simulation
+        BR[ROS–Gazebo bridge<br/>per-agent, YAML-configured]
+        GZ[Gazebo Harmonic<br/>DART physics]
+    end
+    SM -- "jump target, heading" --> HOP & ATT
+    HOP -- "jump initiated" --> LAND & ATT
+    LAND -- "landed, righting active" --> HOP & ATT
+    HOP -- "leg position cmds" --> BR
+    ATT -- "wheel velocity cmds" --> BR
+    LAND -- "wheel cmds (righting)" --> BR
+    BR <--> GZ
+    BR -- "IMU, odometry" --> ATT & LAND & SM & GUI
+```
+
+*Figure 4: System architecture. The `landed` and `righting_active` flags implement strict actuator arbitration — exactly one node commands any actuator at any time (§7).*
+
 ## 3. System Design
 
 The SpaceHopper is a compact, 2.50 kg tri-pedal robot whose mass distribution keeps the center of gravity close to the geometric center:
@@ -42,6 +75,8 @@ The SpaceHopper is a compact, 2.50 kg tri-pedal robot whose mass distribution ke
 | **Total Operational Mass** | | **2.50 kg** | **100%** |
 
 ![Figure 2: Rendering of the SpaceHopper concept, showcasing the GaAs solar arrays, thermal louvers, and articulated legs.](spacehopper_concept_1783933381656.png)
+
+![Figure 5: The realized simulation model descending over the regolith — articulated tri-pedal legs with spherical feet, hip status LEDs, solar panel, and the Milky Way backdrop.](fig_robot_closeup.png)
 
 ### 3.1 Jumping Dynamics
 
@@ -106,7 +141,25 @@ Touchdown detection on a milli-g body faces a fundamental ambiguity: an accelero
 * **Rest windows** — altitude confined to a ±2 cm band for 60 s with velocity below 5 mm/s. The window length is set against worst-case *two-sided apex dwell*: a ballistic coast lingers within a ±b band around apex for up to $2\sqrt{2b/g}$ ≈ 37.5 s at b = 2 cm, so a 60 s window cannot false-fire in flight. A velocity-only fallback (|v| < 5 mm/s for 120 s) carries an altitude-drift guard, because free-fall *from rest* also satisfies a pure velocity gate for its first ~44 s ($v = gt$) — a resting robot cannot drift 5 cm; a falling one always does within the window.
 * **Liftoff watchdog** — LANDED is not terminal: sustained velocity above 2 cm/s reverts the state machine to FLIGHT, because "landed" must remain true in the physics, not merely in the software.
 
-After confirmation, the legs simply hold their landing pose. No posture is commanded at or after touchdown — a design rule with an empirical basis (§3.4.1).
+After confirmation, the legs simply hold their landing pose. No posture is commanded at or after touchdown — a design rule with an empirical basis (§3.4.1). The complete locomotion cycle, spanning both controllers, is:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> IDLE
+    IDLE --> CROUCH : jump target received<br/>(wake physics, leaned crouch)
+    CROUCH --> LAUNCH : 10 s stroke loading
+    LAUNCH --> FLIGHT : 1 s extension,<br/>legs retract
+    FLIGHT --> CONTACT : impact spike OR<br/>rest window
+    CONTACT --> LANDED : settle confirmed<br/>(velocity + altitude gates)
+    CONTACT --> FLIGHT : genuine bounce<br/>(velocity-gated)
+    CONTACT --> RIGHTING : settled INVERTED<br/>(u_z < 0)
+    RIGHTING --> CONTACT : upright<br/>(RW roll, ~9 s)
+    LANDED --> FLIGHT : liftoff watchdog<br/>(|v| > 2 cm/s)
+    LANDED --> IDLE : next task accepted
+```
+
+*Figure 6: The hop–land–right cycle. Attitude control runs during FLIGHT (motion-gated), stands down during RIGHTING, and holds yaw only when grounded.*
 
 #### 3.4.1 Impact Dissipation: Why Active Compliance Fails in Milli-Gravity
 
@@ -158,7 +211,35 @@ $$ B_a = d_a + w_b\,(100 - \mathrm{SoC}_a) + w_c\,n_a, $$
 
 where $d_a$ is straight-line distance to the target, $\mathrm{SoC}_a$ the battery state of charge ($w_b = 0.5$ m/%), and $n_a$ the carousel load ($w_c = 5$ m/sample); the lowest bid wins, and agents below a 30% charge reserve abstain. Verified live with three agents, the auction produces differentiated allocation (e.g., bids of 29.1 vs 40.8 m-equivalent deciding a contested target).
 
+The complete tasking flow for one anomaly:
+
+```mermaid
+sequenceDiagram
+    participant S3 as scout_3 (SCOUT)
+    participant SM as swarm manager
+    participant S2 as scout_2 (winner)
+    S3->>SM: spectral anomaly detected at (x, y)
+    SM->>SM: collect bids from eligible SCOUTs<br/>(distance + battery + carousel penalties)
+    Note over SM: e.g. scout_2 = 29.1 vs scout_3 = 40.8 → scout_2 wins
+    SM->>S2: assign SAMPLER role, heading + 9 m leg
+    loop until within 3 m of target (≤5 corrective re-hops)
+        S2->>S2: yaw-align → leaned hop → land → settle
+        S2->>SM: odometry (arrival check)
+        SM->>S2: next range-matched leg
+    end
+    S2->>S2: drill dwell (8 s), stow core in carousel
+    alt carousel has room and queue non-empty
+        SM->>S2: chain to next anomaly
+    else
+        SM->>S2: return to SCOUT (or RECHARGE if SoC low)
+    end
+```
+
+*Figure 8: Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.*
+
 Robustness mechanisms, each mapped to an observed failure mode of naive dispatching: unfinished tasks are re-queued when an agent is forced to RECHARGE or drops offline (10 s odometry-liveness watchdog); arrival is gated on real odometry (within 3 m *and* landed); journeys are dispatched as range-matched legs of at most the measured 9 m hop range, with up to five cooldown-paced corrective re-hops held as an error-correction reserve; core extraction occupies a finite 8 s drill dwell so the power model reflects a real duty cycle; and task coordinates are clamped inside the physical containment boundary, so no assignment is unreachable by construction.
+
+![Figure 9: The mission telemetry dashboard during a live run — differentiated roles (one RELAY, two SAMPLERs en route), per-agent battery and charge rate, attitude indicators, leg and reaction-wheel state.](fig_dashboard.png)
 
 ## 5. Scientific Payload
 
@@ -169,7 +250,9 @@ Unlike explosive kinetic impactors, the SpaceHopper performs delicate, non-destr
 All results below are from live closed-loop simulation telemetry (IMU, odometry, and physics-engine ground truth), not open-loop estimates.
 
 * **Launch:** full-stroke separation velocity 24.9 mm/s at the deployed damping — 35% margin over the 18.5 mm/s a 3 m hop requires. Clean ballistic arcs with apex energy matching $v^2/2g$ within measurement noise.
-* **Directional range:** 9.1 m horizontal displacement per full-stroke hop (thrust tilt ≈34°, ~15 mm/s horizontal / ~22 mm/s vertical), landing settled and confirmed.
+* **Directional range:** 9.1 m horizontal displacement per full-stroke hop (thrust tilt ≈34°, ~15 mm/s horizontal / ~22 mm/s vertical), landing settled and confirmed. Figure 7 shows the measured trajectory.
+
+![Figure 7: Measured single-hop trajectory from odometry telemetry — (a) the ballistic altitude profile (apex +2.2 m over a ~13-minute flight) and (b) the straight-line ground track covering 9.1 m.](fig_hop_trajectory.png)
 * **Flight stabilization:** in-flight body rates damped to 0.005–0.015 rad/s; launch transients of 0.24 rad/s removed within seconds; no persistent yaw spin. A commanded 107° yaw slew converged overdamped and held within 1° at zero rate; a 165° tumble was damped to 3.6° in ~20 s.
 * **Self-righting:** recovery from forced full inversion in ~9 s via the reaction-wheel roll, including self-correction of an initial wrong-direction guess.
 * **Landing:** decaying-bounce settle and confirmed LANDED in ~14 min after a full-stroke hop; no false confirmations in flight and no post-landing self-ejection across the final verification runs.
