@@ -4,7 +4,7 @@
 > **2026-07-16 — PROJECT CLOSE-OUT.** The mission is complete and verified end-to-end:
 > 3-agent autonomous swarm (auction → directional 9.1 m hops → stabilized flight →
 > landing → self-righting → sampling machinery), all measured live. Final additions:
-> range-per-hop dispatch (`d6188d0`), and both research documents rewritten to final
+> range-per-hop dispatch (`9e672ad`), and both research documents rewritten to final
 > form — `Research_Paper.md` is submission-standard (all dev notes folded into
 > Methods/Results/Discussion), `research_report.md` is a structured study companion
 > (Parts I–III with engineering case studies). Everything is pushed to
@@ -18,16 +18,16 @@
 > **2026-07-16 (LATEST): LIFTOFF ACHIEVED AND LANDING SETTLE SOLVED — READ THE
 > "✅ CHECKLIST FOR THE NEXT AGENT" SECTION FIRST (user-mandated).** The first
 > verified ground jump in project history happened 2026-07-15 (separation velocity
-> 0.0398 m/s, multi-meter ascent — commit `5d37147`); the decisive root cause of every
+> 0.0398 m/s, multi-meter ascent — commit `7e9e90f`); the decisive root cause of every
 > historical "crouch stalls / legs pinned" failure was **landing_controller publishing
 > its stand pose at ~100 Hz forever after landing, silently overwriting every hopper
 > leg command within ~10 ms**. The subsequent pogo-landing problem was solved with
 > physical joint damping after THREE active-control approaches all measurably ADDED
-> energy on contact (`bb922ee`). Current stable operating point: leg PID p=1.0/d=0.05,
+> energy on contact (`929ab95`). Current stable operating point: leg PID p=1.0/d=0.05,
 > joint damping 0.15 — clean settles and confirmed LANDED cycles, full mission loop
 > runs, but hops are weak (few mm/s; recovering strong hops without pogo is checklist
 > item 2, the #1 open item). **Everything is committed AND pushed to `origin/master`
-> through `bb922ee`.** ⛔ Two hard-won warnings: never let any node publish leg
+> through `929ab95`.** ⛔ Two hard-won warnings: never let any node publish leg
 > targets outside its owned state-machine phase (last-write-wins fights are silent),
 > and do not raise joint damping ≥0.4 (freezes the joints — see checklist 1b).
 
@@ -60,17 +60,17 @@
 > landing, and a genuine attitude-control instability (Euler-angle PID oscillating at
 > large tumble angles, plus a separate bug where roll/pitch correction never stopped
 > after landing) found via the user's own live observation ("it's spinning around") and
-> fixed by rewriting to quaternion-based tilt feedback (`b68ca4f`). Post-fix:
+> fixed by rewriting to quaternion-based tilt feedback (`086c7bc`). Post-fix:
 > self-righting succeeds on the first attempt instead of needing all 5 retries, and the
 > robot is measurably motionless after landing (`angular_velocity` ~1e-15 rad/s vs. 4.12
-> rad/s before). Also added: an invisible world-boundary containment box (`13f6011`, 4
+> rad/s before). Also added: an invisible world-boundary containment box (`f2fa099`, 4
 > walls + ceiling) so the robot can't exceed escape velocity (~0.32 m/s — genuinely
 > reachable given how weak Ryugu's gravity is, see `Research_Paper.md` §3.1.1) or drift
-> off the 100×100m terrain edge; and a Tkinter swarm-status dashboard GUI (`329c552`,
+> off the 100×100m terrain edge; and a Tkinter swarm-status dashboard GUI (`94f0dff`,
 > `swarm_gui.py`) showing per-bot role/activity/battery/charge-rate/attitude-gyro/
 > legs/drill/RW telemetry for all 3 bots (scout_2/3 show OFFLINE — not yet spawned),
 > auto-docked at the right 1/4 of the screen via `wmctrl` on every launch (sim takes the
-> left 3/4). **Nothing is pushed to `origin/master` past `ccca17f` yet** — see the Git
+> left 3/4). **Nothing is pushed to `origin/master` past `36e03e1` yet** — see the Git
 > Checkpoint section immediately below for the exact commit list and what's local-only.
 > **If picking this up cold, read the "Guidance for next agent" section near the bottom
 > of this file first** — it lists exactly what's still open (LIDAR decision,
@@ -115,46 +115,46 @@
 The real git repo is at **`/home/melvin/ryugu_v2_ws/src/ryugu_sim/`** (not the workspace
 root — `ryugu_v2_ws/` itself is not a repo). Remote: `https://github.com/Phroggo/ryugu.git`.
 
-- **Checkpoint 1** (`fdcc902`, Jul 8): worlds/, and the environment models (regolith
+- **Checkpoint 1** (`f7da892`, Jul 8): worlds/, and the environment models (regolith
   heightmap, skydome, ryugu). This is the "perfect, working version of the skydome and
   terrain" — revert to this specific commit if world generation/rendering breaks again.
-- **Checkpoint 2** (`108593b`, Jul 14): everything built since — all `ryugu_sim/*.py`
+- **Checkpoint 2** (`a60f3a8`, Jul 14): everything built since — all `ryugu_sim/*.py`
   control nodes, `launch/`, `models/spacehopper/model.sdf`, `setup.py`, `package.xml`,
   `scripts/`. **Before this session, none of this was committed or backed up anywhere** —
   it existed only on local disk. It is now committed and pushed to `origin/master`.
 
-- `a18928b` (Jul 14): the DART auto-sleep fix + `setup.py` packaging fix described below.
-- `01c9f20` (Jul 14): the full realism + swarm intelligence pass — drill/sampler
+- `5df8756` (Jul 14): the DART auto-sleep fix + `setup.py` packaging fix described below.
+- `3b554a9` (Jul 14): the full realism + swarm intelligence pass — drill/sampler
   SAMPLER-role fixes, real odometry tracking, jump-distance targeting, idle recovery,
   self-righting, drill housing geometry, LEDs/hazcams, and the IMU/odometry
   gz-transport bridge fix (see "Guidance for next agent" below for the bridge fix
   specifically — it's the single most important thing to know about this environment).
-- `6aee345` (Jul 14): reverted an initial attempt at real LED point lights back to
-  emissive-only (Gazebo GUI gizmo clutter issue, later actually fixed — see `ccca17f`).
-- `ccca17f` (Jul 14): full visual/material realism pass — PBR everywhere, all 6 chassis
+- `c199d45` (Jul 14): reverted an initial attempt at real LED point lights back to
+  emissive-only (Gazebo GUI gizmo clutter issue, later actually fixed — see `36e03e1`).
+- `36e03e1` (Jul 14): full visual/material realism pass — PBR everywhere, all 6 chassis
   faces gold MLI foil, differentiated leg materials, redesigned antenna, 16 real lights
   including 2 functional headlight spotlights, all using the documented SDF
   `<visualize>false</visualize>` element to suppress GUI gizmos without killing the
-  actual light (the real fix to the `6aee345` issue).
+  actual light (the real fix to the `c199d45` issue).
 
 **✅ AS OF 2026-07-16, EVERYTHING BELOW IS ALSO PUSHED to `origin/master`** (through
-`bb922ee`; the user requested pushes twice on Jul 15–16 — local and remote are in
+`929ab95`; the user requested pushes twice on Jul 15–16 — local and remote are in
 sync, working tree clean). Commit-by-commit history:
 
-- `7ba3977` (Jul 14): fixed `attitude_controller.py` never exiting flight mode after
+- `b1dc012` (Jul 14): fixed `attitude_controller.py` never exiting flight mode after
   landing (no `/landed` subscription existed at all — `in_flight` stayed `True` forever
   once a jump started).
-- `b68ca4f` (Jul 14): rewrote attitude control from Euler-angle PID to quaternion
+- `086c7bc` (Jul 14): rewrote attitude control from Euler-angle PID to quaternion
   cross-product tilt feedback — the Euler-angle approach was found live-oscillating at
   large tumble angles (1.5–2.8 rad instead of converging). See the "Guidance for next
   agent" section and `research_report.md` §4.1.1 for the full math/derivation.
-- `13f6011` (Jul 14): added the invisible `world_boundary` containment model (4 walls +
+- `f2fa099` (Jul 14): added the invisible `world_boundary` containment model (4 walls +
   ceiling) to `worlds/ryugu.sdf` — user-requested, prevents exceeding escape velocity or
   drifting off the terrain edge.
-- `329c552` (Jul 15): added the Tkinter swarm-status dashboard GUI (`swarm_gui.py`) plus
+- `94f0dff` (Jul 15): added the Tkinter swarm-status dashboard GUI (`swarm_gui.py`) plus
   `swarm_manager.py` status-topic publishing and the `wmctrl` auto-window-layout launch
   step.
-- `c461cc2` (Jul 15): **fixed a real false-positive landing-detection bug**, found via
+- `c260832` (Jul 15): **fixed a real false-positive landing-detection bug**, found via
   direct user observation (a screenshot showing the robot floating ~4.8m above the
   ground while the dashboard read `LANDED`). The contact-detection acceleration
   threshold (0.02 m/s²) was far too sensitive — RW/leg-motor reaction torque routinely
@@ -167,12 +167,12 @@ sync, working tree clean). Commit-by-commit history:
   a single test flight. **If you ever see the robot registering `LANDED` while visibly
   airborne again, this class of bug is the first thing to suspect** — check
   `landing_controller.py`'s new velocity gate and its log warnings.
-- `9de61d2` (Jul 15, Fable): **torque-based momentum-pumping rewrite of
+- `cb470b7` (Jul 15, Fable): **torque-based momentum-pumping rewrite of
   `attitude_controller.py`** (fixes the persistent yaw spin at its structural root) +
   micro-gravity landing-detection rebuild (rest-window detector, bounce velocity gate,
   IDLE self-arming) + post-landing stand-up + idle-recovery timer 30s→5min. See
   `research_report.md` §4.1.2 and §10 for full derivations.
-- `b876c87` (Jul 15, Fable): **fixed the LANDED→liftoff kick loop** (grounded RW bleed
+- `c2a1e1b` (Jul 15, Fable): **fixed the LANDED→liftoff kick loop** (grounded RW bleed
   50→0.2 rad/s² — was dumping wheel momentum 240x faster than Ryugu-weight friction can
   absorb, launching the robot ~2s after every landing; rest-path contacts no longer
   snap the compliant posture; stand-up ramps over 15s) + **swarm_manager auction
@@ -180,21 +180,21 @@ sync, working tree clean). Commit-by-commit history:
   requeue, ±45m anomaly clamp, 8s drill dwell) + real leg joint damping (1e-5→5e-3;
   touchdowns previously bounced near-losslessly for tens of minutes) + RW speed clamp
   corrected to the motor datasheet (1396→982 rad/s).
-- `fafdb03` (Jul 15, Fable): untrack `__pycache__`, add `.gitignore`.
-- `85032c8` (Jul 15, Fable): velocity-only rest path (breaks the tilt-pump/
+- `271e56d` (Jul 15, Fable): untrack `__pycache__`, add `.gitignore`.
+- `199fae4` (Jul 15, Fable): velocity-only rest path (breaks the tilt-pump/
   landing-confirm deadlock), launch window 0.2s→0.5s, foot-only leg collisions +
   2.5cm foot spheres (wedge-jam fix), amplitude recalibration.
-- `e2f8e16` (Jul 15): drill mid-flight jiggle fix, per-leg-delta launch (asymmetric
-  launch-torque fix), RW command slew limiter (superseded by `9de61d2`'s rewrite).
-- `d1ce594` (Jul 15, Fable): DART-sleep `set_pose` wake before CROUCH/IGNITION +
+- `c38cf8e` (Jul 15): drill mid-flight jiggle fix, per-leg-delta launch (asymmetric
+  launch-torque fix), RW command slew limiter (superseded by `cb470b7`'s rewrite).
+- `41bb472` (Jul 15, Fable): DART-sleep `set_pose` wake before CROUCH/IGNITION +
   stroke-fraction launch scaffolding.
-- `d50f9f8` (Jul 15): zigzag stroke targets (feet directly under hips — µg friction
+- `ecf1100` (Jul 15): zigzag stroke targets (feet directly under hips — µg friction
   fix; feet grip instead of sliding).
-- `5d37147` (Jul 15): **🚀 LIFTOFF — first verified ground jump** (sep-v 0.0398 m/s,
+- `7e9e90f` (Jul 15): **🚀 LIFTOFF — first verified ground jump** (sep-v 0.0398 m/s,
   multi-meter ascent). Root cause of ALL prior stalls: landing_controller's ~100 Hz
   stand-pose publication overwriting every hopper leg command. + tick re-assertion
   in hopper, leg PID p 0.05→1.0, ramped impact posture.
-- `bb922ee` (Jul 16): **landing settle solved** — hands-off contact + physical joint
+- `929ab95` (Jul 16): **landing settle solved** — hands-off contact + physical joint
   damping 0.15 (three active-control approaches all ADDED energy, full data in the
   commit message); joint-state telemetry plugin+bridge; V_FULL 0.08→0.04; ⛔ p=5/
   damping=0.4 freeze warning. Current stable operating point.
@@ -229,15 +229,15 @@ The swarm is managed by a central `swarm_manager` node that assigns exploration 
 |------|-------------|
 | `/home/melvin/ryugu_v2_ws/` | **ROS 2 workspace root** — see `CLAUDE.md` there for the Claude Code-oriented version of this map |
 | `src/ryugu_sim/` | Main ROS 2 package (**and the actual git repo root**) |
-| `src/ryugu_sim/ryugu_sim/attitude_controller.py` | Reaction-wheel attitude controller. **Torque-based momentum pumping** (rewritten again `9de61d2` — PD attitude law → body torque clipped to the real 15 mNm budget → wheel-acceleration integral; the earlier velocity-proportional law could not null steady-state error at all). Quaternion cross-product tilt error (`b68ca4f`), 1° angle deadband (windup guard), rate damping always active, per-axis 982 rad/s clamp, GENTLE grounded bleed (0.2 rad/s² — see the µg ground-handling gotcha). `in_flight` tracks `/landed` in both directions. |
+| `src/ryugu_sim/ryugu_sim/attitude_controller.py` | Reaction-wheel attitude controller. **Torque-based momentum pumping** (rewritten again `cb470b7` — PD attitude law → body torque clipped to the real 15 mNm budget → wheel-acceleration integral; the earlier velocity-proportional law could not null steady-state error at all). Quaternion cross-product tilt error (`086c7bc`), 1° angle deadband (windup guard), rate damping always active, per-axis 982 rad/s clamp, GENTLE grounded bleed (0.2 rad/s² — see the µg ground-handling gotcha). `in_flight` tracks `/landed` in both directions. |
 | `src/ryugu_sim/ryugu_sim/hopper_locomotion.py` | Tri-pedal jump state machine: IDLE→CROUCH→LAUNCH→FLIGHT→(back to IDLE on landing). Launch is a per-leg **delta** from each leg's crouch pose (balanced thrust), 0.5s launch window, amplitude scales with `v_req` (calibration redone 2026-07-15 against measured delivered delta-v). 5-min idle recovery hop, gated on actually-landed. |
-| `src/ryugu_sim/ryugu_sim/swarm_manager.py` | Swarm coordination node — **real market-based auction** since `b876c87` (bid = distance + battery + carousel penalties, 30% SoC reserve), corrective re-hops (90s cooldown, max 5, then requeue), 10s odometry-liveness/OFFLINE handling, task requeue on RECHARGE-flee, ±45m anomaly clamp, 8s drill dwell. Publishes `jump_target_distance` + `target_yaw` + `/status_*` topics. Fires autonomously within seconds of spawn — races any manually-triggered jump unless killed first (`pkill -9 -f "lib/ryugu_sim/swarm_manager"`) |
-| `src/ryugu_sim/ryugu_sim/landing_controller.py` | Micro-gravity landing state machine: contact spike + rest-window detector (2cm/60s z-band AND a 120s velocity-only path) + bounce velocity gate + liftoff watchdog in LANDED + IDLE self-arming both directions (all `9de61d2`/`b876c87`/final commit). Post-landing ramped stand-up to an unloaded stance (wedge-jam prevention). Detects inverted landings and runs self-righting (splay/asymmetric-sweep, 5 retries). |
-| `src/ryugu_sim/ryugu_sim/swarm_gui.py` | **New (`329c552`)**: Tkinter mission-control-style dashboard — per-bot role/activity/battery+rate/landed-state/attitude-gyro/legs/drill/RW telemetry for all 3 bots (offline bots shown greyed out). Run via `ros2 run ryugu_sim swarm_gui` standalone, or launched automatically as part of `ryugu_swarm.launch.py`. |
+| `src/ryugu_sim/ryugu_sim/swarm_manager.py` | Swarm coordination node — **real market-based auction** since `c2a1e1b` (bid = distance + battery + carousel penalties, 30% SoC reserve), corrective re-hops (90s cooldown, max 5, then requeue), 10s odometry-liveness/OFFLINE handling, task requeue on RECHARGE-flee, ±45m anomaly clamp, 8s drill dwell. Publishes `jump_target_distance` + `target_yaw` + `/status_*` topics. Fires autonomously within seconds of spawn — races any manually-triggered jump unless killed first (`pkill -9 -f "lib/ryugu_sim/swarm_manager"`) |
+| `src/ryugu_sim/ryugu_sim/landing_controller.py` | Micro-gravity landing state machine: contact spike + rest-window detector (2cm/60s z-band AND a 120s velocity-only path) + bounce velocity gate + liftoff watchdog in LANDED + IDLE self-arming both directions (all `cb470b7`/`c2a1e1b`/final commit). Post-landing ramped stand-up to an unloaded stance (wedge-jam prevention). Detects inverted landings and runs self-righting (splay/asymmetric-sweep, 5 retries). |
+| `src/ryugu_sim/ryugu_sim/swarm_gui.py` | **New (`94f0dff`)**: Tkinter mission-control-style dashboard — per-bot role/activity/battery+rate/landed-state/attitude-gyro/legs/drill/RW telemetry for all 3 bots (offline bots shown greyed out). Run via `ros2 run ryugu_sim swarm_gui` standalone, or launched automatically as part of `ryugu_swarm.launch.py`. |
 | `src/ryugu_sim/ryugu_sim/spawner.py` | Model spawner utility |
-| `src/ryugu_sim/launch/ryugu_swarm.launch.py` | Main launch file — spawns 1 scout + all control nodes + the dashboard GUI, and (since `329c552`) auto-positions windows via a delayed `wmctrl` call (sim at left 3/4 of screen, dashboard at right 1/4) |
+| `src/ryugu_sim/launch/ryugu_swarm.launch.py` | Main launch file — spawns 1 scout + all control nodes + the dashboard GUI, and (since `94f0dff`) auto-positions windows via a delayed `wmctrl` call (sim at left 3/4 of screen, dashboard at right 1/4) |
 | `src/ryugu_sim/setup.py` | Package setup with console_scripts (includes `swarm_gui` entry point) |
-| `src/ryugu_sim/worlds/ryugu.sdf` | World SDF (gravity, lighting, ground, skydome, and since `13f6011` the invisible `world_boundary` containment model) |
+| `src/ryugu_sim/worlds/ryugu.sdf` | World SDF (gravity, lighting, ground, skydome, and since `f2fa099` the invisible `world_boundary` containment model) |
 | `src/ryugu_sim/models/spacehopper/model.sdf` | **Robot SDF** (generated by script below — never hand-edit) |
 | `src/ryugu_sim/models/regolith_plane/` | Ground plane model with rocky texture, `restitution_coefficient=0.15` |
 | `src/ryugu_sim/models/skydome/` | Space skybox dome (PBR material for Ogre2) |
@@ -347,7 +347,7 @@ The user explicitly requires reaction wheels for attitude control. Do NOT replac
 The skydome uses PBR material in its SDF (not the embedded Collada phong material) because Ogre2 rejects the Collada's fixed-function shader. The texture is `materials/textures/space_skybox.png`.
 
 ### ✅ RESOLVED (kept for history): jump distance targeting was non-functional
-Fixed `01c9f20` (amplitude scales with `v_req`), then substantially re-worked 2026-07-15:
+Fixed `3b554a9` (amplitude scales with `v_req`), then substantially re-worked 2026-07-15:
 the launch stroke is now a per-leg *delta* from each leg's own crouch position (equal
 angular travel = balanced thrust, fixing a launch torque impulse), the launch window is
 0.5s, and the amplitude calibration was redone against measured delivered delta-v (see
@@ -477,7 +477,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       joint housings) — **no LIDAR sensor exists despite being listed in the mass table;
       see "Guidance for next agent" below**. LEDs: after an initial revert (GUI gizmo
       clutter), they now have real point lights using `<visualize>false</visualize>` to
-      suppress the gizmos (`ccca17f`) — the "reverted to emissive-only" note that used
+      suppress the gizmos (`36e03e1`) — the "reverted to emissive-only" note that used
       to live here is stale. Leg collisions are **foot-sphere-only** since 2026-07-15
       (see the wedge-jam gotcha).
 - [x] **Legs properly attached** (joint `relative_to` child link fix)
@@ -509,7 +509,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       control nodes in any prior session. See gotcha above; this is the single most
       important thing to understand about this environment going forward.
 - [x] **All of the above committed to git and pushed to `origin/master`** (through
-      `ccca17f`), per explicit user request.
+      `36e03e1`), per explicit user request.
 - [x] **Full visual/material realism pass** (2026-07-14, later) — PBR materials
       throughout, all 6 chassis faces wrapped in gold MLI foil (previously alternated
       gold/silver, read as much less coverage than the user pictured for "real space
@@ -562,21 +562,21 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
 - [x] RW attitude control: torque-based momentum pumping; 107° yaw slew converges +
       holds within 1° at zero rate; 165° tumble → 3.6° in ~20s; no oscillation
       (overdamped ζ≈1.1–1.6 by construction); no more windup-to-saturation (1° deadband);
-      no more grounded phantom wheel offsets. (`9de61d2`)
+      no more grounded phantom wheel offsets. (`cb470b7`)
 - [x] Persistent yaw spin: root-caused (velocity-law momentum equilibrium
-      ω=L₀/(I+I_w·K_d) + wrap-sawtooth dithering) and eliminated. (`9de61d2`)
+      ω=L₀/(I+I_w·K_d) + wrap-sawtooth dithering) and eliminated. (`cb470b7`)
 - [x] Drill: verified holding rock-solid at commanded position through flights (fixed
-      in `e2f8e16`, re-confirmed via dashboard during this session's flights).
+      in `c38cf8e`, re-confirmed via dashboard during this session's flights).
 - [x] Landing detection: resting-vs-free-fall ambiguity solved (rest windows + velocity
       gates + liftoff watchdog + IDLE self-arm) — each mechanism observed firing
       correctly live at least once, including the watchdog catching real kicks within 2s.
 - [x] LANDED→liftoff kick loop: fixed (gentle 0.2 rad/s² RW bleed at friction capacity,
       no posture snaps at rest, 15s stand-up ramp) — verified: a full landing+stand-up
-      completed with zero liftoff events and ≤1 mm/s velocity throughout. (`b876c87`)
+      completed with zero liftoff events and ≤1 mm/s velocity throughout. (`c2a1e1b`)
 - [x] Leg joints: real damping (5e-3) so touchdowns dissipate instead of ringing for
-      tens of minutes (observed live before the fix). (`b876c87`)
+      tens of minutes (observed live before the fix). (`c2a1e1b`)
 - [x] swarm_manager: real auction + re-hop + liveness + task-recovery logic written and
-      code-reviewed. (`b876c87`)
+      code-reviewed. (`c2a1e1b`)
 - [x] Research docs: scientific-accuracy pass done (I_bot 0.0055→0.012–0.020
       posture-dependent with derivation; H_max 0.377→0.265 N·m·s per Maxon datasheet;
       correction time 1.07s→2.24s bang-bang; margin 44x→31x + windup amendment;
@@ -585,7 +585,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
 
 **OPEN — in priority order:**
 - [x] **1. Ground-jump liftoff — ✅ SOLVED (2026-07-15, fifth session — commit
-      `5d37147`).** First verified liftoff in project history: separation velocity
+      `7e9e90f`).** First verified liftoff in project history: separation velocity
       0.0398 m/s (2.2× the 0.0185 m/s pass threshold), sustained ascent z 4.91→6.95+
       over 30 s, projected apex ~7 m. THE decisive root cause (found by echoing the
       gz-side joint topic during a stroke): **landing_controller's LANDED branch
@@ -593,7 +593,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       overwriting every hopper leg command within ~10 ms.** Every prior "crouch
       stalls at millimetres" result — and the µg-friction/geometry theories built on
       those results — was contaminated by this override. Four fixes, all in
-      `5d37147`: (1) stand-pose publication now stops when the ramp completes;
+      `7e9e90f`: (1) stand-pose publication now stops when the ramp completes;
       (2) hopper re-asserts CROUCH/LAUNCH targets every tick (wins any last-write
       race); (3) leg PID p 0.05→1.0, d 0.01→0.05 (at p=0.05 the full stroke
       delivered only ~4 mm/s — rate-limited 25× below the untouched 0.134 Nm torque
@@ -603,7 +603,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       posture step IS a launch impulse.** V_FULL calibrated 0.08→0.04 from the
       measured hop (next commit). The zigzag stroke geometry (previous update below)
       remains correct and necessary — it was required for grip, just not sufficient.
-- [x] **1b. Landing settle after real hops — ✅ SOLVED (2026-07-16, commit `bb922ee`,
+- [x] **1b. Landing settle after real hops — ✅ SOLVED (2026-07-16, commit `929ab95`,
       pushed).** The liftoff fix created a pogo problem: with p=1.0 leg gains the
       touchdown restitution was ~0.96 (bounces from a 1.15 m drop never decayed).
       **Every active mitigation ADDED energy** (all live-measured): stepped soft
@@ -625,7 +625,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       explicit-damping discretization limit; warning comment in the generator).
       `/scout_1/joint_states` telemetry (plugin + bridge) was added during this
       work and is available for future tuning.
-      Progress this round (commit `d1ce594`):
+      Progress this round (commit `41bb472`):
       (a) **DART sleep: fixed and verified.** `hopper_locomotion._wake_model()` fires an
       in-place `set_pose` before CROUCH and again at IGNITION; the model demonstrably
       responds to joint commands afterward. (gz-sim8 sleeps a quiescent model despite
@@ -668,11 +668,11 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
           handling).
       Delivered-v calibration (`V_FULL` in `jump_target_callback`, provisional
       0.08 m/s) must still be re-measured from the first real hop.
-- [x] **2. Strong hops + settling landings — ✅ RESOLVED (2026-07-16, `a2ac862`,
+- [x] **2. Strong hops + settling landings — ✅ RESOLVED (2026-07-16, `89f3331`,
       pushed): joint damping c=0.05 locked in.** First honest measurement: separation
       24.9 mm/s (apex +2.9 m; 35% margin over a 3 m hop's needs), landing settles and
       confirms in ~14 min. Full table in the commit message. **But the sweep's real
-      story is the bug hunt it forced — read `9fdc3d4` before trusting ANY old
+      story is the bug hunt it forced — read `ca87b42` before trusting ANY old
       leg-related conclusion:**
       ⛔ **The bridge NEVER delivered leg/drill commands in recent sessions**: gz-sim 8's
       JointPositionController subscribes ONLY to the joint-indexed topic
@@ -702,8 +702,8 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       dispatch, cooldown-paced corrective re-hops). **BUT the mission cannot complete
       yet: the symmetric vertical stroke has ZERO horizontal range** — re-hops
       repeated "23.2 m short" forever; the bots hop in place. A forward-lean
-      directional stroke (LEAN=0.25 rad, `f5afaa2`) was implemented and
-      **range-VERIFIED (`023d7de`): 9.1 m horizontal per full-stroke hop**
+      directional stroke (LEAN=0.25 rad, `ff8afda`) was implemented and
+      **range-VERIFIED (`926ca78`): 9.1 m horizontal per full-stroke hop**
       (~15 mm/s horizontal / ~22 mm/s vertical, thrust tilt ~34°, clean arc,
       confirmed landing). With ~9 m/hop the 5-attempt re-hop budget converges on
       20–40 m targets — the autonomous loop is complete. REMAINING for this item:
@@ -712,7 +712,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       swarm_manager a range-per-hop model (currently it requests the full distance
       per jump and relies on re-hops; requesting min(distance, ~9 m) legs would be
       cleaner).
-- [x] **6. Self-righting — ✅ REWRITTEN AND VERIFIED (2026-07-16, `09de868`, pushed).**
+- [x] **6. Self-righting — ✅ REWRITTEN AND VERIFIED (2026-07-16, `c91e0d1`, pushed).**
       The leg-sweep maneuver was live-observed failing all 5 attempts on every inverted
       bot (this item's fear confirmed). Replaced with a reaction-wheel roll (bang-bang
       spin/brake, ~500x torque margin, MINERVA-II's principle) + a
@@ -733,7 +733,7 @@ attempt success after the attitude-controller rewrite. See `research_report.md` 
       paper note (still flagged provisional).
 - [ ] 8. (Carried over) LIDAR decision — no sensor exists in the model; mass table
       lists it as intended hardware. See Guidance §3.
-- [x] 9. **Multi-agent scaling — ✅ DONE (2026-07-16, `ddab006`, pushed).** All three
+- [x] 9. **Multi-agent scaling — ✅ DONE (2026-07-16, `586e239`, pushed).** All three
       scouts spawn (8-10 m apart), each gets its own controller trio + bridge, and the
       swarm manager ran its first genuinely multi-agent allocation on first boot
       (scout_1 RELAY, scout_2/3 SAMPLER en route to anomalies; dashboard all-ONLINE).
@@ -799,7 +799,7 @@ a synthetic test). First test: succeeded once, immediately re-detected inverted,
 second full 5-attempt retry cycle legitimately failed and the designed fallback
 correctly prevented a hang. Root-caused to two compounding bugs, **both now fixed**:
 1. `attitude_controller.py` never reset `in_flight` after landing (no `/landed`
-   subscription existed at all) — fixed in `7ba3977` (subscribes to `/landed`, clears
+   subscription existed at all) — fixed in `b1dc012` (subscribes to `/landed`, clears
    `in_flight` on touchdown).
 2. The attitude PID itself was unstable at large tumble angles — `attitude_error`
    measured oscillating between 1.5–2.8 rad (85–160°) rather than converging, using
@@ -808,7 +808,7 @@ correctly prevented a hang. Root-caused to two compounding bugs, **both now fixe
    PID to quaternion cross-product tilt feedback (rotate local +Z into world frame,
    cross with world +Z — valid at any tilt magnitude, no small-angle assumption, no
    gimbal lock), with direct velocity commands instead of accumulated acceleration and
-   integral terms removed entirely. Committed `b68ca4f`. Full derivation and
+   integral terms removed entirely. Committed `086c7bc`. Full derivation and
    small-angle-limit sign verification in the code comments and commit message.
 
 **Live-verified after the rewrite**: a fresh hop landed with self-righting succeeding
