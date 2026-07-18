@@ -61,7 +61,22 @@ class AttitudeController(Node):
         self.ground_contact = False
         self.create_subscription(
             Bool, f'/{self.robot_name}/ground_contact',
-            lambda m: setattr(self, 'ground_contact', m.data), 10)
+            self.ground_contact_callback, 10)
+        # NEAR-GROUND LATCH (2026-07-18): full tilt-correction PD is only
+        # ever legitimate during a COMMANDED flight (ignition -> first
+        # contact) or the initial spawn descent. The launch35 12-hour stall
+        # proved why: a bot bounced/tumbling on the ground flips landed=False,
+        # which armed full attitude PD, whose wheel torque against the
+        # surface IS a propulsion event, which kept the bot moving, which
+        # kept landed=False -- a self-sustaining pump that scattered the
+        # fleet for hours (149 aborted crouches, 87 righting attempts).
+        # commanded_flight starts True (spawn descent is an authorized
+        # flight), clears on ANY contact/landing, and re-arms only on the
+        # explicit jump_initiated signal. When in_flight is armed WITHOUT
+        # commanded_flight, the controller runs the dissipation-only
+        # rate-kill instead of attitude PD -- it can calm motion but can
+        # never pump it.
+        self.commanded_flight = True
 
         # We command wheel velocity directly (proportional to error and
         # damped by body rate), not accumulated acceleration -- see the
@@ -227,9 +242,18 @@ class AttitudeController(Node):
         v = msg.twist.twist.linear
         self.velocity_mag = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
 
+    def ground_contact_callback(self, msg):
+        self.ground_contact = msg.data
+        if msg.data and self.commanded_flight:
+            self.commanded_flight = False
+            self.get_logger().info(
+                f'[{self.robot_name}] Contact — commanded-flight latch cleared '
+                f'(full attitude PD locked out until next ignition).')
+
     def jump_callback(self, msg):
         if msg.data:
             self.in_flight = True
+            self.commanded_flight = True
             self.get_logger().info(f'[{self.robot_name}] Jump initiated. Flight mode active.')
 
     def landed_callback(self, msg):
@@ -249,6 +273,7 @@ class AttitudeController(Node):
         rad/s over a settle window)."""
         if msg.data and self.in_flight:
             self.in_flight = False
+            self.commanded_flight = False
             self.get_logger().info(f'[{self.robot_name}] Landed — tilt correction stopped, RWs handed off to yaw-hold only.')
         elif not msg.data and not self.in_flight:
             self.in_flight = True
@@ -304,7 +329,11 @@ class AttitudeController(Node):
         # across the terrain at ~1 rad/s indefinitely because the airborne
         # windows between bounces were too short for flight-mode damping
         # to bite. Reduced torque budget for gentleness.
-        if self.ground_contact:
+        # The near-ground latch (see __init__) routes UNCOMMANDED motion --
+        # bounce loops, post-contact tumbles, anything that armed in_flight
+        # via landed=False rather than an ignition -- through this same
+        # dissipation-only block: it can calm the motion but cannot pump it.
+        if self.ground_contact or (self.in_flight and not self.commanded_flight):
             tau_cap = 0.006  # N m, gentle dissipation-only budget
             now = self.get_clock().now()
             dt = 0.01 if self.last_imu_time is None else min(max(

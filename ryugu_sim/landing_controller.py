@@ -301,7 +301,9 @@ class LandingController(Node):
         return False
 
     def jump_callback(self, msg):
-        """Called when hopper_locomotion initiates a jump."""
+        """Called when hopper_locomotion initiates a jump (at IGNITION start
+        as of 2026-07-17 — the signal used to arrive at ramp end, racing the
+        leg retraction whose IMU jerk then read as a landing impact)."""
         if msg.data:
             self.state = self.FLIGHT
             self.settle_counter = 0
@@ -310,7 +312,16 @@ class LandingController(Node):
             self.rest_z_ref = None
             self.rest_z_ticks = 0
             self.contact_via_rest = False
-            self.get_logger().info(f'[{self.robot_name}] 🚀 Jump detected → FLIGHT mode')
+            # Blank contact-spike detection through the whole launch
+            # choreography: ramp (<= 20 s) + 0.5 s hold + 8 s clearance +
+            # 4 s slow retract, with margin. Every genuine flight lasts
+            # >= ~180 s at Ryugu gravity (shortest commanded hop, 0.5 m),
+            # so a 40 s blank can never mask a real landing; it only masks
+            # the launch stroke's own actuation transients, which used to
+            # score every ramped hop as landed-in-place (launch34).
+            self.contact_blank_until = self.get_clock().now().nanoseconds / 1e9 + 40.0
+            self.get_logger().info(f'[{self.robot_name}] 🚀 Jump detected → FLIGHT mode '
+                                   f'(contact detection blanked 40 s for launch)')
 
     def imu_callback(self, msg):
         # Compute linear acceleration magnitude (excluding gravity component)
@@ -349,8 +360,14 @@ class LandingController(Node):
                     f'— confirming ground contact')
 
         elif self.state == self.FLIGHT:
-            # In flight, watch for contact spike
-            if accel_mag > self.contact_accel_threshold:
+            # In flight, watch for contact spike — but not during the
+            # launch-choreography blank window (see jump_callback): the
+            # stroke/retract actuation transients otherwise read as impacts.
+            in_launch_blank = (self.get_clock().now().nanoseconds / 1e9
+                               < getattr(self, 'contact_blank_until', 0.0))
+            if in_launch_blank:
+                pass
+            elif accel_mag > self.contact_accel_threshold:
                 self.state = self.CONTACT_DETECTED
                 self.settle_counter = 0
                 self.contact_via_rest = False
@@ -467,21 +484,47 @@ class LandingController(Node):
             # pose -- the pre-jump crouch re-asserts its own targets anyway.
             self.landed_ticks += 1
 
+            # LANDED tilt watchdog (2026-07-18): a bot can DEGRADE into a
+            # tilt after confirming LANDED (slow roll on a slope, a nudge
+            # from a neighbour's launch) -- previously nothing ever righted
+            # it, because righting only triggered on the settle-confirm
+            # path, and the crouch stance gate (u_z > 0.85) then aborted
+            # every hop forever. Require the tilt to be sustained (~3 s)
+            # and the body quiescent so a transient rock or an active
+            # crouch wobble cannot trip it.
+            uz = 1.0 - 2.0 * (msg.orientation.x ** 2 + msg.orientation.y ** 2)
+            if uz < 0.85 and self.velocity_mag < 0.02:
+                self.landed_tilt_ticks = getattr(self, 'landed_tilt_ticks', 0) + 1
+                if self.landed_tilt_ticks >= 300:
+                    self.landed_tilt_ticks = 0
+                    self.get_logger().warn(
+                        f'[{self.robot_name}] ⚠️ Tilted while LANDED '
+                        f'(u_z={uz:.2f} sustained) — initiating RW righting roll')
+                    self.state = self.RIGHTING
+                    self.righting_ticks = 0
+                    self.righting_attempt = 0
+                    self.landed_pub.publish(Bool(data=False))
+                    return
+            else:
+                self.landed_tilt_ticks = 0
+
         # Publish landed status + righting arbitration flag
         self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
         self.righting_active_pub.publish(Bool(data=(self.state == self.RIGHTING)))
         self.contact_pub.publish(Bool(data=(self.state == self.CONTACT_DETECTED)))
 
     def _is_badly_tilted(self, msg):
-        """True if the chassis is settled more than ~45 deg from upright
-        (u_z < 0.7). Widened from inverted-only (u_z < 0) on 2026-07-17:
-        a bot that settles 51 deg tilted passes the old check, then fires
-        its next leaned hop 51 deg sideways -- observed live driving bots
-        AWAY from their targets. The RW righting roll handles partial
-        tilts with the same arbitration and bang-bang structure."""
+        """True if the chassis is settled more than ~32 deg from upright
+        (u_z < 0.85). Widened from inverted-only (u_z < 0) on 2026-07-17,
+        then from 0.7 to 0.85 on 2026-07-18: the hop stance gate requires
+        u_z > 0.85, so a bot settled in the 0.7-0.85 band passed the old
+        righting check yet aborted EVERY crouch on the stance gate --
+        launch35 logged 149 aborted crouches, most stranded in exactly
+        that dead band. The righting success threshold (u_z > 0.9) sits
+        safely above the trigger, so no oscillation."""
         qx = msg.orientation.x
         qy = msg.orientation.y
-        return (1.0 - 2.0 * (qx * qx + qy * qy)) < 0.7
+        return (1.0 - 2.0 * (qx * qx + qy * qy)) < 0.85
 
     def _is_inverted(self, msg):
         """True if the chassis +Z axis is currently pointing mostly downward
