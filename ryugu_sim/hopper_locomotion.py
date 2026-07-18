@@ -48,6 +48,18 @@ class HopperLocomotion(Node):
         # Per-jump launch ramp duration in 10 Hz ticks; set by
         # jump_target_callback, consumed by the LAUNCH state.
         self.ramp_ticks = 40
+        # FLIGHT leg choreography (2026-07-17): hold the launch extension
+        # for CLEARANCE_TICKS after separation (~8 s -> ~0.4 m of ground
+        # clearance at ramp speeds), then retract to neutral over
+        # RETRACT_RAMP_TICKS (~4 s -> foot speed ~0.03 m/s relative to the
+        # body, IMU signature negligible). The old instant retraction at
+        # FLIGHT entry jerked the IMU at 0.27-0.57 m/s^2 and was read by
+        # the landing controller as a landing impact 2 cm off the ground.
+        self.CLEARANCE_TICKS = 80
+        self.RETRACT_RAMP_TICKS = 40
+        self._ext_hip0 = 0.0
+        self._ext_hip12 = 0.0
+        self._ext_knee = 0.0
 
         # Redesigned stroke endpoints (2026-07-15) -- see CROUCH/LAUNCH in
         # tick() for the geometry derivation from the empirical joint-angle
@@ -357,6 +369,17 @@ class HopperLocomotion(Node):
                     f"ramp={self.ramp_ticks / 10.0:.1f}s)")
                 # Re-wake in case the crouch settled into quiescence.
                 self._wake_model()
+                # Signal flight AT IGNITION, not at ramp end (2026-07-17).
+                # Signalling at ramp end raced the retraction: the landing
+                # controller entered FLIGHT in the same tick the legs were
+                # step-commanded to neutral, read the retraction jerk
+                # (0.27-0.57 m/s^2, 3-7x the 0.08 contact threshold) as a
+                # landing impact 2-9 ms later, and confirmed LANDED with the
+                # body ~2 cm up at 0.047 m/s -- every ramped hop was scored
+                # landed-in-place and the swarm never converged (launch34).
+                # The landing controller also blanks contact detection for
+                # the launch window after this signal (see its jump_callback).
+                self.jump_init_pub.publish(Bool(data=True))
             # Rate-limited stroke (2026-07-17): interpolate the joint
             # targets from the leaned crouch to the full extension over
             # ramp_ticks. The joints track the slowly-moving target (PID
@@ -389,17 +412,53 @@ class HopperLocomotion(Node):
             if self.state_timer % 20 == 0:
                 self._wake_model()
             # Hold the extension briefly past ramp end (0.5 s) so the body
-            # separates cleanly at ramp speed, then retract. Pushing "too
-            # long" is harmless in micro-gravity: once the feet leave the
-            # ground there is no contact force left to apply.
+            # separates cleanly at ramp speed, then hand over to FLIGHT.
+            # Pushing "too long" is harmless in micro-gravity: once the feet
+            # leave the ground there is no contact force left to apply.
             if self.state_timer >= self.ramp_ticks + 5:
-                self.get_logger().info("3. Retracting for Landing Phase (FLIGHT Mode)")
-                self.set_joints(0.0, 0.0)
+                self.get_logger().info(
+                    "3. Separation — holding extension for clearance, then slow retract (FLIGHT)")
+                # Freeze the extension pose FLIGHT will hold/retract from
+                # (same formulas as the ramp at s=1.0).
+                frac = self.launch_amplitude
+                self._ext_hip0 = (self.CROUCH_HIP + self.LEAN
+                                  + frac * (self.EXTEND_HIP + self.LEAN
+                                            - (self.CROUCH_HIP + self.LEAN)))
+                self._ext_hip12 = (self.CROUCH_HIP - self.LEAN / 2
+                                   + frac * (self.EXTEND_HIP - self.LEAN / 2
+                                             - (self.CROUCH_HIP - self.LEAN / 2)))
+                self._ext_knee = (self.CROUCH_KNEE
+                                  + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE))
                 self.state = self.FLIGHT
                 self.state_timer = 0
-                
-                # Signal the landing controller and attitude controller NOW that it is in the air
-                self.jump_init_pub.publish(Bool(data=True))
+
+        elif self.state == self.FLIGHT:
+            # Post-separation leg management (2026-07-17). The old code
+            # step-commanded the legs to neutral in the tick FLIGHT began:
+            # with separation at only ~0.05 m/s the body was ~2 cm off the
+            # ground, the saturated-PID retraction (a) jerked the IMU hard
+            # enough to read as a landing impact and (b) could re-catch the
+            # ground with the feet. Now: hold the extension until the body
+            # has genuinely cleared the surface, then retract as a slow ramp
+            # whose IMU signature is negligible. Flights last minutes at
+            # Ryugu gravity, so 12 s of leg choreography is nothing.
+            self.state_timer += 1
+            if self.state_timer <= self.CLEARANCE_TICKS:
+                # ~8 s * 0.05 m/s = ~0.4 m of clearance before any retraction.
+                self.pubs['hip_joint_0'].publish(Float64(data=self._ext_hip0))
+                self.pubs['knee_joint_0'].publish(Float64(data=self._ext_knee))
+                for i in (1, 2):
+                    self.pubs[f'hip_joint_{i}'].publish(Float64(data=self._ext_hip12))
+                    self.pubs[f'knee_joint_{i}'].publish(Float64(data=self._ext_knee))
+            elif self.state_timer <= self.CLEARANCE_TICKS + self.RETRACT_RAMP_TICKS:
+                r = (self.state_timer - self.CLEARANCE_TICKS) / self.RETRACT_RAMP_TICKS
+                self.pubs['hip_joint_0'].publish(Float64(data=self._ext_hip0 * (1.0 - r)))
+                self.pubs['knee_joint_0'].publish(Float64(data=self._ext_knee * (1.0 - r)))
+                for i in (1, 2):
+                    self.pubs[f'hip_joint_{i}'].publish(Float64(data=self._ext_hip12 * (1.0 - r)))
+                    self.pubs[f'knee_joint_{i}'].publish(Float64(data=self._ext_knee * (1.0 - r)))
+            # After the retract ramp: legs at neutral, publish nothing more;
+            # the landing controller owns the rest of the flight.
 
 def main(args=None):
     rclpy.init(args=args)
