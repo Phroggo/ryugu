@@ -179,7 +179,28 @@ class SwarmManager(Node):
         self.state[agent]["last_odom_time"] = time.time()
 
     def landed_callback(self, agent, msg):
-        self.state[agent]["landed"] = msg.data
+        st = self.state[agent]
+        # HEADING-CALIBRATION MEASUREMENT (2026-07-18): sample the hop
+        # endpoint on the LANDED rising edge, not at the next dispatch --
+        # dispatch-to-dispatch displacement includes 90+ s of bounce drift
+        # and righting rolls, and was measured feeding the calibration EMA
+        # swings of +/-140 deg (launch44). The rising edge is the cleanest
+        # hop-end available to the swarm layer.
+        if msg.data and not st["landed"] and st.get("hop_cmd_az") is not None:
+            adx = st["pos_x"] - st.get("hop_start_x", st["pos_x"])
+            ady = st["pos_y"] - st.get("hop_start_y", st["pos_y"])
+            if math.hypot(adx, ady) > 0.8:  # ignore sub-metre noise
+                off = math.atan2(ady, adx) - st["hop_cmd_az"]
+                off = (off + math.pi) % (2.0 * math.pi) - math.pi
+                old = st.get("az_bias", 0.0)
+                new = math.atan2(0.5 * math.sin(old) + 0.5 * math.sin(off),
+                                 0.5 * math.cos(old) + 0.5 * math.cos(off))
+                st["az_bias"] = new
+                st["hop_cmd_az"] = None  # one measurement per hop
+                self.get_logger().info(
+                    f"🧭 {agent} heading calibration: measured offset "
+                    f"{math.degrees(off):.0f}°, bias now {math.degrees(new):.0f}°")
+        st["landed"] = msg.data
 
     def _check_liveness(self):
         """Mark agents whose odometry has gone silent as OFFLINE and recover
@@ -471,26 +492,13 @@ class SwarmManager(Node):
         # each agent's bias from measured hops (achieved azimuth minus
         # commanded), EMA-filtered, and aim off by it. A backwards agent
         # self-corrects within two hops.
+        # Aim off by the learned per-robot bias; the bias itself is
+        # measured on the LANDED rising edge (see landed_callback), which
+        # is the clean hop endpoint. Raw offset = achieved azimuth minus
+        # the yaw ACTUALLY commanded (post-bias) -- the physical property
+        # being estimated; measuring against the desired azimuth instead
+        # would track only the residual and decay its own correction.
         st = self.state[agent]
-        if st.get("hop_cmd_az") is not None:
-            adx = st["pos_x"] - st["hop_start_x"]
-            ady = st["pos_y"] - st["hop_start_y"]
-            if math.hypot(adx, ady) > 0.8:  # ignore sub-metre noise
-                # Raw per-robot offset: achieved azimuth minus the yaw that
-                # was ACTUALLY commanded (post-bias). This is the physical
-                # property being estimated; comparing against the desired
-                # azimuth instead would measure only the residual and make
-                # the EMA decay its own correction.
-                off = math.atan2(ady, adx) - st["hop_cmd_az"]
-                off = (off + math.pi) % (2.0 * math.pi) - math.pi
-                old = st.get("az_bias", 0.0)
-                # Blend on the circle so +/-pi wraps average correctly.
-                new = math.atan2(0.5 * math.sin(old) + 0.5 * math.sin(off),
-                                 0.5 * math.cos(old) + 0.5 * math.cos(off))
-                st["az_bias"] = new
-                self.get_logger().info(
-                    f"🧭 {agent} heading calibration: measured offset "
-                    f"{math.degrees(off):.0f}°, bias now {math.degrees(new):.0f}°")
         yaw_cmd = yaw - st.get("az_bias", 0.0)
         yaw_cmd = (yaw_cmd + math.pi) % (2.0 * math.pi) - math.pi
         st["hop_start_x"] = st["pos_x"]
