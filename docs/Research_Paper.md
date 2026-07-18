@@ -283,6 +283,19 @@ All results below are from live closed-loop simulation telemetry (IMU, odometry,
 * **Self-righting:** recovery from forced full inversion in ~9 s via the reaction-wheel roll, including self-correction of an initial wrong-direction guess.
 * **Landing:** decaying-bounce settle and confirmed LANDED in ~14 min after a full-stroke hop; no false confirmations in flight and no post-landing self-ejection across the final verification runs.
 * **Swarm autonomy (3 agents):** differentiated role allocation on first boot (RELAY + 2× SCOUT), competitive auctions on detected anomalies, dispatch, range-matched directional hops, and cooldown-paced corrective re-hops — the full loop operating without operator intervention.
+* **Sampling cycle:** on a SAMPLER reaching its anomaly (arrival check against live odometry, 0.9 m from target on the verified run), the swarm layer autonomously deployed the core drill, completed the extraction dwell, stowed the core in carousel tube 1/3, and immediately re-tasked the agent to its next queued anomaly — the complete arrive → drill → cache → chain sequence executed by the autonomy stack with no operator input. Figures 13–15 document the sequence from live telemetry.
+
+![Sampler drill deployed — mission dashboard](fig_sampling_dashboard.png)
+
+*Figure 13: Live mission dashboard at the moment of sampling: scout_3 (bottom panel, SAMPLER role) reports "Deploying core sampler drill..." with the drill state EXTENDED (−0.10 m), while scout_2 is en route to a second anomaly and scout_1 holds the relay role.*
+
+![Sampler departing the sampling site](fig_sampling.png)
+
+*Figure 14: scout_3 departing the sampling site on its next commanded hop after caching the core, navigation lights on, silhouetted against the Milky Way panorama. The green wireframe marks the just-sampled anomaly site.*
+
+![Post-sampling re-tasking — mission dashboard](fig_sampling_dashboard_2.png)
+
+*Figure 15: The dashboard moments later: scout_3's core is cached (drill retracted) and the agent is already "En route to anomaly (34 m remaining)" — carousel chaining lets one SAMPLER service consecutive targets before returning.*
 
 ## 7. Discussion: Four Laws of Milli-Gravity Ground Operations
 
