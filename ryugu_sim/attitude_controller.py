@@ -290,7 +290,16 @@ class AttitudeController(Node):
         if msg.data and self.in_flight:
             self.in_flight = False
             self.commanded_flight = False
-            self.get_logger().info(f'[{self.robot_name}] Landed — tilt correction stopped, RWs handed off to yaw-hold only.')
+            # Adopt the CURRENT heading as the yaw target (2026-07-18): the
+            # pre-hop target is stale after a landing, and chasing it spins
+            # the grounded body -- with the adaptive heading biases the
+            # stale error can be ~180 deg, and a post-LANDED ground slew
+            # was measured scrubbing a settled bot off its site at
+            # 0.138 m/s 1.2 s after confirmation. The next dispatch
+            # publishes a fresh target before the crouch, so pre-hop
+            # alignment is unaffected.
+            self.target_yaw = getattr(self, 'last_yaw', self.target_yaw)
+            self.get_logger().info(f'[{self.robot_name}] Landed — tilt correction stopped, yaw-hold pinned to current heading.')
         elif not msg.data and not self.in_flight:
             self.in_flight = True
             self.get_logger().info(f'[{self.robot_name}] Airborne (landed=False) — tilt correction armed.')
@@ -324,6 +333,7 @@ class AttitudeController(Node):
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         yaw = math.atan2(siny_cosp, cosy_cosp)
+        self.last_yaw = yaw
         error_yaw = self.target_yaw - yaw
         error_yaw = (error_yaw + math.pi) % (2.0 * math.pi) - math.pi
 
