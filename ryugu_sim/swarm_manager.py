@@ -10,7 +10,7 @@ import math
 # How close (m) the odometry-reported position must be to a target before a
 # SAMPLER is considered "arrived" and allowed to deploy its drill. Real jumps
 # don't land exactly on the requested target, so this is a tolerance, not zero.
-ARRIVAL_RADIUS = 3.0
+ARRIVAL_RADIUS = 4.0  # m; sampler drill-arm reach + site tolerance (was 3.0)
 
 # Sample tube carousel capacity per Research_Paper.md's mechanical design.
 SAMPLE_CAROUSEL_CAPACITY = 3
@@ -289,13 +289,21 @@ class SwarmManager(Node):
 
             if role == "SCOUT":
                 self.state[agent]["activity"] = "Scanning regolith for anomalies..."
-                # Simulate Lidar scanning for anomalies. Coordinates clamped
-                # inside the world's containment walls (see ANOMALY_FIELD_LIMIT)
-                # -- the old +/-50 range could place a target beyond the +/-49m
-                # walls where no hop can physically reach it.
+                # Simulate Lidar scanning for anomalies. SENSOR-RANGE REALISM
+                # (2026-07-18): an anomaly is detected by THIS scout's own
+                # spectrometer/lidar, so it must lie within instrument range
+                # (~12 m) of the scout -- the old field-wide uniform draw had
+                # scouts "detecting" targets 50 m away with no physical
+                # justification, and at hop-converged progress of a few
+                # metres per cycle those targets took hours to reach.
+                # Coordinates still clamped inside the containment walls.
                 if random.random() < 0.15:
-                    x = random.uniform(-ANOMALY_FIELD_LIMIT, ANOMALY_FIELD_LIMIT)
-                    y = random.uniform(-ANOMALY_FIELD_LIMIT, ANOMALY_FIELD_LIMIT)
+                    ang = random.uniform(-math.pi, math.pi)
+                    r = random.uniform(4.0, 12.0)
+                    x = max(-ANOMALY_FIELD_LIMIT, min(ANOMALY_FIELD_LIMIT,
+                        self.state[agent]["pos_x"] + r * math.cos(ang)))
+                    y = max(-ANOMALY_FIELD_LIMIT, min(ANOMALY_FIELD_LIMIT,
+                        self.state[agent]["pos_y"] + r * math.sin(ang)))
                     self.get_logger().info(f"📍 {agent} detected high-value spectral anomaly at [{x:.1f}, {y:.1f}]!")
                     self.anomaly_queue.append((x, y))
                     self.metrics.data["anomalies_found"] += 1

@@ -30,7 +30,10 @@ class AttitudeController(Node):
         self.create_subscription(Imu, f'/{self.robot_name}/imu',
                                  self.imu_callback, qos_profile_sensor_data)
         self.create_subscription(Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
+        self.create_subscription(Bool, f'/{self.robot_name}/separation', self.separation_callback, 10)
         self.create_subscription(Bool, f'/{self.robot_name}/landed', self.landed_callback, 10)
+        self.stroke_hold = False
+        self.stroke_hold_since = 0.0
         self.create_subscription(Float64, f'/{self.robot_name}/target_yaw', self.target_yaw_callback, 10)
 
         # Odometry velocity, for the at-rest tilt gate (see imu_callback):
@@ -254,7 +257,20 @@ class AttitudeController(Node):
         if msg.data:
             self.in_flight = True
             self.commanded_flight = True
-            self.get_logger().info(f'[{self.robot_name}] Jump initiated. Flight mode active.')
+            # Tilt-PD stays OFF through the launch stroke (2026-07-18): the
+            # lean crouch deliberately tilts the body to aim the thrust
+            # vector, and levelling it mid-stroke deletes the horizontal
+            # component (measured launch38: a commanded 9 m hop flew 695 s
+            # straight up and travelled 0.16 m). Cleared by the separation
+            # signal, or by the 30 s failsafe in imu_callback.
+            self.stroke_hold = True
+            self.stroke_hold_since = self.get_clock().now().nanoseconds / 1e9
+            self.get_logger().info(f'[{self.robot_name}] Jump initiated. Flight mode active (tilt-PD held for stroke).')
+
+    def separation_callback(self, msg):
+        if msg.data and getattr(self, 'stroke_hold', False):
+            self.stroke_hold = False
+            self.get_logger().info(f'[{self.robot_name}] Separation — tilt correction engaged.')
 
     def landed_callback(self, msg):
         """Subscribing to /landed at all was the actual bug found 2026-07-14
@@ -366,7 +382,34 @@ class AttitudeController(Node):
         # grounded rover-drive hazard the gate exists for stays closed.
         really_moving = (self.velocity_mag > 0.008) or (rate_mag > 0.03)
 
-        if self.in_flight and really_moving:
+        # Launch-stroke hold: no tilt POSITION correction between ignition
+        # and separation (see jump_callback) -- but rate-only damping on
+        # the tilt axes IS applied below (2026-07-18): it resists a
+        # runaway tip-over (launch39: uz 0.85 -> 0.38 during one stroke)
+        # while barely braking the slow intended lean (~0.03 rad/s ->
+        # ~2 mNm), and pure rate damping cannot pump energy. 30 s
+        # failsafe in case the separation message is lost.
+        if self.stroke_hold and (self.get_clock().now().nanoseconds / 1e9
+                                 - self.stroke_hold_since) > 30.0:
+            self.stroke_hold = False
+        if self.stroke_hold and self.commanded_flight:
+            tau_x = max(-self.tau_max, min(self.tau_max, -self.K_rate * wx))
+            tau_y = max(-self.tau_max, min(self.tau_max, -self.K_rate * wy))
+            now = self.get_clock().now()
+            dt = 0.01 if self.last_imu_time is None else min(max(
+                (now - self.last_imu_time).nanoseconds / 1e9, 0.0), 0.05)
+            self.last_imu_time = now
+            for axis, tau in (('x', tau_x), ('y', tau_y), ('z', tau_z)):
+                tau = max(-self.tau_max, min(self.tau_max, tau))
+                delta = (-tau / self.I_wheel) * dt
+                delta = max(-self.max_wheel_accel * dt,
+                            min(self.max_wheel_accel * dt, delta))
+                self.cmd_vel[axis] = max(-self.max_rw_speed, min(
+                    self.max_rw_speed, self.cmd_vel[axis] + delta))
+                self.pubs[axis].publish(Float64(data=self.cmd_vel[axis]))
+            return
+
+        if self.in_flight and really_moving and not self.stroke_hold:
             # Local +Z ("up") axis rotated into the world frame -- this is
             # the 3rd column of the rotation matrix derived from q.
             up_x = 2.0 * (q.x * q.z + q.w * q.y)

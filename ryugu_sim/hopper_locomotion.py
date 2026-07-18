@@ -96,7 +96,23 @@ class HopperLocomotion(Node):
         # torque from unequal per-leg travel is real but bounded, and the
         # torque-based attitude controller demonstrably damps larger
         # transients (0.24 rad/s) within seconds of liftoff.
-        self.LEAN = 0.25  # rad, hip-space forward-lean differential
+        # Raised 0.25 -> 0.5 (2026-07-18, launch37 hop-meter data): at 14 deg
+        # of thrust tilt only ~24% of separation velocity went horizontal,
+        # so the tiny measured separations (see V_GAIN note) produced
+        # near-random headings -- residual wobble was the same order as the
+        # commanded horizontal component. ~29 deg tilt roughly doubles the
+        # horizontal share AND flattens the arc toward the ballistic
+        # optimum (elevation ~61 deg, sin(2*61 deg) = 0.85), cutting both
+        # required delta-v and per-hop flight time for a given range.
+        # Re-trimmed 0.5 -> 0.3 (2026-07-18, launch39): at 0.5 the slow
+        # stroke TIPPED the robot over instead of launching it -- uz fell
+        # 0.85 -> 0.38 during a single 3.5 s stroke (leg 0 ends far more
+        # bent than legs 1/2, and at 2.9e-4 N of weight there is nothing
+        # holding the stance down). 0.3 keeps a useful horizontal share
+        # (~17 deg thrust tilt) inside the tip-over margin, with the
+        # stroke-rate damping in attitude_controller resisting any
+        # runaway roll (see stroke_hold there).
+        self.LEAN = 0.3  # rad, hip-space forward-lean differential
 
         # Latest odometry pose, for the in-place set_pose DART-sleep wake
         # (see _wake_model).
@@ -117,6 +133,14 @@ class HopperLocomotion(Node):
             self.pubs[j] = self.create_publisher(Float64, topic, 10)
             
         self.jump_init_pub = self.create_publisher(Bool, f'/{self.robot_name}/jump_initiated', 10)
+        # Separation signal (2026-07-18): tells attitude_controller the feet
+        # have left the ground, so tilt correction may engage. During the
+        # STROKE tilt-PD must stay off -- the lean deliberately tilts the
+        # body to aim the thrust, and with the jump signal now sent at
+        # ignition the tilt-PD was levelling the body mid-stroke, deleting
+        # the entire horizontal component (launch38: 695 s flight, 0.16 m
+        # of travel -- a perfectly vertical hop).
+        self.separation_pub = self.create_publisher(Bool, f'/{self.robot_name}/separation', 10)
             
         # Subscriber for Target Commands (From Swarm Manager)
         self.sub_target = self.create_subscription(Float64, f'/{self.robot_name}/jump_target_distance', self.jump_target_callback, 10)
@@ -184,13 +208,27 @@ class HopperLocomotion(Node):
         # v^2/g the old code assumed. RANGE_CAL is the single empirical
         # trim knob (multiplies v_req; recalibrate from hop_telemetry data
         # if measured ranges drift from commanded distances).
-        SIN2TH = 0.47
-        EFF_STROKE_H = 0.10   # m, vertical stroke travel crouch->extend
-        RANGE_CAL = 1.0       # empirical trim, refine from measured hops
-        v_req = RANGE_CAL * math.sqrt(max(distance, 0.5) * g / SIN2TH)
-        ramp_T = max(1.5, min(20.0, EFF_STROKE_H / v_req))
+        # MEASURED CORRECTION (2026-07-18, launch37 hop meter): the linear
+        # joint-angle ramp under-delivered separation velocity ~4x (ranges
+        # 0.4-1.5 m on 9 m legs, flights 61-181 s vs the ~800 s predicted).
+        # Cause: near full extension the legs approach the straight-leg
+        # singularity -- d(height)/d(angle) collapses -- so a linear ANGLE
+        # ramp front-loads all the body rise and releases at a crawl.
+        # Countermeasures, all three below:
+        #   1. quadratic ease-in ramp (s^2): target rate peaks at RELEASE,
+        #      not at the start;
+        #   2. amplitude capped at 0.9: release happens before the singular
+        #      final degrees where the jacobian is dead;
+        #   3. velocity model rebuilt around the RELEASE-window height gain
+        #      (V_GAIN ~= 2 * H_end, H_end ~= 0.06 m of height in the last
+        #      half of the eased stroke): T = V_GAIN / v_req. Trim V_GAIN
+        #      from hop-meter ranges, not from geometry.
+        SIN2TH = 0.56         # elevation ~73 deg with LEAN=0.3 (see LEAN note)
+        V_GAIN = 0.12         # m; empirical, from launch37 hop-meter data
+        v_req = math.sqrt(max(distance, 0.5) * g / SIN2TH)
+        ramp_T = max(1.2, min(20.0, V_GAIN / v_req))
         self.ramp_ticks = max(1, round(ramp_T * 10))
-        self.launch_amplitude = 1.0
+        self.launch_amplitude = 0.9
 
         self.recovery_hop = False
         self.get_logger().info(
@@ -266,7 +304,7 @@ class HopperLocomotion(Node):
                 self.get_logger().info(
                     f"[{self.robot_name}] 🦵 Idle {self.idle_ticks/10:.0f}s with no jump command "
                     f"-- self-initiating recovery hop (legs).")
-                self.launch_amplitude = 1.0
+                self.launch_amplitude = 0.9
                 self.ramp_ticks = self.RECOVERY_RAMP_TICKS
                 # Recovery hops BYPASS the stance gate: they are the only
                 # unstick mechanism for a bot stranded inverted after a
@@ -391,6 +429,10 @@ class HopperLocomotion(Node):
             # Re-assert every tick for the same last-write-wins reason as
             # the CROUCH block above.
             s = min(1.0, (self.state_timer + 1) / self.ramp_ticks)
+            # Quadratic ease-in (2026-07-18): rate peaks at release instead
+            # of being wasted early where the leg jacobian is strongest --
+            # see the singularity note in jump_target_callback.
+            s = s * s
             frac = self.launch_amplitude * s
             knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
             # Each leg extends from ITS OWN leaned crouch angle toward the
@@ -411,6 +453,27 @@ class HopperLocomotion(Node):
             # cross DART's quiescence window mid-push just like the crouch.
             if self.state_timer % 20 == 0:
                 self._wake_model()
+            # MID-STROKE TIP ABORT (2026-07-18): launch39 showed a stroke
+            # can tip the robot over (uz 0.85 -> 0.38 in one 3.5 s ramp).
+            # A flopped launch is a random-azimuth hop -- worse than no
+            # hop. Abort, retract gently, let righting fix the stance.
+            if getattr(self, 'last_uz', 1.0) < 0.7:
+                self.get_logger().warn(
+                    f"[{self.robot_name}] Aborting launch mid-stroke: tipping "
+                    f"(uz={self.last_uz:.2f}). Retracting; righting will recover.")
+                frac = self.launch_amplitude * s
+                self._ext_hip0 = (self.CROUCH_HIP + self.LEAN
+                                  + frac * (self.EXTEND_HIP + self.LEAN
+                                            - (self.CROUCH_HIP + self.LEAN)))
+                self._ext_hip12 = (self.CROUCH_HIP - self.LEAN / 2
+                                   + frac * (self.EXTEND_HIP - self.LEAN / 2
+                                             - (self.CROUCH_HIP - self.LEAN / 2)))
+                self._ext_knee = (self.CROUCH_KNEE
+                                  + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE))
+                self.state = self.FLIGHT   # reuse clearance+slow-retract path
+                self.state_timer = 0
+                self.separation_pub.publish(Bool(data=True))
+                return
             # Hold the extension briefly past ramp end (0.5 s) so the body
             # separates cleanly at ramp speed, then hand over to FLIGHT.
             # Pushing "too long" is harmless in micro-gravity: once the feet
@@ -431,6 +494,7 @@ class HopperLocomotion(Node):
                                   + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE))
                 self.state = self.FLIGHT
                 self.state_timer = 0
+                self.separation_pub.publish(Bool(data=True))
 
         elif self.state == self.FLIGHT:
             # Post-separation leg management (2026-07-17). The old code
