@@ -220,6 +220,10 @@ class LandingController(Node):
         # quick and returns net momentum to ~zero (no post-righting bleed
         # kick -- the LANDED->liftoff kick lesson from b876c87).
         self.RIGHTING_WHEEL_SPEED = 150.0
+        # Gentle wheel speed for partial-tilt righting (u_z 0.2-0.9):
+        # ~0.5 rad/s of body roll, 6x less momentum than the inversion
+        # spin, and no leg fold -- see _run_righting_sequence (2026-07-18).
+        self.GENTLE_RIGHTING_SPEED = 25.0
         self.RIGHTING_TIMEOUT_TICKS = 1500  # 15 s per attempt at ~100 Hz
 
         # ── Subscribers ──
@@ -565,14 +569,19 @@ class LandingController(Node):
         sign = 1.0 if (self.righting_attempt % 2) == 0 else -1.0
 
         if self.righting_ticks == 1:
-            # Fold legs compact once per attempt so they don't snag the
-            # terrain mid-roll. (A posture step is normally a launch impulse
-            # in ug -- here the maneuver is deliberately dynamic anyway.)
-            for j, pub in self.joint_pubs.items():
-                if 'hip' in j:
-                    pub.publish(Float64(data=self.stand_hip_target))
-                elif 'knee' in j:
-                    pub.publish(Float64(data=self.stand_knee_target))
+            # Fold legs compact ONLY for severe tilts/inversions (roll risk
+            # of snagging is real there). For PARTIAL tilts the fold step
+            # itself was the bug (2026-07-18, launch38): a leg posture step
+            # is a launch impulse in ug, and a marginal u_z=0.85 "righting"
+            # kicked the bot to 0.25 m/s -- a 10-minute parasite ballistic
+            # arc -- while the wheels did nothing (the spin phase only ran
+            # below u_z<0.2). Partial tilts get a gentle wheel-only roll.
+            if u_z < 0.2:
+                for j, pub in self.joint_pubs.items():
+                    if 'hip' in j:
+                        pub.publish(Float64(data=self.stand_hip_target))
+                    elif 'knee' in j:
+                        pub.publish(Float64(data=self.stand_knee_target))
             self.get_logger().info(
                 f'[{self.robot_name}] 🔄 RW righting attempt '
                 f'{self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS}: '
@@ -585,6 +594,25 @@ class LandingController(Node):
             self.rw_pubs[axis].publish(
                 Float64(data=sign * self.RIGHTING_WHEEL_SPEED))
             self.rw_pubs[other].publish(Float64(data=0.0))
+        elif u_z < 0.9:
+            # PARTIAL-TILT GENTLE ROLL (2026-07-18): direction computed from
+            # the measured tilt (the old blind axis/sign alternation never
+            # even engaged the wheels here -- see the fold-step note above).
+            # Same error terms and sign convention as attitude_controller's
+            # tilt PD: body torque about +x rights a +up_y tilt, and wheel
+            # momentum change must OPPOSE the desired body momentum
+            # (Newton's 3rd across the motor), hence the signs below.
+            # ~25 rad/s of wheel speed puts ~0.5 rad/s of roll on the body:
+            # a 30-deg correction completes in ~1 s, and the total momentum
+            # transferred is ~25x smaller than the inversion spin.
+            qz, qw = msg.orientation.z, msg.orientation.w
+            up_x = 2.0 * (qx * qz + qw * qy)
+            up_y = 2.0 * (qy * qz - qw * qx)
+            n = math.hypot(up_x, up_y)
+            if n > 1e-6:
+                w = self.GENTLE_RIGHTING_SPEED
+                self.rw_pubs['x'].publish(Float64(data=-w * (up_y / n)))
+                self.rw_pubs['y'].publish(Float64(data=w * (up_x / n)))
         else:
             # Brake phase: command the wheel back to zero -- the decel
             # torque stops the body's roll as symmetrically as it started.
