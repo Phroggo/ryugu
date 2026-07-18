@@ -221,9 +221,10 @@ class LandingController(Node):
         # kick -- the LANDED->liftoff kick lesson from b876c87).
         self.RIGHTING_WHEEL_SPEED = 150.0
         # Gentle wheel speed for partial-tilt righting (u_z 0.2-0.9):
-        # ~0.5 rad/s of body roll, 6x less momentum than the inversion
-        # spin, and no leg fold -- see _run_righting_sequence (2026-07-18).
-        self.GENTLE_RIGHTING_SPEED = 25.0
+        # ~0.18 rad/s of body roll; ground-surface kick below the bounce
+        # threshold, held constant per attempt -- see the rev-2 note in
+        # _run_righting_sequence (2026-07-18).
+        self.GENTLE_RIGHTING_SPEED = 8.0
         self.RIGHTING_TIMEOUT_TICKS = 1500  # 15 s per attempt at ~100 Hz
 
         # ── Subscribers ──
@@ -569,6 +570,7 @@ class LandingController(Node):
         sign = 1.0 if (self.righting_attempt % 2) == 0 else -1.0
 
         if self.righting_ticks == 1:
+            self._gentle_dir = None  # re-derive roll direction per attempt
             # Fold legs compact ONLY for severe tilts/inversions (roll risk
             # of snagging is real there). For PARTIAL tilts the fold step
             # itself was the bug (2026-07-18, launch38): a leg posture step
@@ -595,24 +597,28 @@ class LandingController(Node):
                 Float64(data=sign * self.RIGHTING_WHEEL_SPEED))
             self.rw_pubs[other].publish(Float64(data=0.0))
         elif u_z < 0.9:
-            # PARTIAL-TILT GENTLE ROLL (2026-07-18): direction computed from
-            # the measured tilt (the old blind axis/sign alternation never
-            # even engaged the wheels here -- see the fold-step note above).
-            # Same error terms and sign convention as attitude_controller's
-            # tilt PD: body torque about +x rights a +up_y tilt, and wheel
-            # momentum change must OPPOSE the desired body momentum
-            # (Newton's 3rd across the motor), hence the signs below.
-            # ~25 rad/s of wheel speed puts ~0.5 rad/s of roll on the body:
-            # a 30-deg correction completes in ~1 s, and the total momentum
-            # transferred is ~25x smaller than the inversion spin.
-            qz, qw = msg.orientation.z, msg.orientation.w
-            up_x = 2.0 * (qx * qz + qw * qy)
-            up_y = 2.0 * (qy * qz - qw * qx)
-            n = math.hypot(up_x, up_y)
-            if n > 1e-6:
+            # PARTIAL-TILT GENTLE ROLL (2026-07-18, rev 2): direction is
+            # computed from the measured tilt ONCE at attempt start and
+            # held constant. Rev 1 re-aimed every IMU tick, so as the body
+            # rolled through upright the command flipped sign and slammed
+            # the wheels +/-25 rad/s repeatedly -- each reversal a fresh
+            # momentum transfer, each transfer a ~0.05 m/s ground kick
+            # (70 righting attempts pumped a bot to 43 m altitude in
+            # launch42). Sign convention as attitude_controller's tilt PD:
+            # wheel momentum change OPPOSES desired body momentum.
+            # 8 rad/s of wheel speed -> ~0.18 rad/s body roll -> ground-
+            # surface kick <= 0.018 m/s, below the 0.02 bounce threshold.
+            if getattr(self, '_gentle_dir', None) is None:
+                qz, qw = msg.orientation.z, msg.orientation.w
+                up_x = 2.0 * (qx * qz + qw * qy)
+                up_y = 2.0 * (qy * qz - qw * qx)
+                n = math.hypot(up_x, up_y)
+                if n > 1e-6:
+                    self._gentle_dir = (-up_y / n, up_x / n)
+            if getattr(self, '_gentle_dir', None) is not None:
                 w = self.GENTLE_RIGHTING_SPEED
-                self.rw_pubs['x'].publish(Float64(data=-w * (up_y / n)))
-                self.rw_pubs['y'].publish(Float64(data=w * (up_x / n)))
+                self.rw_pubs['x'].publish(Float64(data=w * self._gentle_dir[0]))
+                self.rw_pubs['y'].publish(Float64(data=w * self._gentle_dir[1]))
         else:
             # Brake phase: command the wheel back to zero -- the decel
             # torque stops the body's roll as symmetrically as it started.
