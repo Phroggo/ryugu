@@ -13,6 +13,8 @@ whatever you're being asked about.
 
 ## Table of contents
 
+**Part I — Concepts and physics**
+
 1. [The big picture — what problem is this solving?](#1)
 2. [Why micro-gravity breaks normal robot intuition](#2)
 3. [The robot: SpaceHopper](#3)
@@ -24,6 +26,17 @@ whatever you're being asked about.
 9. [Swarm intelligence — three robots, one mission](#9)
 10. [Case studies — the bugs that taught us the physics](#10)
 11. [Quick reference — constants, topics, states](#11)
+
+**Part II — Implementation deep dive**
+
+12. [ROS2 mechanics as actually used here](#12)
+13. [Wiring it together: the launch file and the bridge](#13)
+14. [`hopper_locomotion.py` — full code walkthrough](#14)
+15. [`attitude_controller.py` — full code walkthrough](#15)
+16. [`landing_controller.py` — full code walkthrough](#16)
+17. [`swarm_manager.py` — full code walkthrough](#17)
+18. [`swarm_gui.py` and `spawner.py` — the supporting nodes](#18)
+19. [The model generator — building the robot as code](#19)
 
 ---
 
@@ -945,6 +958,1074 @@ different fixes (averaging/filtering for real noise; calibration for a bias).
 4. **Attitude authority must be tied to commanded flight, not to sensed motion.** A
    controller armed by an ambiguous "am I flying" signal can create a self-sustaining
    energy pump; build the fallback so it can only ever remove energy, never add it.
+
+---
+
+# Part II — Implementation deep dive
+
+Part I explained *what* the system does and *why*, in physics and plain-English terms.
+Part II explains *how the code actually does it* — the real Python structures, the
+ROS2 API calls, the exact control-flow logic inside each callback. Read Part I first if
+you haven't; this part assumes you already know what each subsystem is *for* and
+concentrates purely on *how it's built*.
+
+Every source file discussed below lives under
+`ryugu_v2_ws/src/ryugu_sim/ryugu_sim/` (the Python package) except the launch file
+(`launch/ryugu_swarm.launch.py`) and the model generator
+(`scripts/generate_detailed_spacehopper.py`).
+
+<a name="12"></a>
+## 12. ROS2 mechanics as actually used here
+
+Before reading any of the four control nodes, it helps to have the handful of ROS2
+building blocks they all share firmly in mind, because every node in this project is
+built from the same small vocabulary repeated with different specifics.
+
+### 12.1 A node is a Python class
+
+Every controller in this project is a subclass of `rclpy.node.Node`:
+
+```python
+class HopperLocomotion(Node):
+    def __init__(self, robot_name):
+        super().__init__(f'hopper_locomotion_{robot_name}')
+        ...
+```
+
+Calling `super().__init__(name)` registers the node with ROS2's internal graph under
+that name — this is why the launch file (Section 13) can give each per-robot instance a
+distinct node name like `loco_scout_1`, `loco_scout_2`, `loco_scout_3`: the *same class*
+is instantiated three times, once per robot, each time with a different `robot_name`
+string passed in from the command line (see each file's `main()` function at the bottom,
+which reads `sys.argv[1]`). This is the whole trick behind "one Python file controls
+three robots" — nothing in the class is hardcoded to a specific robot; every topic name
+is built with an f-string like `f'/{self.robot_name}/imu'`.
+
+### 12.2 Publishers and subscribers
+
+A **publisher** is created once (usually in `__init__`) and reused every time you want to
+send a message:
+
+```python
+self.jump_init_pub = self.create_publisher(Bool, f'/{self.robot_name}/jump_initiated', 10)
+...
+self.jump_init_pub.publish(Bool(data=True))
+```
+
+The `10` is the **queue depth** — how many unsent messages ROS2 will buffer before
+dropping old ones if the subscriber can't keep up. A **subscriber** registers a callback
+function that ROS2 invokes automatically, on its own thread/event-loop timing, whenever a
+new message arrives:
+
+```python
+self.create_subscription(Bool, f'/{self.robot_name}/jump_initiated', self.jump_callback, 10)
+
+def jump_callback(self, msg):
+    if msg.data:
+        ...
+```
+
+You never call `jump_callback` yourself — it fires whenever *any* other node (in this
+case, `hopper_locomotion`) publishes to that topic. This is the entire mechanism that
+lets four independent Python processes per robot stay synchronized without ever calling
+each other's functions directly or sharing memory.
+
+### 12.3 Message types are just typed data containers
+
+`Bool`, `Float64`, `String` (from `std_msgs.msg`), `Imu` (from `sensor_msgs.msg`), and
+`Odometry` (from `nav_msgs.msg`) are all pre-defined ROS2 message classes — plain data
+containers with named fields (e.g. `Imu` has `.orientation`, `.angular_velocity`,
+`.linear_acceleration`; `Odometry` has `.pose.pose.position`, `.twist.twist.linear`).
+Every callback in this codebase starts by pulling the fields it needs off the incoming
+`msg` object — for example, `attitude_controller`'s `imu_callback` begins:
+
+```python
+def imu_callback(self, msg):
+    ax = msg.linear_acceleration.x
+    ay = msg.linear_acceleration.y
+    az = msg.linear_acceleration.z
+    accel_mag = math.sqrt(ax**2 + ay**2 + az**2)
+```
+
+### 12.4 QoS — why some subscriptions use `qos_profile_sensor_data`
+
+ROS2 lets you tune the *quality-of-service* contract per subscription. By default,
+messages are `RELIABLE` (guaranteed delivery, retried if dropped) with a modest queue.
+Under the load of three robots' worth of IMU and odometry traffic, those reliable queues
+were measured backing up ("message lost" floods in the logs), and a controller reacting
+to a several-tick-old, stale measurement doesn't just lag — it can actively make things
+worse, because it's damping against where the robot *was*, not where it *is* (the exact
+same lagged-feedback problem as the "zero-stiffness catch" failure in Section 7.4). The
+fix used throughout the codebase is `qos_profile_sensor_data`, a built-in preset that is
+`BEST_EFFORT` (never retries — an old dropped sample is simply skipped) and a shallow
+queue — appropriate for any fast, continuously-updating sensor stream where the newest
+value is all that matters and an occasional dropped sample is harmless:
+
+```python
+self.create_subscription(Imu, f'/{self.robot_name}/imu',
+                         self.imu_callback, qos_profile_sensor_data)
+```
+
+Command topics (jump targets, yaw targets, drill commands) stay on the default reliable
+QoS with queue depth 10, because those are rare, discrete, must-arrive events, not a
+continuous stream.
+
+### 12.5 Timers — the other way code gets called
+
+Besides subscription callbacks, a node can also register a **timer** that fires a
+function on a fixed period, independent of any incoming message:
+
+```python
+self.timer = self.create_timer(0.1, self.tick)      # hopper_locomotion: 10 Hz
+self.timer = self.create_timer(2.0, self.swarm_tick) # swarm_manager: 0.5 Hz
+self.create_timer(5.0, self.log_status)              # landing_controller: status log
+```
+
+`hopper_locomotion`'s entire state machine (Section 5) runs inside `tick()`, called 10
+times a second — this is *not* event-driven; every single tick, whatever state the robot
+is in, the relevant block of `tick()` re-publishes its target joint commands. This
+"re-assert every tick" pattern shows up repeatedly and is explained in Section 14.3 — it
+exists specifically to survive being overwritten by another node's own publications on
+the same topic.
+
+### 12.6 `main()` — how a class becomes a running process
+
+Every controller file ends with the same boilerplate:
+
+```python
+def main(args=None):
+    rclpy.init(args=args)
+    robot_name = 'scout_1'
+    if len(sys.argv) > 1:
+        robot_name = sys.argv[1]
+    node = HopperLocomotion(robot_name)
+    rclpy.spin(node)
+    rclpy.shutdown()
+```
+
+`rclpy.spin(node)` is what actually keeps the process alive and dispatches callbacks —
+it blocks forever, handing control to whichever timer or subscription callback is due
+next, until the process is killed. `setup.py`'s `entry_points` maps the shell command
+each `Node(...)` action in the launch file invokes (e.g. `hopper_locomotion`) to this
+`main()` function.
+
+<a name="13"></a>
+## 13. Wiring it together: the launch file and the bridge
+
+### 13.1 What `ryugu_swarm.launch.py` actually starts
+
+A ROS2 **launch file** is itself just a Python script that builds a list of process
+descriptions and hands them to the framework to start together. This project's launch
+file (`launch/ryugu_swarm.launch.py`) builds up a `nodes` list containing:
+
+- `gazebo` — not a ROS2 node at all, just a raw `ExecuteProcess` running the `gz sim`
+  command-line tool against the world file (`worlds/ryugu.sdf`).
+- `spawner` — one instance of `spawner.py` (Section 18.2).
+- `swarm_manager` — one instance of `swarm_manager.py` (Section 17).
+- `swarm_gui` — one instance of the dashboard (Section 18.1).
+- `layout_windows` — a `TimerAction` that waits 10 seconds (long enough for both GUI
+  windows to have actually appeared) and then runs `wmctrl` shell commands to
+  reposition and resize the Gazebo window and the dashboard window side by side, so the
+  user doesn't have to drag them into place by hand every launch.
+- Then, **inside a `for agent in [...]` loop**, three copies each of `hopper_locomotion`,
+  `attitude_controller`, and `landing_controller` — one full control stack per robot —
+  plus one `ros_gz_bridge` process per robot (Section 13.2).
+
+Each per-robot `Node(...)` entry passes the robot's name as a command-line argument
+(`arguments=[agent]`), which is exactly the `sys.argv[1]` picked up in each file's
+`main()` (Section 12.6), and gives it a distinct ROS2 node name (`name=f'loco_{agent}'`)
+so three simultaneously-running `hopper_locomotion` processes don't collide in the ROS2
+graph.
+
+### 13.2 The bridge — why Gazebo and ROS2 need a translator at all
+
+Gazebo (the physics engine) and ROS2 (the robot-control framework) are two entirely
+separate pieces of software with their own independent messaging systems — Gazebo's is
+called **gz-transport**, and it knows nothing about ROS2 topics by default. `ros_gz_bridge`
+is a small utility process whose only job is translating messages back and forth between
+the two systems on a topic-by-topic basis. The launch file builds a YAML config file per
+robot (written out to `/tmp/ryugu_bridge_{agent}.yaml`) listing every translation:
+
+```python
+entries.append((f'/{agent}/rw_{axis}_joint_cmd_vel',
+                f'/model/{agent}/joint/rw_{axis}_joint/cmd_vel',
+                'std_msgs/msg/Float64', 'gz.msgs.Double', 'ROS_TO_GZ'))
+```
+
+Each entry says: take messages on this ROS2 topic, of this ROS2 type, and forward them
+(direction `ROS_TO_GZ`) onto that Gazebo topic, converted to that Gazebo type (or the
+reverse, `GZ_TO_ROS`, for sensor data flowing the other way — IMU and odometry). The
+comment in the launch file explains a specific, non-obvious gotcha that shaped this
+design: Gazebo's joint-position-controller plugin listens on a topic with a **numeric
+path segment** in it (`/model/scout_1/joint/hip_joint_0/0/cmd_pos` — that `/0/` is a
+per-controller index), and ROS2's topic-remapping syntax cannot represent a bare number
+like that. Writing the mapping explicitly in a YAML file (rather than trying to use
+ROS2's built-in remap arguments) was the only way to reach that topic at all — the
+earlier attempt silently published into a ROS2 topic nothing on the Gazebo side was
+actually listening to, with no error of any kind, which made it a very confusing bug
+until someone thought to check the Gazebo-side topic list directly.
+
+### 13.3 Topic-name pattern to memorize
+
+Every bridged topic follows the same `/{robot_name}/{purpose}` naming pattern on the
+ROS2 side (e.g. `/scout_2/imu`, `/scout_2/joint_hip_joint_0_cmd_pos`), which is what lets
+every controller class build its own topic names purely from the `robot_name` string it
+was constructed with — there is no central registry of topic names anywhere; the naming
+convention itself *is* the registry.
+
+<a name="14"></a>
+## 14. `hopper_locomotion.py` — full code walkthrough
+
+### 14.1 State representation
+
+States are plain class-level integer constants, not an enum, kept deliberately simple:
+
+```python
+class HopperLocomotion(Node):
+    IDLE = 0
+    CROUCH = 1
+    LAUNCH = 2
+    FLIGHT = 3
+```
+
+`self.state` holds the current one, and `self.state_timer` counts ticks (at 10 Hz, from
+the `tick()` timer) since the state was last entered — used everywhere as a simple
+built-in stopwatch (e.g. `if self.state_timer > 100 and ...` means "at least 10 seconds
+into this state").
+
+### 14.2 `jump_target_callback` — turning a distance into a ramp duration
+
+This is the entry point for a hop command, and it's worth reading closely because it's
+where the physics from Section 5.3 becomes actual numbers:
+
+```python
+def jump_target_callback(self, msg):
+    if self.state != self.IDLE:
+        self.get_logger().warn(f"Ignoring jump command, currently not IDLE")
+        return
+    distance = msg.data
+    g = 0.000114
+    SIN2TH = 0.56
+    V_GAIN = 0.12
+    v_req = math.sqrt(max(distance, 0.5) * g / SIN2TH)
+    ramp_T = max(1.2, min(20.0, V_GAIN / v_req))
+    self.ramp_ticks = max(1, round(ramp_T * 10))
+    self.launch_amplitude = 0.9
+    self.state = self.CROUCH
+    self.state_timer = 0
+```
+
+Line by line: the *first* guard clause — `if self.state != self.IDLE: return` — is a
+simple but important piece of arbitration: a jump command that arrives while a hop is
+already in progress is just dropped (with a warning), rather than corrupting the running
+sequence. `max(distance, 0.5)` floors the requested distance so a near-zero request
+doesn't produce a divide-by-zero-adjacent `v_req`. `v_req` inverts the standard
+projectile-range equation (`range = v² sin(2θ)/g`) to solve for the launch speed needed
+to reach the requested distance at the known launch angle. `ramp_T` then converts that
+required speed into a ramp *duration* using the empirically-calibrated `V_GAIN` constant,
+clamped between 1.2 and 20 seconds (below 1.2 s the leg PID starts saturating again —
+Section 5.3's Attempt 1 problem re-emerges; above 20 s a hop would take unreasonably
+long to even leave the ground). `ramp_ticks` converts that duration into an integer tick
+count at the 10 Hz control rate (`round(ramp_T * 10)`) because the `LAUNCH` state
+(Section 14.4) counts in ticks, not seconds. Finally the state is set to `CROUCH` and the
+timer reset to zero — this doesn't crouch anything by itself; it just changes what
+`tick()` does on its very next call.
+
+### 14.3 `tick()` — the CROUCH block and the "re-assert every tick" pattern
+
+```python
+if self.state == self.CROUCH:
+    if self.state_timer == 0:
+        self._wake_model()
+    self.pubs['hip_joint_0'].publish(Float64(data=self.CROUCH_HIP + self.LEAN))
+    self.pubs['knee_joint_0'].publish(Float64(data=self.CROUCH_KNEE))
+    for i in (1, 2):
+        self.pubs[f'hip_joint_{i}'].publish(Float64(data=self.CROUCH_HIP - self.LEAN / 2))
+        self.pubs[f'knee_joint_{i}'].publish(Float64(data=self.CROUCH_KNEE))
+    self.state_timer += 1
+```
+
+Notice the joint-target publish calls sit **outside** the `if self.state_timer == 0:`
+block, meaning they run on *every single tick* the robot spends in CROUCH, not just once
+at entry. This looks redundant at first glance (why re-send the same numbers 100 times a
+second?) but it's a direct fix for a real, measured bug: `landing_controller`'s
+post-landing stand-up sequence publishes to these exact same joint topics, and Gazebo's
+joint controllers are simple **last-write-wins** consumers — whichever publisher sent the
+most recent message on a topic is the one that "owns" the joint at that instant. If a
+robot receives a jump command while the previous landing's stand-up ramp is still
+finishing, a *single* one-shot crouch publication gets overwritten within about 10
+milliseconds by the still-running stand-up ramp, and the launch fires from the wrong
+posture. Publishing every tick means `hopper_locomotion`'s command is never more than
+100 ms stale, so it always wins the race in practice. This pattern (re-publish every
+tick rather than once on entry) recurs in the `LAUNCH` block and in `attitude_controller`
+for exactly the same reason, and it's worth recognizing as a general technique: **when
+two independent processes can write to the same actuator topic, the one that writes most
+recently and most often effectively wins arbitration**, so a state that needs to "hold" a
+command has to keep re-sending it, not just send it once.
+
+The launch gate itself:
+
+```python
+stance_ok = self._stance_ok() or getattr(self, 'recovery_hop', False)
+if self.state_timer > 450 and not stance_ok:
+    ... abort back to IDLE ...
+if self.state_timer > 100 and stance_ok and (
+        self.attitude_error < 0.15 or self.state_timer > 450):
+    self.state = self.LAUNCH
+    self.state_timer = 0
+```
+
+`getattr(self, 'recovery_hop', False)` is Python's safe-attribute-read idiom — read
+`self.recovery_hop` if it exists, otherwise treat it as `False` — used because
+`recovery_hop` is only ever explicitly set to `True` inside the idle self-recovery branch
+(Section 14.5), so on a robot's very first ever hop the attribute might not exist yet at
+all. `450` ticks is 45 seconds (at 10 Hz) — both the abort deadline and the "stop waiting
+for perfect yaw alignment" deadline share that same number, which is why a stuck yaw
+slew can't deadlock the mission forever: past 45 seconds the code launches anyway
+(logging a warning) rather than waiting indefinitely.
+
+### 14.4 `tick()` — the LAUNCH block and the ease-in ramp in code
+
+```python
+elif self.state == self.LAUNCH:
+    if self.state_timer == 0:
+        self._wake_model()
+        self.jump_init_pub.publish(Bool(data=True))
+    s = min(1.0, (self.state_timer + 1) / self.ramp_ticks)
+    s = s * s                       # <- the quadratic ease-in
+    frac = self.launch_amplitude * s
+    knee = self.CROUCH_KNEE + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE)
+    hip0_start = self.CROUCH_HIP + self.LEAN
+    hip12_start = self.CROUCH_HIP - self.LEAN / 2
+    self.pubs['hip_joint_0'].publish(Float64(
+        data=hip0_start + frac * (self.EXTEND_HIP + self.LEAN - hip0_start)))
+    ...
+```
+
+`s` is a **normalized progress variable** running from just above 0 up to exactly 1.0 as
+`state_timer` counts up to `ramp_ticks` — standard technique for driving any kind of
+timed animation or ramp. `s = s * s` is the entire "quadratic ease-in" from Section 5.3
+in one line: squaring a number between 0 and 1 makes it smaller, and it shrinks *more*
+for small `s` than for `s` near 1 (e.g. `0.5² = 0.25`, a big reduction, but `0.9² = 0.81`,
+a small reduction) — so early in the ramp the joint target barely moves, and it catches
+up rapidly only near the very end, which is exactly the "peak rate at release" behavior
+described conceptually in Section 5.3. `frac` then scales that eased progress by
+`launch_amplitude` (capped at 0.9, per Section 5.3's "release before the singularity"
+point). The joint-target formulas
+(`hip0_start + frac * (EXTEND_HIP + LEAN - hip0_start)`) are simple linear interpolation
+(`lerp`) — "start at `hip0_start`, and by the time `frac` reaches 1.0, be all the way at
+the extension target" — applied independently per leg, with leg 0 (the lean-bearing leg)
+using a different start/end pair than legs 1 and 2 so the asymmetric lean carries through
+the entire stroke, not just the crouch.
+
+The mid-stroke abort:
+
+```python
+if getattr(self, 'last_uz', 1.0) < 0.7:
+    ... freeze current extension, jump to FLIGHT, publish separation ...
+    return
+```
+
+`self.last_uz` is set by `odom_callback` (Section 14.6) from live odometry, so this check
+is reading a genuinely fresh, physically-measured uprightness value every tick during the
+stroke — not a prediction, an actual live sensor read — which is why the abort can react
+within a single 100 ms tick of the robot starting to tip.
+
+### 14.5 The idle self-recovery timer
+
+```python
+if self.state == self.IDLE:
+    if not self.landed:
+        return
+    self.idle_ticks += 1
+    if self.idle_ticks >= self.IDLE_RECOVERY_TICKS:
+        self.launch_amplitude = 0.9
+        self.ramp_ticks = self.RECOVERY_RAMP_TICKS
+        self.recovery_hop = True
+        self.state = self.CROUCH
+        self.state_timer = 0
+        self.idle_ticks = 0
+    return
+```
+
+`self.landed` here is not read fresh from a sensor — it's a plain instance attribute,
+last set by `landed_callback` (a subscriber to `/{robot}/landed`, Section 14.7)
+whenever `landing_controller` publishes an update. This is the general pattern for every
+piece of cross-node state in this codebase: a subscriber callback's *entire job* is
+usually just `self.some_attribute = msg.data`, and the rest of the code (here, `tick()`)
+reads that attribute whenever it needs the latest known value, rather than every
+consumer subscribing separately. `if not self.landed: return` means the idle-ticks
+counter only accumulates while genuinely at rest — a robot mid-flight, or one whose node
+just restarted before its first `landed` update arrives, doesn't spuriously trigger a
+recovery hop.
+
+### 14.6 `_wake_model` — a fire-and-forget subprocess call
+
+```python
+def _wake_model(self):
+    ...
+    req = (f'name: "{self.robot_name}", '
+           f'position: {{x: {x}, y: {y}, z: {z + 0.0005}}}, '
+           f'orientation: {{x: {qx}, y: {qy}, z: {qz}, w: {qw}}}')
+    subprocess.Popen(
+        ['gz', 'service', '-s', '/world/ryugu_world/set_pose',
+         '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
+         '--timeout', '1000', '--req', req],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+```
+
+This is the one place in the control code that steps outside the ROS2/Gazebo bridge
+entirely and shells out directly to the `gz service` command-line tool, because there is
+no bridged ROS2 topic for "teleport a model to an exact pose" — that capability only
+exists as a Gazebo service call. `subprocess.Popen(...)` (as opposed to
+`subprocess.run(...)`) is deliberately **non-blocking** — it starts the external process
+and returns immediately without waiting for it to finish, which matters because this gets
+called from inside the 10 Hz `tick()` callback, and blocking there for even a few tens of
+milliseconds would stall the whole node's control loop. The `+0.0005` (half a millimetre)
+on the z-position is the fix described in Part I: an exactly in-place teleport is a
+complete no-op from the physics engine's point of view and doesn't actually wake a
+sleeping model (Section 6.3's "sleep-defeat" discussion in Part I covers the "why" in
+depth — this is the "how").
+
+### 14.7 The remaining callbacks, briefly
+
+- `odom_callback` — stores the latest pose/orientation/velocity into plain attributes
+  (`self.last_pose`, `self.last_uz`, `self.last_speed`) for other methods to read.
+- `landed_callback` — sets `self.landed`, and specifically when a `FLIGHT`-state robot
+  receives `landed=True`, transitions the state machine back to `IDLE`.
+- The `attitude_error` subscription is a one-line `lambda` right in the constructor
+  (`lambda m: setattr(self, 'attitude_error', m.data)`) rather than a full method — a
+  common shorthand in this codebase for "just store this value, no other logic needed."
+
+<a name="15"></a>
+## 15. `attitude_controller.py` — full code walkthrough
+
+### 15.1 State flags instead of a state-machine class
+
+Unlike `hopper_locomotion` and `landing_controller`, this node doesn't use an explicit
+state-machine `self.state` variable — its behavior is instead governed by a small set of
+independent boolean/float flags, each set by a different subscriber callback:
+
+```python
+self.in_flight = False
+self.commanded_flight = True
+self.stroke_hold = False
+self.righting_active = False
+self.ground_contact = False
+```
+
+`imu_callback` (Section 15.3) reads all of these together at the top of every call to
+decide which control law to run. This is a valid alternative design to an explicit state
+machine when the "states" aren't mutually exclusive in a clean way — here, several of
+these flags can be true or false in almost any combination (e.g. `in_flight=True` with
+`commanded_flight=False` is exactly the "uncommanded motion" case that Law 4, Section
+6.3, exists to catch), so a single `self.state` enum would have needed a combinatorial
+explosion of named states to represent the same information these five independent
+booleans capture directly.
+
+### 15.2 The callbacks that set the flags
+
+```python
+def ground_contact_callback(self, msg):
+    self.ground_contact = msg.data
+    if msg.data and self.commanded_flight:
+        self.commanded_flight = False
+        ...
+
+def jump_callback(self, msg):
+    if msg.data:
+        self.in_flight = True
+        self.commanded_flight = True
+        self.stroke_hold = True
+        self.stroke_hold_since = self.get_clock().now().nanoseconds / 1e9
+        ...
+
+def separation_callback(self, msg):
+    if msg.data and getattr(self, 'stroke_hold', False):
+        self.stroke_hold = False
+
+def landed_callback(self, msg):
+    if msg.data and self.in_flight:
+        self.in_flight = False
+        self.commanded_flight = False
+        self.target_yaw = getattr(self, 'last_yaw', self.target_yaw)
+    elif not msg.data and not self.in_flight:
+        self.in_flight = True
+```
+
+Each of these is short and does exactly one thing, but the *combination* implements the
+whole Law 4 latch from Part I: `commanded_flight` only ever becomes `True` inside
+`jump_callback` (a genuine commanded ignition), and becomes `False` the instant either
+`ground_contact_callback` sees a real contact or `landed_callback` confirms landing —
+there is no code path where uncommanded motion can set it `True`. `self.get_clock().now()`
+is ROS2's simulation-aware clock (it reads simulated time, not wall-clock time, which
+matters because Gazebo can run faster or slower than real time) — `stroke_hold_since`
+records that timestamp so `imu_callback` can implement the 30-second stroke-hold failsafe
+purely from elapsed simulated time.
+
+### 15.3 `imu_callback` — the dispatch logic, in order
+
+This is the busiest method in the whole codebase; reading it top-to-bottom in order is
+reading the actual priority list of Section 6:
+
+```python
+def imu_callback(self, msg):
+    if self.righting_active:
+        return
+    ...compute yaw error, tau_z...
+    if self.ground_contact or (self.in_flight and not self.commanded_flight):
+        ...dissipation-only rate-kill on all three axes, publish, return...
+    rate_mag = math.sqrt(wx*wx + wy*wy + wz*wz)
+    really_moving = (self.velocity_mag > 0.008) or (rate_mag > 0.03)
+    if self.stroke_hold and (now - self.stroke_hold_since) > 30.0:
+        self.stroke_hold = False
+    if self.stroke_hold and self.commanded_flight:
+        ...rate-only damping during the stroke, publish, return...
+    if self.in_flight and really_moving and not self.stroke_hold:
+        ...full tilt PD (tau_x, tau_y from the cross-product error)...
+    else:
+        tau_x = None
+        tau_y = None
+    ...integrate torque into wheel speed, publish...
+```
+
+Notice the structure: each successive `if` block, when it matches, **returns early**
+after publishing — this makes the method read as an ordered priority list rather than a
+single flat calculation. The order itself is deliberate and matches the priority of the
+underlying physical concerns: righting has absolute priority (another node owns the
+wheels entirely during that maneuver — checked and returned first); then any
+ground-contact or uncommanded-motion case is routed to the safe dissipation-only law
+(this can never be skipped by anything below it); then the stroke-hold case (also
+dissipation-only, but on the tilt axes specifically, while the deliberate lean is active);
+and only once none of those apply does the full position+rate PD law run. Reading a
+method with several early-return guard clauses like this, the fastest way to understand
+it is to read each `if` as "is this the *most urgent* exception to normal operation, and
+if so, handle it completely and stop" — rather than trying to hold the whole
+combinatorial truth table in your head at once.
+
+### 15.4 The torque-to-wheel-speed integration
+
+```python
+tau = max(-self.tau_max, min(self.tau_max, tau))
+delta = (-tau / self.I_wheel) * dt
+delta = max(-max_delta, min(max_delta, delta))
+new_cmd = self.cmd_vel[axis] + delta
+self.cmd_vel[axis] = max(-self.max_rw_speed, min(self.max_rw_speed, new_cmd))
+```
+
+This block appears (with small variations) in every branch of `imu_callback` that
+actually commands the wheels, and it's the direct code form of the physics equation from
+Section 6.1 (`τ = −I·dω/dt`, rearranged to `dω = −τ/I · dt`). `max(-x, min(x, y))` is the
+standard Python idiom for **clamping** a value into the range `[-x, x]` — it appears three
+times in this one block, clamping (1) the commanded torque to the motor's real budget
+(`tau_max`), (2) the per-tick wheel-speed change to a maximum acceleration
+(`max_wheel_accel`, a *separate*, more conservative software limit than what the torque
+budget alone would allow), and (3) the resulting cumulative wheel speed to the motor's
+real top speed (`max_rw_speed`). `self.cmd_vel` is a persistent dictionary
+(`{'x': 0.0, 'y': 0.0, 'z': 0.0}`) that the wheel speed is *integrated into* — each call
+adds a small `delta` to whatever the wheel was already commanded to, rather than
+recomputing an absolute target from scratch, which is what makes this a proper physical
+integrator rather than a simple proportional controller (see the long comment block near
+the top of the file, Section 15.5, for the historical story of why this distinction
+mattered).
+
+### 15.5 Why the file's top third is one long comment
+
+If you open `attitude_controller.py`, the first ~180 lines before any method definition
+are comments — three successive rewrites of the control law, each explaining exactly what
+was wrong with the previous version and the measured symptom that proved it. This is a
+deliberate documentation choice made throughout the whole codebase: rather than deleting
+old reasoning when a design changes, the comment is kept and a new dated note is added
+explaining what changed and why. The practical benefit is that you can reconstruct the
+entire debugging history of a piece of logic just by reading its surrounding comments in
+order — which is exactly how Section 10's case studies were written, and exactly how you
+should read any file in this project you want to deeply understand: **the comments are
+not decoration, they're a lab notebook.**
+
+<a name="16"></a>
+## 16. `landing_controller.py` — full code walkthrough
+
+### 16.1 An explicit state-machine, this time
+
+Unlike `attitude_controller`, this file *does* use a conventional `self.state` integer
+with named constants, exactly like `hopper_locomotion`:
+
+```python
+IDLE = 0
+FLIGHT = 1
+CONTACT_DETECTED = 2
+SETTLING = 3
+LANDED = 4
+RIGHTING = 5
+STATE_NAMES = {0: "IDLE", 1: "FLIGHT", ...}
+```
+
+`STATE_NAMES` is used purely for logging (`log_status`, called every 5 seconds by a
+timer) so the log output reads as a human-friendly word instead of a bare integer —
+small detail, but it's why every log line in the sim output says `landing_scout_2:
+Landing controller state: FLIGHT` instead of `state: 1`.
+
+### 16.2 `imu_callback`'s `elif` chain is the state machine
+
+The entire state machine is one large `if/elif` chain inside `imu_callback`, keyed on
+`self.state`, with each branch containing that state's specific transition logic — this
+is the most common and simplest way to implement a state machine in plain Python (no
+separate library or framework needed): the current value of one variable selects which
+block of code runs this tick, and each block is free to reassign that variable to move to
+a different state before the callback returns.
+
+The **FLIGHT** branch shows the two-detector pattern from Part I (Section 7) directly in
+code:
+
+```python
+elif self.state == self.FLIGHT:
+    in_launch_blank = (now < getattr(self, 'contact_blank_until', 0.0))
+    if in_launch_blank:
+        pass
+    elif accel_mag > self.contact_accel_threshold:
+        self.state = self.CONTACT_DETECTED
+        ...
+    else:
+        if self._rest_window_elapsed():
+            self.state = self.CONTACT_DETECTED
+            self.contact_via_rest = True
+            ...
+```
+
+The `in_launch_blank` check runs *first* and, if true, does nothing at all (`pass`) —
+during the launch blanking window (Section 5.4 / 10.4), contact detection is completely
+disabled rather than just having its threshold raised, which is a stronger and simpler
+guarantee. Below that, the *primary* detector (an acceleration spike) is checked first,
+and only if it doesn't fire does the *fallback* detector (`_rest_window_elapsed()`) get a
+chance — this ordering matters because a spike is a much more specific, lower-latency
+signal when it's available; the rest-window fallback exists specifically to catch the
+cases (very soft touchdowns, or a restarted node) where no spike ever occurs.
+
+### 16.3 `_rest_window_elapsed` — a stateful helper with its own memory
+
+This method is called from three different places in the file (the `IDLE` branch, the
+`FLIGHT` branch, and indirectly relied on by both), and it maintains its own persistent
+state across calls (`self.rest_z_ref`, `self.rest_z_ticks`, `self.rest_vel_ticks`) rather
+than being a pure function — it has to, because "has the robot held still for 60
+seconds" is inherently a question about a *history* of readings, not a single instant:
+
+```python
+def _rest_window_elapsed(self):
+    if self.velocity_mag > self.REST_VEL_MAX:
+        self.rest_vel_ticks = 0
+        self.rest_vel_z_ref = None
+    else:
+        if getattr(self, 'rest_vel_z_ref', None) is None:
+            self.rest_vel_z_ref = self.pos_z
+        if abs(self.pos_z - self.rest_vel_z_ref) > 0.05:
+            self.rest_vel_ticks = 0
+            self.rest_vel_z_ref = self.pos_z
+            return False
+        self.rest_vel_ticks += 1
+        if self.rest_vel_ticks >= self.REST_VEL_TICKS:
+            ...
+            return True
+    ...second, faster z-band + velocity path follows the same pattern...
+```
+
+The pattern here — "if the condition that must hold continuously breaks, reset the
+counter and the reference point back to the current reading; otherwise increment the
+counter and check if it's crossed the threshold" — is the standard way to implement a
+"has X been true continuously for N ticks" check without any external timer or list of
+past readings: you only ever need to remember *one* reference value (the position when
+the window started) and *one* running count, and any single bad reading is enough to
+restart both from scratch. This is worth recognizing as a reusable pattern; it appears
+again, structurally identical, in the LANDED-state tilt watchdog (Section 16.5) and in
+`swarm_manager`'s liveness check (Section 17.4).
+
+### 16.4 `_run_righting_sequence` — bang-bang control in code
+
+```python
+axis = 'x' if (self.righting_attempt % 4) < 2 else 'y'
+sign = 1.0 if (self.righting_attempt % 2) == 0 else -1.0
+```
+
+This is how "alternate axis and sign across attempts" (Part I, Section 8.2) is actually
+computed: `righting_attempt % 4 < 2` is `True` for attempts 0 and 1, `False` for 2 and 3,
+then repeats — giving the sequence x, x, y, y, x, ... — while `righting_attempt % 2 == 0`
+alternates every single attempt regardless, giving the sign sequence +, −, +, −, ...
+Combined, five attempts (0 through 4) walk through x+, x−, y+, y−, x+ — five genuinely
+distinct roll directions tried in order before giving up.
+
+The bang-bang spin/brake switch:
+
+```python
+if u_z < 0.2:
+    self.rw_pubs[axis].publish(Float64(data=sign * self.RIGHTING_WHEEL_SPEED))
+    self.rw_pubs[other].publish(Float64(data=0.0))
+elif u_z < 0.9:
+    ...gentle fixed-direction roll (Section 16.5)...
+else:
+    self.rw_pubs[axis].publish(Float64(data=0.0))
+    self.rw_pubs[other].publish(Float64(data=0.0))
+    if u_z > 0.9:
+        self.state = self.CONTACT_DETECTED
+        return
+```
+
+`u_z` (recomputed fresh from the current IMU orientation every single call, not cached)
+is what selects which of the three branches runs *this tick* — there's no separate
+"phase" variable; the maneuver's current phase is derived directly from the robot's
+actual measured uprightness at that instant, which makes the whole thing naturally
+self-correcting: if the robot rolls faster or slower than expected on a given attempt,
+the branch selection adapts immediately rather than following a fixed pre-planned
+timeline.
+
+### 16.5 The gentle partial-tilt roll — computing and freezing a direction
+
+This is the code for the fix described in Part I Section 8.4 (the momentum-kick bug):
+
+```python
+if self.righting_ticks == 1:
+    self._gentle_dir = None   # re-derive roll direction per attempt
+    ...
+elif u_z < 0.9:
+    if getattr(self, '_gentle_dir', None) is None:
+        qz, qw = msg.orientation.z, msg.orientation.w
+        up_x = 2.0 * (qx * qz + qw * qy)
+        up_y = 2.0 * (qy * qz - qw * qx)
+        n = math.hypot(up_x, up_y)
+        if n > 1e-6:
+            self._gentle_dir = (-up_y / n, up_x / n)
+    if getattr(self, '_gentle_dir', None) is not None:
+        w = self.GENTLE_RIGHTING_SPEED
+        self.rw_pubs['x'].publish(Float64(data=w * self._gentle_dir[0]))
+        self.rw_pubs['y'].publish(Float64(data=w * self._gentle_dir[1]))
+```
+
+`self._gentle_dir` is reset to `None` exactly once, at the very start of each new
+righting attempt (`righting_ticks == 1`, i.e. the first tick of that attempt). Inside the
+tilt-handling branch, the direction is computed **only if it hasn't been computed yet**
+this attempt (`if ... is None:`) — once set, it's simply reused on every subsequent tick
+without recalculation, which is precisely "commit once per attempt, don't re-aim
+continuously" from Part I, implemented as a Python `None`-guard on a cached value.
+`up_x`/`up_y` and the normalization (`math.hypot`, dividing by the vector's own length to
+get a pure direction with length 1) follow the exact same "rotate local up into world
+frame, take the horizontal component" math as `attitude_controller`'s tilt-error
+calculation (Section 15.4) — the two files independently derive the same kind of error
+vector because they're solving the same underlying geometry problem (how tilted is the
+body, and which way).
+
+### 16.6 The rest of the state machine, briefly
+
+- **CONTACT_DETECTED** — accumulates `self.settle_counter`, checks for either a genuine
+  bounce (free-fall accel + real velocity) sending it back to `FLIGHT`, or a sustained
+  settle (`settle_counter >= settle_duration_ticks`) that then checks velocity, then
+  tilt, before finally confirming `LANDED`.
+- **LANDED** — the liftoff watchdog (`velocity_mag > LIFTOFF_VEL` sustained for
+  `LIFTOFF_TICKS`) and the tilt watchdog (Section 16.3's pattern, reused with a 300-tick
+  threshold and its own `self.landed_tilt_ticks` counter) both live here.
+- At the very end of `imu_callback`, **every** branch falls through to three unconditional
+  publishes:
+
+```python
+self.landed_pub.publish(Bool(data=(self.state == self.LANDED)))
+self.righting_active_pub.publish(Bool(data=(self.state == self.RIGHTING)))
+self.contact_pub.publish(Bool(data=(self.state == self.CONTACT_DETECTED)))
+```
+
+These three lines run on *every single IMU tick regardless of state or which branch fired
+above* — they're outside the `if/elif` chain entirely, at the same indentation level as
+the chain itself. This is a clean way to keep three other nodes' worth of downstream
+consumers (`hopper_locomotion`, `attitude_controller`, `swarm_manager`) always current: 
+rather than remembering to publish inside every single branch that changes state, the
+three flags are simply *derived fresh from `self.state`* once per tick, guaranteeing they
+can never drift out of sync with the actual state.
+
+<a name="17"></a>
+## 17. `swarm_manager.py` — full code walkthrough
+
+### 17.1 One node, one dictionary, three robots
+
+Unlike the three per-robot controllers, there is exactly **one** `swarm_manager` process,
+and it tracks all three robots' state in a single dictionary keyed by name:
+
+```python
+self.agents = ["scout_1", "scout_2", "scout_3"]
+self.state = {
+    agent: {
+        "role": "Unassigned",
+        "battery": random.uniform(85.0, 100.0),
+        "target_x": 0.0, "target_y": 0.0,
+        "has_sample": False, "drill_deployed": False,
+        "sample_count": 0,
+        "pos_x": 0.0, "pos_y": 0.0, "landed": True,
+        "activity": "Booting up...",
+        ...
+    } for agent in self.agents
+}
+```
+
+This dictionary-of-dictionaries is the entire mission "brain state" — nothing about any
+robot's mission progress lives anywhere else. Every method in the file reads and writes
+through `self.state[agent][...]`. Publishers and subscribers are likewise built as
+per-agent **dictionaries of publishers**, constructed once in `__init__` with a
+dictionary comprehension:
+
+```python
+self.jump_pubs = {
+    agent: self.create_publisher(Float64, f'/{agent}/jump_target_distance', 10)
+    for agent in self.agents
+}
+```
+
+so that dispatching a hop to any agent is just `self.jump_pubs[agent].publish(...)` —
+one publisher object per robot, looked up by name, rather than three separately-named
+publisher variables.
+
+### 17.2 The closures-in-a-loop subtlety
+
+Subscribing to all three robots' odometry needs a callback that knows *which* robot's
+update just arrived — but the callback signature ROS2 expects only takes the message.
+The fix is a `lambda` with a default-argument trick:
+
+```python
+for agent in self.agents:
+    self.create_subscription(
+        Odometry, f'/{agent}/odometry',
+        lambda msg, a=agent: self.odom_callback(a, msg), 10)
+```
+
+`a=agent` inside the lambda's parameter list looks unusual but is doing something
+specific and necessary: Python closures capture *variables*, not their values at the time
+the closure was created, so without `a=agent`, all three lambdas created across the loop
+would share the *same* `agent` variable — and by the time any of them actually ran (long
+after the loop finished), `agent` would just hold whatever its final value was
+(`"scout_3"`), making every callback think every update was for scout_3. Binding
+`agent`'s *current* value as a default argument (`a=agent`) forces Python to evaluate and
+capture it fresh on each loop iteration instead. This is a classic Python gotcha and
+worth recognizing on sight, because it appears in every subscription loop across this
+file (odometry, landed status) as well as in `swarm_gui.py`.
+
+### 17.3 `swarm_tick` — the five numbered phases
+
+`swarm_tick`, called every 2 seconds by a timer, is structured as five clearly-commented
+sequential phases run every single call:
+
+1. **Battery simulation & safety overrides** — drains or charges every non-offline
+   agent's battery depending on role, and force-switches any agent below 15% into
+   `RECHARGE` (giving back any in-progress Sampler target to the queue first).
+2. **Bidding-eligible role assignment** — ensures exactly one `RELAY` exists, and turns
+   every other currently-unassigned, non-recharging, non-sampling agent into `SCOUT`.
+3. **Per-role mission execution** — a big `if role == "SCOUT": ... elif role ==
+   "SAMPLER": ... elif role == "RELAY": ...` block that actually runs each robot's
+   current job for this tick (scan for anomalies, progress toward/drill a target,
+   transmit data).
+4. **Sampler dispatch (the auction)** — if there's a queued anomaly and any eligible
+   bidder, run `_bid` for each and dispatch the target to whichever robot returns the
+   lowest number.
+5. **Status publish** — push each agent's role/activity/battery/power-rate out on the
+   dashboard topics.
+
+Reading `swarm_tick` top to bottom *is* reading the entire mission loop's priority order
+in one place — this is a deliberate structuring choice (a single method with numbered
+comment-delimited phases, rather than the logic spread across many separately-named
+methods) that trades a longer method body for the ability to see the whole tick's control
+flow without jumping between functions.
+
+### 17.4 `_check_liveness` — the same rest-window pattern, applied to network silence
+
+```python
+def _check_liveness(self):
+    now = time.time()
+    for agent in self.agents:
+        alive = (now - self.state[agent]["last_odom_time"]) < OFFLINE_TIMEOUT_S
+        if not alive and not self.state[agent]["offline"]:
+            self.state[agent]["offline"] = True
+            ...requeue any in-progress Sampler target...
+        elif alive and self.state[agent]["offline"]:
+            self.state[agent]["offline"] = False
+```
+
+`last_odom_time` is stamped fresh (`time.time()`, genuine wall-clock time here, not
+simulated time — this check is about the *real* process being alive, not simulated
+physics) inside `odom_callback` every time a position update arrives. If more than 10
+seconds of real time pass with no odometry at all, the agent is marked offline and
+excluded from every subsequent phase of `swarm_tick` — note this uses `time.time()`
+rather than `self.get_clock().now()` deliberately, since a genuinely crashed or hung
+per-robot control process wouldn't be advancing simulated time correctly either, so
+real-world elapsed time is the more trustworthy signal for "is this process actually
+still running."
+
+### 17.5 `_bid` and `_dispatch_sampler` — the auction and the heading calibration
+
+```python
+def _bid(self, agent, target):
+    dx = target[0] - self.state[agent]["pos_x"]
+    dy = target[1] - self.state[agent]["pos_y"]
+    dist = math.hypot(dx, dy)
+    battery_penalty = (100.0 - self.state[agent]["battery"]) * BID_BATTERY_WEIGHT
+    carousel_penalty = self.state[agent]["sample_count"] * BID_CAROUSEL_WEIGHT
+    return dist + battery_penalty + carousel_penalty
+```
+
+`math.hypot(dx, dy)` is just `sqrt(dx² + dy²)` — ordinary 2D Euclidean distance — written
+using the standard-library function that handles it in one call rather than spelling out
+the square root manually. The auction itself, back in `swarm_tick`, is three lines once
+`_bid` exists:
+
+```python
+bids = {a: self._bid(a, target) for a in bidders}
+winner = min(bids, key=bids.get)
+```
+
+`min(bids, key=bids.get)` is a standard Python idiom worth knowing: `min()` over a
+dictionary normally compares the *keys*, but passing `key=bids.get` tells it to compare
+each key by looking up its *value* in the dictionary instead — so this line reads as
+"the agent name whose bid value is smallest," in one expression, without writing an
+explicit loop to track a running minimum.
+
+`_dispatch_sampler` is where the adaptive heading calibration from Part I Section 9.4
+becomes code:
+
+```python
+yaw = math.atan2(dy, dx)
+st = self.state[agent]
+yaw_cmd = yaw - st.get("az_bias", 0.0)
+yaw_cmd = (yaw_cmd + math.pi) % (2.0 * math.pi) - math.pi
+st["hop_start_x"] = st["pos_x"]
+st["hop_start_y"] = st["pos_y"]
+st["hop_cmd_az"] = yaw_cmd
+yaw = yaw_cmd
+```
+
+`math.atan2(dy, dx)` computes the bearing angle toward the target — the two-argument
+arctangent, which (unlike a plain `atan(dy/dx)`) correctly handles all four quadrants and
+never divides by zero. `st.get("az_bias", 0.0)` reads the learned bias if one exists yet
+for this robot, defaulting to zero (no correction) the very first time. The `% (2π) −
+π` expression right after is the standard trick for **wrapping an angle back into the
+range (−π, π]** — angles are circular (190° and −170° are the same direction), and
+without this wrap the bias-corrected heading could drift outside the range every
+downstream consumer (the yaw-hold PD law in `attitude_controller`) expects. `hop_start_x`
+/ `hop_start_y` / `hop_cmd_az` are stashed on the agent's state dictionary specifically so
+that `landed_callback` (Section 17.6) has something to measure *against* once the hop
+actually completes — this is the same "store now, consume later in a different callback"
+pattern used throughout the codebase for connecting an action to its eventual outcome.
+
+### 17.6 `landed_callback` — closing the calibration loop
+
+```python
+def landed_callback(self, agent, msg):
+    st = self.state[agent]
+    if msg.data and not st["landed"] and st.get("hop_cmd_az") is not None:
+        adx = st["pos_x"] - st.get("hop_start_x", st["pos_x"])
+        ady = st["pos_y"] - st.get("hop_start_y", st["pos_y"])
+        if math.hypot(adx, ady) > 0.8:
+            off = math.atan2(ady, adx) - st["hop_cmd_az"]
+            off = (off + math.pi) % (2.0 * math.pi) - math.pi
+            old = st.get("az_bias", 0.0)
+            new = math.atan2(0.5*math.sin(old) + 0.5*math.sin(off),
+                             0.5*math.cos(old) + 0.5*math.cos(off))
+            st["az_bias"] = new
+            st["hop_cmd_az"] = None
+    st["landed"] = msg.data
+```
+
+`msg.data and not st["landed"]` is exactly how a **rising edge** is detected in code —
+"the new value is `True`, and the previous stored value was `False`" — which is why this
+fires exactly once per landing rather than repeatedly on every message while already
+landed (recall `landed` is republished continuously by `landing_controller`, so without
+this edge check the calibration would try to re-measure the same completed hop over and
+over). The `0.8` metre threshold filters out sub-metre noise (settling jitter, tiny
+righting-induced drift) so only genuine hop displacements feed the calibration. The bias
+update itself —
+`atan2(0.5·sin(old) + 0.5·sin(off), 0.5·cos(old) + 0.5·cos(off))` — is how you correctly
+average two **angles** (rather than two plain numbers): naively averaging `170°` and
+`−170°` as numbers gives `0°`, which is backwards (the two angles are actually only 20°
+apart, on the other side of the circle) — converting each angle to its `(cos, sin)` point
+on the unit circle, averaging those x/y coordinates separately, and converting the
+average point back to an angle with `atan2` handles the wraparound correctly. This is the
+standard technique for "exponential moving average of a circular quantity," and it's
+worth remembering any time you need to smooth a stream of compass headings, phase angles,
+or anything else that wraps around.
+
+<a name="18"></a>
+## 18. `swarm_gui.py` and `spawner.py` — the supporting nodes
+
+### 18.1 `swarm_gui.py` — a Tkinter dashboard fed entirely by subscriptions
+
+The dashboard has **zero control authority** — it never publishes anything to any robot.
+It's built from two pieces running concurrently: `rclpy.spin()` runs on a background
+thread (`threading.Thread(target=..., daemon=True)`), continuously receiving status
+updates and writing them into plain `AgentState` objects, while Tkinter's own event loop
+(`root.mainloop()`) runs on the main thread, periodically redrawing the window from
+whatever the latest `AgentState` values happen to be. The file's own docstring explains
+why this is safe without any explicit locking: every individual field update
+(`self.role = "SCOUT"`, a plain string reassignment) is a single atomic operation under
+Python's Global Interpreter Lock, so the drawing thread can never observe a
+half-written value — it might occasionally draw a value that's one update behind, but
+never a corrupted one. Each `AgentState` also tracks `last_seen` (updated by a `touch()`
+call inside every one of its subscription callbacks) and exposes an `online` property
+comparing that timestamp against a 5-second staleness window (`STALE_AFTER`), which is
+how the dashboard tells "this robot hasn't been spawned yet" apart from "this robot's
+values just haven't changed recently."
+
+### 18.2 `spawner.py` — the simplest node in the project
+
+```python
+AGENTS = [
+    ("scout_1", 0.0, 0.5, 6.0),
+    ("scout_2", 8.0, -5.0, 6.0),
+    ("scout_3", -8.0, -5.0, 6.0),
+]
+
+def main():
+    for name, x, y, z in AGENTS:
+        cmd = f"gz service -s /world/ryugu_world/create ... --req \"...'{name}'..." 
+        os.system(cmd)
+        time.sleep(1)
+```
+
+This node doesn't even subclass `rclpy.Node` — it's a plain Python script that shells out
+to `gz service` three times (once per robot in the `AGENTS` list) to ask Gazebo to spawn
+the `spacehopper` model at a given starting position, with a one-second pause between
+spawns so the three creation requests don't collide inside Gazebo's own entity-creation
+pipeline. All three robots share one model file (`model://spacehopper`) — nothing in the
+SDF itself is robot-specific; the *name* given at spawn time (`scout_1`, `scout_2`,
+`scout_3`) is what Gazebo uses to generate every one of that instance's topic and TF
+frame names, which is exactly what lets the bridge (Section 13.2) and every controller
+build correct per-robot topic paths purely from a string.
+
+<a name="19"></a>
+## 19. The model generator — building the robot as code
+
+`scripts/generate_detailed_spacehopper.py` doesn't describe the robot in SDF (Simulation
+Description Format, Gazebo's native XML robot-description language) directly — it's a
+Python program that **generates** that XML. This matters practically: `model.sdf` itself
+is nearly a thousand lines of dense, repetitive, hand-unfriendly markup (every link needs
+a visual block, a collision block, an inertia block, and a joint definition, and the
+robot has three near-identical legs), and hand-editing a file like that reliably is much
+harder than editing the handful of numeric constants and small helper functions that
+generate it.
+
+The structure is straightforward once you see the pattern: a block of named geometry
+constants at the top (`CHASSIS_SIZE`, `THIGH_LENGTH`, `RW_RADIUS`, `FOOT_RADIUS`, and so
+on), a handful of small functions that each return a chunk of SDF XML as a Python
+f-string given some parameters (`mat_pbr(color, metalness, roughness)` for a material
+block, `inertia_block(m, ixx, iyy, izz)` for a physics inertia block), and then a main
+body that calls those helper functions **in a loop over the three legs** (`for i in
+range(NUM_LEGS)`) to build each leg's links and joints without repeating the XML by hand
+three times. The final assembled string is written out once, to
+`models/spacehopper/model.sdf`, by the script's last few lines.
+
+The practical rule that follows directly from this design, stated plainly because it's
+easy to get wrong: **`model.sdf` is a build artifact, not a source file.** If you ever
+need to change anything about the robot's physical design — a joint limit, a link mass, a
+material color — the change belongs in the generator script's constants or helper
+functions, followed by re-running the script to regenerate `model.sdf`. Editing
+`model.sdf` directly will *appear* to work (Gazebo will happily load your hand edit) right
+up until the next time someone regenerates the file from the script, at which point the
+hand edit is silently overwritten and lost with no warning of any kind. One further
+generator-specific gotcha worth knowing: a literal `" -- "` (space-dash-dash-space)
+inside an SDF XML comment breaks the XML parser (`--` has special meaning inside XML
+comment syntax), so the generator's own source comments about design decisions
+consistently avoid that exact character sequence when they need to express the same idea
+a double-dash em-dash would normally convey.
 
 ---
 
