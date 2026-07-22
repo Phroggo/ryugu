@@ -170,7 +170,6 @@ class BotPanel(tk.Frame):
     def __init__(self, master, agent_name):
         super().__init__(master, bg=PANEL_BG, padx=10, pady=8,
                           highlightbackground=PANEL_BORDER, highlightthickness=1)
-        self.agent_name = agent_name
 
         top = tk.Frame(self, bg=PANEL_BG)
         top.pack(fill="x")

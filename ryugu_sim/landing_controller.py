@@ -115,12 +115,6 @@ class LandingController(Node):
         self.rest_vel_ticks = 0
         self.REST_VEL_TICKS = 12000    # ~120 s @ 100 Hz IMU
 
-        # Soft landing joint targets (slight crouch to absorb impact)
-        self.soft_hip_target = 0.3    # gentle splay
-        self.soft_knee_target = -0.4  # slight bend
-        self.soft_p_gain = 0.3        # weak spring — compliant
-        self.soft_d_gain = 0.5        # strong damper — energy absorption
-
         # Post-landing stand-up. Found 2026-07-15 (live, definitive): leaving
         # the legs in the splayed soft-landing posture while resting lets the
         # 2 cm foot spheres wedge into heightmap crevices under the joint
@@ -133,19 +127,25 @@ class LandingController(Node):
         # LANDED is confirmed, slowly fold the legs up to a neutral stance
         # (feet unloaded, tucked under the body, chassis resting on its
         # belly) so nothing is pressed into the terrain between hops and the
-        # next crouch starts from a free, repeatable posture.
+        # next crouch starts from a free, repeatable posture. The DELAY/RAMP
+        # timing constants that scheduled this fold were removed 2026-07-23
+        # as confirmed-dead code (the post-landing fold itself was retired --
+        # SS3.4 "No posture is commanded at or after touchdown" -- and the
+        # tick-count timers went with it), but the target angles below
+        # survive: they were repurposed for the severe-tilt leg-fold step
+        # inside the reaction-wheel righting sequence (_run_righting_sequence).
         self.stand_hip_target = 0.9
         self.stand_knee_target = -1.0
-        self.STAND_DELAY_TICKS = 300   # wait ~3 s after LANDED before folding
         self.landed_ticks = 0
-        # The fold must be RAMPED, not stepped: commanding the stand targets
-        # in one step let the position controllers whip the legs at full
-        # torque, and the resulting foot/ground impulse threw the 2.5 kg
-        # robot clean off the surface at ~0.036 m/s (caught live 2026-07-15
-        # -- in micro-gravity that's a ~5 m unplanned ballistic hop, with
-        # every safety state disarmed because the state machine said
-        # LANDED). Interpolate from the soft-landing pose over ~15 s instead.
-        self.STAND_RAMP_TICKS = 1500
+        # (Historical note, kept for the lesson: an earlier version of this
+        # fold was commanded in one step rather than ramped, and the
+        # resulting foot/ground impulse threw the 2.5 kg robot clean off the
+        # surface at ~0.036 m/s -- caught live 2026-07-15, ~5 m unplanned
+        # ballistic hop with every safety state disarmed because the state
+        # machine said LANDED. Same Law-3 lesson as every other actuator-
+        # against-ground-contact bug in this project. The fold itself, and
+        # the ramp that would have applied it, were later retired entirely --
+        # see the note above.)
         # Liftoff watchdog while LANDED: if the robot is genuinely moving
         # again (velocity above threshold, sustained), it is NOT landed --
         # revert to FLIGHT so contact detection and downstream consumers
@@ -161,25 +161,21 @@ class LandingController(Node):
         # anchors at the flight-retract pose (0,0) instead of the soft pose.
         self.contact_via_rest = False
 
-        # Self-righting (leg inversion) parameters. Joint range is +/-3.14 rad
-        # (full rotation), which physically supports flipping the body over.
-        # Strategy: alternate a "splay" phase (legs out flat for ground grip,
-        # whatever surface is currently "up" for an inverted robot) with an
-        # asymmetric "sweep" phase (one lead leg drives hard through a big
-        # rotation to roll the chassis, the other two brace) -- a symmetric
-        # push on all three legs would just cancel out and not roll anything.
-        # The lead leg rotates between attempts so a maneuver that doesn't
-        # work once isn't just repeated identically forever.
+        # Self-righting (leg inversion) parameters. An earlier leg-sweep
+        # strategy -- alternate a "splay" phase (legs out flat for grip)
+        # with an asymmetric "sweep" phase (one lead leg drives a big
+        # rotation to roll the chassis, the other two brace) -- was retired
+        # (see Research_Paper.md SS3.3): it depended on leg-segment ground
+        # leverage that vanished once leg collision geometry was reduced to
+        # foot spheres, and on stroke dynamics that joint damping (SS3.4)
+        # suppressed. The angle constants and phase-timer that strategy used
+        # (righting_splay_hip/knee, righting_sweep_lead/brace_hip/knee,
+        # RIGHTING_PHASE_TICKS) were removed 2026-07-23 as confirmed-dead
+        # code once the reaction-wheel roll below replaced it entirely --
+        # a code-usage audit found each defined but never read again.
         self.righting_ticks = 0
         self.righting_attempt = 0
-        self.RIGHTING_PHASE_TICKS = 150       # ~1.5s per phase @ 100Hz IMU
         self.MAX_RIGHTING_ATTEMPTS = 5
-        self.righting_splay_hip = 1.4
-        self.righting_splay_knee = -1.4
-        self.righting_sweep_lead_hip = -2.8
-        self.righting_sweep_lead_knee = 2.2
-        self.righting_sweep_brace_hip = 0.3
-        self.righting_sweep_brace_knee = -1.0
 
         # ── Publishers ──
         self.joint_pubs = {}
@@ -652,23 +648,15 @@ class LandingController(Node):
                     f'with alternate roll axis/sign '
                     f'(attempt {self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS})')
 
-    def _apply_soft_landing(self, frac=1.0):
-        """Command joints toward the compliant posture, ramped by frac.
-
-        frac ramps 0->1 over the first ~2s of contact (anchored at the
-        flight-retract pose (0,0), so frac*target IS the ramp). Added
-        2026-07-15 after raising the leg PID gains for launch authority
-        (p 0.05->1.0): the old step command from (0,0) to the soft posture
-        whipped the now-stiff legs against the ground at every impact,
-        kicking the robot 0.7-0.9 m back up in a non-decaying pogo loop
-        (observed live: bounce apexes 5.66/5.75/5.74 m, energy being ADDED
-        each contact). Same class of bug as the stand-up-ramp fix -- in
-        micro-gravity every leg posture step IS a launch impulse."""
-        for j, pub in self.joint_pubs.items():
-            if 'hip' in j:
-                pub.publish(Float64(data=frac * self.soft_hip_target))
-            elif 'knee' in j:
-                pub.publish(Float64(data=frac * self.soft_knee_target))
+    # _apply_soft_landing() (ramped active-compliance posture at contact) was
+    # removed 2026-07-23 as confirmed-dead code: a usage audit found zero
+    # call sites left, only comments explaining why each candidate call site
+    # deliberately doesn't call it. This is the actively-controlled-
+    # compliance approach Research_Paper.md SS3.4.1 documents as measured and
+    # rejected (it added energy at contact in all three variants tried) --
+    # the code was fully superseded by passive joint damping but the dead
+    # method and its four supporting constants (soft_hip_target,
+    # soft_knee_target, soft_p_gain, soft_d_gain) were never deleted.
 
     def log_status(self):
         state_name = self.STATE_NAMES.get(self.state, "UNKNOWN")
