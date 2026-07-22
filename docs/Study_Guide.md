@@ -722,6 +722,84 @@ another anomaly queued, the robot chains directly to the next target rather than
 returning to base after every single sample — this "carousel chaining" behavior is what
 lets one Sampler service several targets per trip instead of one.
 
+### 9.7 Search algorithm — from luck to coverage
+
+Early in the project, "searching" wasn't really a behavior at all: a Scout just stood
+wherever it last landed and rolled a 15% chance every 2 seconds of "detecting" an
+anomaly somewhere near its current position. Nothing ever told a Scout to actually go
+looking anywhere — coverage of the whole field depended entirely on where robots happened
+to already be, which is luck, not search.
+
+The fix has three pieces, each solving a different part of "how do three robots divide up
+an unknown area without stepping on each other":
+
+- **Territory** — the field is split into three 120° pie-slice wedges around the center,
+  one per robot, decided purely by angle from the origin. No negotiation needed: robot 1
+  always owns 0–120°, robot 2 owns 120–240°, and so on. Simple, but sufficient for three
+  robots over a roughly square area.
+- **Memory** — a coarse 10 m grid remembers, for every cell, the last time any robot was
+  there. A cell nobody has visited in a while is "stale" and worth checking; a cell
+  visited a minute ago isn't.
+- **Choice** — when a Scout is free to move, it scores every cell in its own wedge by
+  staleness minus a distance penalty (so it doesn't trek to the far corner of its
+  territory for a marginal gain) and hops toward the winner.
+
+This is a simplified, hand-built version of ideas from real multi-robot search research —
+splitting territory the way DARP/Voronoi-partition approaches do, and scoring
+staleness-against-cost the way budget-constrained search approaches do — without pulling
+in the heavier machinery (online tree search, learned policies) those approaches usually
+pair it with. For three robots over a modest field, a simple, fully-explainable rule beats
+a black box that would need training infrastructure this project doesn't have.
+
+One honest, and slightly funny, result of turning search "on": detection now vastly
+outpaces the fleet's ability to actually visit what it finds. A 9-minute run produced a
+41-anomaly backlog, because finding something is a cheap, instant per-tick check, while
+visiting it is a multi-minute hop-and-settle cycle. That's not a bug — it's what you'd
+expect once search actually works, and it just means the real bottleneck moves to "how
+many robots can afford to travel" rather than "can we find anything at all."
+
+### 9.8 Path planning — why the classic algorithms don't apply here
+
+If you've studied robotics, "path planning" probably means A*, Dijkstra, RRT, or
+potential fields — all algorithms for finding a route through a space that has obstacles
+you need to go *around*. None of them fit this platform, and it's worth understanding
+*why*, not just accepting it:
+
+- A hop is a **ballistic arc** — once launched, there's no steering. You can't adjust
+  course mid-flight the way a driving robot can.
+- The arc flies **over** the terrain, not through it. There's no obstacle field to route
+  around in the first place (no walls, no boulders blocking a flight path in this
+  simulation).
+
+Every one of the classic algorithms is solving "how do I get around things in my way" —
+and this platform doesn't have things in its way. Saying "these don't apply, and here's
+precisely why" is a stronger, more defensible position than forcing one in just to have
+an answer.
+
+What *does* transfer from the path-planning world is something narrower and more useful:
+when you have several hops to plan (not just one), in what *order* do you take them? This
+is a real research area for asteroid hoppers specifically — treat each hop as one edge in
+a sequence, and either compute each hop's own trajectory plus optimize the visiting order
+together (as real published work on this exact problem does), or simply choose the
+nearest not-yet-visited target next (nearest-neighbor), which is what this platform
+actually does when several anomalies are queued at once.
+
+There's also a genuinely interesting piece of physics buried in this platform's own
+numbers, worth walking through slowly because it overturned an assumption. The commanded
+launch speed for a hop of distance $d$ is $v_{req} = \sqrt{d \cdot g / \text{SIN2TH}}$ —
+notice the *square root*. Kinetic energy is $\tfrac{1}{2}mv^2$, and squaring a square root
+just gives you back the thing inside it — so energy per hop turns out to be **exactly
+proportional to distance**, not to distance-squared or anything fancier. Do the algebra for
+splitting one long hop into several short ones covering the same total distance, and the
+number of hops cancels out completely: the *total* energy is the same either way. That's
+a genuinely surprising result — the intuition "shorter hops must be cheaper" turns out to
+be simply wrong for this specific launch law. What actually does change with hop count is
+**time**: every hop carries a big fixed overhead (aligning, crouching, settling — measured
+in tens of seconds to minutes) regardless of how far it goes, so fewer, longer hops are
+faster overall even though they're not more efficient. The platform's own dispatcher
+(always take the longest leg it can) turns out to be the right call — just for a different
+reason than "saves energy."
+
 ---
 
 <a name="10"></a>
@@ -905,6 +983,65 @@ errors were *not* random at all — they were consistent, per-robot, and therefo
 learnable. The general lesson: before building a fix for "noisy" behavior, check whether
 it's actually noise, or a bias wearing noise's clothing — the two need completely
 different fixes (averaging/filtering for real noise; calibration for a bias).
+
+### 10.10 The auction that raced its own search hop
+
+Once Scouts started actually moving (Section 9.7), a new, sneaky bug appeared: a Scout
+could get a background search hop *and* win a real anomaly auction in the same 2-second
+tick. Both are jump commands sent to the same robot within microseconds of each other in
+the code — but `hopper_locomotion` only accepts a jump command while it's fully `IDLE`,
+and whichever command it processes first "wins," silently dropping the second with a
+warning nobody was watching for. The background search hop was winning every time, which
+is exactly backwards: a robot that just found something valuable should always take
+priority over its own idle wandering.
+
+The fix wasn't to add a lock or a queue — it was to notice that **order already decides
+the outcome**, so just put the auction first. Run the auction before the per-role
+behavior loop each tick, and any robot that wins immediately becomes a Sampler — so by
+the time the loop reaches the "if I'm a Scout, go search" logic moments later, that robot
+no longer qualifies, and the conflict can't happen at all. No new synchronization
+primitive, just re-ordering two blocks of code that were already there. This is the same
+"exactly one thing may command an actuator at a time" lesson that shows up throughout
+this project (Section 6.3, Section 8.3) — it's just the swarm-coordination-layer version
+of it instead of the low-level-motor version.
+
+A second, sneakier version of the same bug survived that fix: a robot could still be
+*mid-crouch* from its own search hop (not yet airborne, so still reporting `landed=True`)
+and win an auction anyway, because the auction only checked *role*, not whether the robot
+was actually free to receive a new command. The fix there was to also require the robot
+to be landed *and* past a settling cooldown since its own last dispatch — a cheap,
+good-enough stand-in for "is this robot really idle," since the swarm-coordination code
+has no direct visibility into the flight controller's internal state machine.
+
+### 10.11 The jump-height number that wasn't what it looked like
+
+This one is a lesson about not stopping at the first plausible-sounding explanation.
+Measuring a hop's peak height directly from telemetry gave 0.49 m for a commanded 9 m
+hop — much lower than a back-of-envelope ballistic formula predicts (about 7.35 m,
+roughly 15× higher). The easy, lazy explanation would have been "eh, contact dynamics are
+complicated, that tracks with everything else we've found" — and that explanation isn't
+*wrong*, exactly, but it's not an *answer*. It doesn't say anything you could check.
+
+The fix was to use **two** measurements from the same hop instead of one: not just the
+peak height, but also the horizontal distance actually covered. Two independent readings
+of the same flight give you two equations, which is enough to solve for both unknowns at
+once — the real launch speed *and* the real launch angle — instead of assuming one of
+them and blaming the other for the whole gap. Worked out, the real numbers were: only
+about 34% of the commanded launch speed was actually delivered, **and** the real launch
+angle (≈47°) was nowhere near what the geometry model assumed (≈73°, from the crouch-lean
+tilt). Two separate, specific, fixable problems were hiding inside one vague-sounding
+discrepancy.
+
+Tracing *why* pointed at a genuinely different root cause than "physics is messy": the
+constant controlling launch-stroke rate (`V_GAIN`) had been calibrated once, early in
+development, and never re-checked after two later changes — the lean angle changing
+(0.5→0.3 rad) and the stroke's release point changing (100%→90% of full extension) — that
+both would have shifted how much speed the same calibration actually delivers. A
+constant that was correct when it was measured had quietly gone stale as the rest of the
+system changed around it, and nothing forced a re-check. The general lesson: an
+empirically fitted constant is only as good as the last time it was fitted — every design
+change that touches the same physical process is a silent invitation for that constant to
+need re-fitting too, whether or not anyone remembers to check.
 
 ---
 
@@ -1943,6 +2080,118 @@ average point back to an angle with `atan2` handles the wraparound correctly. Th
 standard technique for "exponential moving average of a circular quantity," and it's
 worth remembering any time you need to smooth a stream of compass headings, phase angles,
 or anything else that wraps around.
+
+### 17.7 The search algorithm's code: territory as arithmetic, memory as a dictionary
+
+The territory partition (Section 9.7) is deliberately almost too simple to call an
+"algorithm" — that's the point. `_in_territory` computes the angle from the origin to a
+candidate point with `math.atan2(y, x)`, converts it to degrees, and checks whether it
+falls inside that agent's 120° slice:
+
+```python
+def _in_territory(self, agent, x, y):
+    idx = self.agents.index(agent)
+    ang = math.degrees(math.atan2(y, x)) % 360.0
+    lo = idx * (360.0 / len(self.agents))
+    hi = lo + (360.0 / len(self.agents))
+    return lo <= ang < hi
+```
+
+No shared state, no negotiation between robots — each agent's territory is just a pure
+function of its index in the agent list. This is why it needs no coordination protocol:
+there's nothing to coordinate, every robot can compute every other robot's territory
+independently and they're guaranteed never to disagree.
+
+The coverage grid is a plain Python dictionary, `self.coverage_last_searched`, keyed by
+`(cell_i, cell_j)` tuples mapping to the tick each cell was last visited:
+
+```python
+def _mark_covered(self, x, y):
+    i, j = self._cell_index(x, y)
+    self.coverage_last_searched[(i, j)] = self.tick_count
+```
+
+Using a dictionary rather than a 2D array means cells that have never been visited simply
+don't have a key yet — `_pick_search_target` reads it with
+`self.coverage_last_searched.get((i, j), -10**9)`, defaulting to an enormous negative
+number so an unvisited cell always scores as maximally stale without needing to
+pre-populate the whole grid up front. This is a common, useful pattern: let "missing key"
+*mean* something (here, "never visited") instead of writing separate code to handle it.
+
+Target selection itself is a plain nested loop over every cell in the grid, scoring each
+one and keeping the best:
+
+```python
+def _pick_search_target(self, agent):
+    px, py = self.state[agent]["pos_x"], self.state[agent]["pos_y"]
+    best = None
+    for i in range(n):
+        for j in range(n):
+            cx, cy = self._cell_center(i, j)
+            if not self._in_territory(agent, cx, cy):
+                continue
+            dist = math.hypot(cx - px, cy - py)
+            last = self.coverage_last_searched.get((i, j), -10**9)
+            score = (self.tick_count - last) - dist * STALENESS_DISTANCE_PENALTY
+            if best is None or score > best[0]:
+                best = (score, cx, cy)
+    return None if best is None else (best[1], best[2])
+```
+
+This is a brute-force scan, not a clever search structure — and deliberately so. The grid
+is a $9\times9$ cells at most, so scanning every cell every time a robot needs a new
+target is on the order of 81 comparisons, utterly negligible against a hop that takes
+minutes to execute. Reaching for a spatial index (a k-d tree, a quadtree) here would be
+solving a performance problem this code doesn't have.
+
+### 17.8 The auction-ordering fix: why *where* code runs can matter as much as *what* it does
+
+Section 10.10 tells the story of this bug; here's what the fix looks like as code, because
+it's a good example of a bug whose fix is not a new line of logic but a *reordering* of
+existing logic. Originally, `swarm_tick` ran roughly: battery → role assignment → per-role
+behavior (including search-hop dispatch) → auction. The auction ran last, so a Scout that
+had just been sent on a search hop earlier in the *same* call to `swarm_tick` could still
+win the auction moments later and get a second, conflicting dispatch.
+
+The fix moves the entire auction block to run immediately after role assignment, before
+the per-role loop:
+
+```python
+# 3. Sampler Dispatch (auction) -- now runs BEFORE mission execution
+if self.anomaly_queue:
+    bidders = [a for a in self.agents
+               if self.state[a]["role"] == "SCOUT"
+               and self.state[a]["landed"]
+               and self.tick_count - self.state[a]["dispatch_tick"]
+               >= SCOUT_SEARCH_COOLDOWN_TICKS]
+    ...
+    self.state[winner]["role"] = "SAMPLER"
+    self._dispatch_sampler(winner, target)
+
+# 4. Mission Execution Logic -- runs AFTER, sees the auction's role changes
+for agent in self.agents:
+    role = self.state[agent]["role"]
+    if role == "SCOUT":
+        ...dispatch a search hop...
+```
+
+Because Python executes a function's statements top to bottom, and `self.state[agent]
+["role"]` is read fresh inside the `for agent in self.agents:` loop (not cached from
+earlier), any role change the auction block makes is immediately visible to the mission
+loop that runs right after it, in the same tick. No flag, no "has this agent already been
+dispatched this tick" bookkeeping was needed — just making sure the code that decides
+*who gets reassigned* runs before the code that *acts on* the current, possibly-stale role.
+This is a useful general instinct for these kinds of races: before reaching for a lock or
+a coordination flag, check whether the two conflicting things are simply happening in the
+wrong order relative to each other, and whether reordering alone removes the conflict.
+
+The `bidders` list comprehension shown above is also where the second bug (Section 10.10,
+paragraph two) was fixed — notice it filters on `self.state[a]["landed"]` and a cooldown
+against `dispatch_tick`, not just `role == "SCOUT"` as the original version did. Role
+alone couldn't distinguish "genuinely idle" from "mid-crouch from a hop I dispatched
+myself thirty seconds ago"; landed-status plus a cooldown is a cheap, adequate proxy for
+the flight controller's internal state that `swarm_manager` otherwise has no visibility
+into at all.
 
 <a name="18"></a>
 ## 18. `swarm_gui.py` and `spawner.py` — the supporting nodes
