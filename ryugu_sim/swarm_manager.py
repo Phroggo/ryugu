@@ -56,6 +56,30 @@ MAX_HOP_RETRIES = 5
 # extracted (2s/tick -> 8s), instead of extract-on-contact.
 DRILL_DWELL_TICKS = 4
 
+# Per-leg dispatch cap, shared by SAMPLER travel and SCOUT search hops.
+# Promoted to module scope (2026-07-22) so both dispatch paths use one
+# constant instead of two independently-defined local copies.
+HOP_RANGE = 9.0  # m
+
+# ── Search algorithm (2026-07-22) ──────────────────────────────────
+# Replaces the old placeholder (a flat 15% per-tick chance of "detecting"
+# an anomaly regardless of whether the Scout had ever actually moved
+# there) with real coverage-driven exploration: a coarse grid over the
+# tasking field tracks how recently each cell was visited, the field is
+# split into one angular territory per agent so Scouts don't converge on
+# the same ground, and each Scout periodically hops toward the stalest
+# cell in its own territory instead of sitting still.
+COVERAGE_CELL_SIZE = 10.0   # m, coverage grid resolution
+SCOUT_SEARCH_COOLDOWN_TICKS = 45   # 90 s -- matches REHOP_COOLDOWN_TICKS
+                                    # scale; a hop + settle cycle takes
+                                    # at least that long.
+# Staleness (ticks since last visited) vs. travel cost (metres) tradeoff
+# when scoring candidate search cells: a cell that hasn't been visited in
+# a long time is worth travelling further for, but distance still counts
+# against it or a Scout would always chase the single most-neglected
+# corner of its territory regardless of hop cost.
+STALENESS_DISTANCE_PENALTY = 3.0   # "tick-equivalents" per metre
+
 # An agent whose odometry has gone silent for this long is considered
 # OFFLINE: excluded from role assignment, and any in-progress sampling task
 # is returned to the queue for the others.
@@ -170,6 +194,10 @@ class SwarmManager(Node):
                 lambda msg, a=agent: self.landed_callback(a, msg), 10)
 
         self.anomaly_queue = []
+        # Coverage grid for the search algorithm: (cell_i, cell_j) -> tick
+        # last visited. Absent key = never visited (treated as maximally
+        # stale by _pick_search_target).
+        self.coverage_last_searched = {}
         self.timer = self.create_timer(2.0, self.swarm_tick)
         self.get_logger().info("Initiating Cooperative Mission Bidding Protocol...")
 
@@ -240,6 +268,92 @@ class SwarmManager(Node):
         carousel_penalty = self.state[agent]["sample_count"] * BID_CAROUSEL_WEIGHT
         return dist + battery_penalty + carousel_penalty
 
+    # ── Search algorithm helpers ──────────────────────────────────
+    def _cell_index(self, x, y):
+        n = self._grid_n()
+        i = int((x + ANOMALY_FIELD_LIMIT) // COVERAGE_CELL_SIZE)
+        j = int((y + ANOMALY_FIELD_LIMIT) // COVERAGE_CELL_SIZE)
+        return max(0, min(n - 1, i)), max(0, min(n - 1, j))
+
+    def _grid_n(self):
+        return int(2 * ANOMALY_FIELD_LIMIT // COVERAGE_CELL_SIZE) + 1
+
+    def _cell_center(self, i, j):
+        x = -ANOMALY_FIELD_LIMIT + (i + 0.5) * COVERAGE_CELL_SIZE
+        y = -ANOMALY_FIELD_LIMIT + (j + 0.5) * COVERAGE_CELL_SIZE
+        return x, y
+
+    def _mark_covered(self, x, y):
+        """Record that the cell containing (x, y) was observed this tick.
+        Re-marking the same cell while a Scout lingers there is harmless --
+        it just keeps that cell's staleness score fresh, which is correct:
+        a Scout parked on a cell IS currently observing it."""
+        i, j = self._cell_index(x, y)
+        self.coverage_last_searched[(i, j)] = self.tick_count
+
+    def _in_territory(self, agent, x, y):
+        """Static angular-sector partition (2026-07-22): the field is split
+        into one 120-degree wedge per agent, centered on the origin, so the
+        3 Scouts search disjoint ground without any negotiation protocol --
+        the DARP/Voronoi-partition idea from the exploration literature,
+        simplified to a fixed sector split since 3 agents over a roughly
+        square field doesn't need dynamic repartitioning to stay balanced."""
+        idx = self.agents.index(agent)
+        ang = math.degrees(math.atan2(y, x)) % 360.0
+        lo = idx * (360.0 / len(self.agents))
+        hi = lo + (360.0 / len(self.agents))
+        return lo <= ang < hi
+
+    def _pick_search_target(self, agent):
+        """Greedy target selection under a travel-cost penalty (the
+        simplified, MCTS-free version of the budget-constrained informative
+        search literature): among all cells in this agent's territory,
+        score = staleness (ticks since last visited) minus a distance
+        penalty, and hop toward the highest-scoring cell. Returns None if
+        every cell in the territory has somehow already been evaluated as
+        not worth visiting (should not normally happen)."""
+        px, py = self.state[agent]["pos_x"], self.state[agent]["pos_y"]
+        n = self._grid_n()
+        best = None
+        for i in range(n):
+            for j in range(n):
+                cx, cy = self._cell_center(i, j)
+                if not self._in_territory(agent, cx, cy):
+                    continue
+                dist = math.hypot(cx - px, cy - py)
+                if dist < 1.0:
+                    continue  # already here
+                last = self.coverage_last_searched.get((i, j), -10**9)
+                score = (self.tick_count - last) - dist * STALENESS_DISTANCE_PENALTY
+                if best is None or score > best[0]:
+                    best = (score, cx, cy)
+        return None if best is None else (best[1], best[2])
+
+    def _dispatch_scout_search(self, agent, target):
+        """Send a Scout on a coverage-seeking search hop. Shares the same
+        heading-calibration (az_bias) and dispatch-cooldown bookkeeping as
+        _dispatch_sampler by writing to the same per-agent state fields, so
+        a robot's learned heading bias applies to search hops too."""
+        st = self.state[agent]
+        st["dispatch_tick"] = self.tick_count
+
+        dx = target[0] - st["pos_x"]
+        dy = target[1] - st["pos_y"]
+        dist = math.hypot(dx, dy)
+        yaw = math.atan2(dy, dx)
+        yaw_cmd = yaw - st.get("az_bias", 0.0)
+        yaw_cmd = (yaw_cmd + math.pi) % (2.0 * math.pi) - math.pi
+        st["hop_start_x"] = st["pos_x"]
+        st["hop_start_y"] = st["pos_y"]
+        st["hop_cmd_az"] = yaw_cmd
+
+        leg = min(dist, HOP_RANGE)
+        self.yaw_pubs[agent].publish(Float64(data=yaw_cmd))
+        self.jump_pubs[agent].publish(Float64(data=leg))
+        self.get_logger().info(
+            f"🔭 {agent} search hop toward [{target[0]:.1f}, {target[1]:.1f}] "
+            f"({dist:.1f}m, {leg:.1f}m leg)")
+
     def swarm_tick(self):
         self.tick_count += 1
         self._check_liveness()
@@ -302,7 +416,80 @@ class SwarmManager(Node):
                 self.get_logger().info(f"🛰️ {scout} assuming SCOUT role. Scanning regolith...")
                 self.metrics.log_switch()
 
-        # 3. Mission Execution Logic
+        # 3. Sampler Dispatch — market-based task auction. Every eligible
+        # SCOUT bids on every queued anomaly (cost = distance + battery
+        # + carousel-load penalties, see _bid); the cheapest (agent, target)
+        # pair wins. Agents below SAMPLER_MIN_BATTERY don't bid at all:
+        # accepting a task they can't finish just strands the anomaly until
+        # the retry logic recovers it.
+        #
+        # ACTUATOR-ARBITRATION FIX (2026-07-22): this phase MUST run before
+        # per-role mission execution, not after -- when it ran last, a Scout
+        # already given a search hop this same tick (see the search
+        # algorithm, phase 4 below) could ALSO win the auction and get
+        # handed a second, conflicting jump_target_distance command in the
+        # same tick. hopper_locomotion only accepts one jump command per
+        # IDLE window, so whichever message got processed first silently
+        # won and the other was dropped with "Ignoring jump command,
+        # currently not IDLE" -- live-caught: the background search hop was
+        # winning that race, meaning a robot that had just detected a real
+        # anomaly launched toward an unrelated search cell instead, and the
+        # genuine target only got attempted on the next corrective re-hop.
+        # Running the auction first means any agent that wins immediately
+        # becomes SAMPLER, so it no longer matches "role == SCOUT" when the
+        # mission-execution loop reaches it moments later and therefore
+        # never receives a second, conflicting dispatch.
+        if self.anomaly_queue:
+            # Bidder eligibility ALSO requires the agent to be landed and
+            # settled past its own last dispatch's cooldown window (2026-07-
+            # 22): role == SCOUT alone isn't enough -- a Scout can already
+            # be mid-search-hop (CROUCH/LAUNCH, still reports landed=True
+            # since jump_initiated only fires at IGNITION) when it wins an
+            # auction, and hopper_locomotion silently drops any jump command
+            # that arrives while not IDLE. Live-caught: a scout mid-prep for
+            # its own search hop won an auction for a genuine anomaly, the
+            # dispatch was dropped, and the scout completed its unrelated
+            # search hop instead -- the real target only got attempted later
+            # via the corrective re-hop path. Reusing the same cooldown
+            # window as search-hop redispatch is a conservative, cheap proxy
+            # for "actually idle" since swarm_manager has no direct
+            # visibility into hopper_locomotion's internal state machine.
+            bidders = [a for a in self.agents
+                       if self.state[a]["role"] == "SCOUT"
+                       and not self.state[a]["offline"]
+                       and self.state[a]["battery"] >= SAMPLER_MIN_BATTERY
+                       and self.state[a]["landed"]
+                       and self.tick_count - self.state[a]["dispatch_tick"]
+                       >= SCOUT_SEARCH_COOLDOWN_TICKS]
+            if bidders:
+                # PATH PLANNING + AUCTION, COMBINED (2026-07-22): previously
+                # only the single OLDEST queued anomaly was ever auctioned,
+                # each tick, regardless of how far it was from every bidder
+                # -- a nearer anomaly queued one tick later had to wait its
+                # turn even if every bidder was much closer to it. Every
+                # bidder now proposes its own cheapest REACHABLE target
+                # (nearest-neighbor route selection) across the WHOLE queue,
+                # and the auction picks the globally cheapest (agent,
+                # target) pair -- a simplified combinatorial auction that
+                # folds route planning directly into task allocation instead
+                # of treating them as separate steps.
+                best = None  # (bid, agent, queue_index)
+                for a in bidders:
+                    for i, tgt in enumerate(self.anomaly_queue):
+                        b = self._bid(a, tgt)
+                        if best is None or b < best[0]:
+                            best = (b, a, i)
+                if best is not None:
+                    bid_val, winner, idx = best
+                    target = self.anomaly_queue.pop(idx)
+                    self.get_logger().info(
+                        "🏷️ Auction for [%.1f, %.1f]: %s wins at cost %.1f (%d target(s), %d bidder(s) considered)"
+                        % (target[0], target[1], winner, bid_val,
+                           len(self.anomaly_queue) + 1, len(bidders)))
+                    self.state[winner]["role"] = "SAMPLER"
+                    self._dispatch_sampler(winner, target)
+
+        # 4. Mission Execution Logic
         for agent in self.agents:
             if self.state[agent]["offline"]:
                 continue
@@ -310,6 +497,7 @@ class SwarmManager(Node):
 
             if role == "SCOUT":
                 self.state[agent]["activity"] = "Scanning regolith for anomalies..."
+                self._mark_covered(self.state[agent]["pos_x"], self.state[agent]["pos_y"])
                 # Simulate Lidar scanning for anomalies. SENSOR-RANGE REALISM
                 # (2026-07-18): an anomaly is detected by THIS scout's own
                 # spectrometer/lidar, so it must lie within instrument range
@@ -328,6 +516,23 @@ class SwarmManager(Node):
                     self.get_logger().info(f"📍 {agent} detected high-value spectral anomaly at [{x:.1f}, {y:.1f}]!")
                     self.anomaly_queue.append((x, y))
                     self.metrics.data["anomalies_found"] += 1
+
+                # SEARCH ALGORITHM (2026-07-22): a Scout that has landed and
+                # whose cooldown has elapsed hops toward the stalest cell in
+                # its own territory instead of sitting wherever it last
+                # landed forever -- coverage-driven exploration replacing
+                # the old "never moves unless already tasked" placeholder.
+                # Safe from the auction race (see phase 3 above): the
+                # auction already ran this tick, so any agent that just won
+                # a real anomaly is already SAMPLER by the time this branch
+                # is reached and simply won't enter this "role == SCOUT"
+                # block at all.
+                if (self.state[agent]["landed"] and not self.state[agent]["offline"]
+                        and self.tick_count - self.state[agent]["dispatch_tick"]
+                        >= SCOUT_SEARCH_COOLDOWN_TICKS):
+                    target = self._pick_search_target(agent)
+                    if target is not None:
+                        self._dispatch_scout_search(agent, target)
 
             elif role == "SAMPLER":
                 if not self.state[agent]["has_sample"]:
@@ -404,7 +609,20 @@ class SwarmManager(Node):
                         # next anomaly instead of always returning after one sample
                         # (previously every visit unconditionally reverted to SCOUT,
                         # so the paper's 3-tube carousel never had any effect).
-                        target = self.anomaly_queue.pop(0)
+                        #
+                        # PATH PLANNING (2026-07-22): chain to the NEAREST queued
+                        # anomaly, not the oldest (FIFO). Given this platform's
+                        # own launch physics (v_req proportional to sqrt(distance),
+                        # SS3.1), a single robot's total hop delta-v to visit a
+                        # fixed set of targets is minimized by a short-hop-first
+                        # (nearest-neighbor) ordering, not an arrival-order queue --
+                        # the greedy routing simplification of the Orienteering-
+                        # Problem framing used for multi-target small-body hop
+                        # planning in the literature.
+                        idx = min(range(len(self.anomaly_queue)), key=lambda i: math.hypot(
+                            self.anomaly_queue[i][0] - self.state[agent]["pos_x"],
+                            self.anomaly_queue[i][1] - self.state[agent]["pos_y"]))
+                        target = self.anomaly_queue.pop(idx)
                         self._dispatch_sampler(agent, target)
                     else:
                         # Carousel full, or nothing left to visit -- hand off to relay.
@@ -433,30 +651,6 @@ class SwarmManager(Node):
                     self.metrics.data["data_transmitted"] += 1
                 else:
                     self.state[agent]["activity"] = "Standing by as relay"
-
-        # 4. Sampler Dispatch — market-based task auction. Every eligible
-        # SCOUT bids on the oldest queued anomaly (cost = distance + battery
-        # + carousel-load penalties, see _bid); the cheapest agent wins.
-        # Agents below SAMPLER_MIN_BATTERY don't bid at all: accepting a
-        # task they can't finish just strands the anomaly until the retry
-        # logic recovers it.
-        if self.anomaly_queue:
-            bidders = [a for a in self.agents
-                       if self.state[a]["role"] == "SCOUT"
-                       and not self.state[a]["offline"]
-                       and self.state[a]["battery"] >= SAMPLER_MIN_BATTERY]
-            if bidders:
-                target = self.anomaly_queue.pop(0)
-                bids = {a: self._bid(a, target) for a in bidders}
-                winner = min(bids, key=bids.get)
-                if len(bids) > 1:
-                    self.get_logger().info(
-                        "🏷️ Auction for [%.1f, %.1f]: %s → winner %s"
-                        % (target[0], target[1],
-                           ", ".join(f"{a}={b:.1f}" for a, b in sorted(bids.items())),
-                           winner))
-                self.state[winner]["role"] = "SAMPLER"
-                self._dispatch_sampler(winner, target)
 
         # 5. Publish status for the swarm dashboard GUI
         for agent in self.agents:
@@ -517,7 +711,8 @@ class SwarmManager(Node):
         # 9 m leg flies ~13 minutes at Ryugu gravity -- mid-flight
         # dispatches are ignored by the hopper and gated here by the
         # landed flag; that is normal pacing, not a stall.
-        HOP_RANGE = 9.0  # m, per-leg dispatch cap
+        # HOP_RANGE is a module-level constant (shared with
+        # _dispatch_scout_search) as of 2026-07-22.
         leg = min(dist, HOP_RANGE)
 
         self.yaw_pubs[agent].publish(Float64(data=yaw))
