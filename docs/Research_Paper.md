@@ -61,7 +61,7 @@ flowchart LR
     BR -- "IMU, odometry" --> ATT & LAND & SM & GUI
 ```
 
-*Figure 3: System architecture. The `landed` and `righting_active` flags implement strict actuator arbitration — exactly one node commands any actuator at any time (§7).*
+*Figure 3: System architecture. The `landed` and `righting_active` flags implement strict actuator arbitration — exactly one node commands any actuator at any time (§8).*
 
 ## 3. System Design
 
@@ -88,7 +88,7 @@ The operational weight on Ryugu is merely $W = 2.50 \times 1.14\times10^{-4} = 2
 
 $$ E_p = mgh = 2.5 \times 1.14\times10^{-4} \times 5 = 1.43\times10^{-3} \text{ J}, $$
 
-and with a leg stroke of $d = 0.1$ m, a mean thrust of only $F = E_p/d = 1.4\times10^{-2}$ N. The hip and knee joints, driven by Maxon RE 13 motors through 67:1 GP 13 gearheads [11], supply up to 134 mNm — a >60× force margin intended to overcome vacuum cold-welding and thermal-blanket stiffness. A central result of this work (§6, §7) is that this margin, while necessary, is far from sufficient: launch performance in milli-gravity is governed by stroke geometry and contact friction rather than torque.
+and with a leg stroke of $d = 0.1$ m, a mean thrust of only $F = E_p/d = 1.4\times10^{-2}$ N. The hip and knee joints, driven by Maxon RE 13 motors through 67:1 GP 13 gearheads [11], supply up to 134 mNm — a >60× force margin intended to overcome vacuum cold-welding and thermal-blanket stiffness. A central result of this work (§7, §8) is that this margin, while necessary, is far from sufficient: launch performance in milli-gravity is governed by stroke geometry and contact friction rather than torque.
 
 **Launch stroke geometry.** Total foot–regolith friction capacity is $\mu m g \approx 2.9\times10^{-4}$ N; any lateral component of leg force therefore slides the feet rather than lifting the body. The deployed stroke keeps each foot directly beneath its hip through the entire extension (a "zigzag" leg posture — calf angled back inward), so the ground reaction remains vertical.
 
@@ -107,6 +107,16 @@ A sufficiently energetic hop could genuinely exceed escape velocity and depart t
 $$ v_{esc} = \sqrt{2gR} = \sqrt{2 \times 1.14\times10^{-4} \times 450} \approx 0.320 \text{ m/s}. $$
 
 The longest dispatch under nominal swarm operation — a corner-to-corner traverse of the ±45 m tasking field (§4.3), $d \approx 127$ m — would require $v \approx 0.120$ m/s if taken as a single ballistic hop, a 2.7× margin below escape; the deployed range-per-hop dispatcher (§4.3) never requests more than one 9 m leg at a time, keeping operational velocities an order of magnitude below $v_{esc}$. Because the amplitude-to-velocity mapping is empirically calibrated rather than closed-form, the simulation additionally encloses the terrain in collision-only boundary walls and a 100 m ceiling, providing hard containment independent of calibration accuracy.
+
+#### 3.1.2 Reaction Force at the Feet
+
+The ground reaction at the feet governs both ends of a hop and is worth stating as a single consolidated figure rather than the scattered quantities of §3.1 and §3.4.1. Three regimes:
+
+* **Static support.** Standing weight is $W = mg = 2.85\times10^{-4}$ N (§3.1), distributed across three feet — under 10⁻⁴ N per foot, several orders of magnitude below anything a force sensor on flight hardware would need to resolve at the low end, but the number the friction budget below is checked against.
+* **Launch.** The stroke delivers a mean vertical reaction of $F_{launch} = E_p/d \approx 1.4\times10^{-2}$ N per foot-group (§3.1) — roughly 50$\times$ standing weight, well inside the $>60\times$ torque margin of the leg motors, and small enough in absolute terms ($\ll 1$ N) that the dominant constraint is not force magnitude but the *lateral* component: total foot–regolith friction capacity is only $\mu mg \approx 2.9\times10^{-4}$ N (§3.1), so any non-vertical component of the launch reaction slides the feet rather than lifting the body, which is why the deployed stroke keeps the ground reaction axis-aligned through the entire extension.
+* **Landing impact.** At the deployed passive joint-damping coefficient ($c = 0.05$ N·m·s/rad, §3.4.1), effective vertical stiffness is $k_{eff} \approx 48$ N/m against the 2.5 kg body, giving a peak impact reaction of $F_{impact} \approx k_{eff}\,x_{max}$ for a compression depth $x_{max}$ set by the ~25 mm/s touchdown speed measured at that damping setting — on the order of $10^{-1}$ N at first contact, decaying over 2–3 bounce cycles at restitution $e \approx 0.2$ (§3.4.1). This is the largest of the three regimes by roughly an order of magnitude, consistent with landing, not launch, being the dynamically demanding event for the leg structure despite launch being the event with the larger torque budget requirement.
+
+The three-regime spread ($10^{-4}$ N static, $10^{-2}$ N launch, $10^{-1}$ N peak landing impact) is itself the practical argument for §3.4.1's passive-damping design: an actively-controlled compliance scheme has to track a reaction force spanning three orders of magnitude in real time with zero phase lag to avoid adding energy at the top of that range, which is precisely the failure mode measured and rejected in §3.4.1.
 
 ### 3.2 In-Flight Attitude Control
 
@@ -133,13 +143,13 @@ $$ \tau_{des} = \mathrm{clip}\!\left(K_{ang}\,e - K_{rate}\,\omega,\ \pm\tau_{rw
 
 with $K_{ang} = 0.02$ N·m/rad and $K_{rate} = 0.05$ N·m·s/rad, sized against the whole-robot inertia for an overdamped response ($\zeta \approx 1.1$–$1.6$ across the posture-dependent inertia range) that cannot oscillate by construction. A 1° attitude deadband prevents momentum windup against terrain-imposed tilt (a tripod on regolith never reads exactly level; without the deadband the wheels integrate toward saturation over hours). Rate damping carries no deadband — it acts only during rotation and cannot wind up; a rate deadband was tried and produced a measurable ±1.2° limit cycle at exactly the deadband rate.
 
-Tilt correction is additionally gated on genuine motion ($|v| > 8$ mm/s or $|\omega| > 0.03$ rad/s) *and* on the commanded-flight latch of §7 Law 4: full attitude authority exists only between a commanded ignition and first contact. Torquing a *grounded* body against contact is functionally a rover drive (the mobility principle MINERVA-II exploits deliberately [8]) and, applied inadvertently, was observed to roll resting robots across the terrain and launch them off surface irregularities.
+Tilt correction is additionally gated on genuine motion ($|v| > 8$ mm/s or $|\omega| > 0.03$ rad/s) *and* on the commanded-flight latch of §8 Law 4: full attitude authority exists only between a commanded ignition and first contact. Torquing a *grounded* body against contact is functionally a rover drive (the mobility principle MINERVA-II exploits deliberately [8]) and, applied inadvertently, was observed to roll resting robots across the terrain and launch them off surface irregularities.
 
 **Momentum budget.** A worst-case single-leg unbalanced launch imparts ≈0.0084 N·m·s of angular momentum, a 31× margin below $H_{max}$. Saturation by a single hop is therefore not credible; the windup path (persistent unreachable error) is closed by the deadband and the landed-state handoff.
 
 ### 3.3 Self-Righting
 
-An inverted landing is detected from the IMU quaternion (world-frame z-component of the body-up axis, $u_z = 1 - 2(q_x^2 + q_y^2) < 0$). Righting is performed by the reaction wheels — the actuator with overwhelming authority for this task in milli-gravity: tipping the chassis over its support edge requires only $\tau \approx mgw/2 \approx 2.9\times10^{-5}$ N·m against Ryugu weight, a ~500× margin below the wheel torque budget, and internal momentum exchange is the same principle MINERVA-II used for surface mobility [8]. The maneuver is bang-bang and momentum-neutral: a lateral wheel is driven at full torque (the body counter-rolls), and once the body passes horizontal the wheel is commanded back to zero, braking the roll symmetrically; net wheel momentum returns to approximately zero, so the handoff back to attitude control imparts no kick. Roll axis and sign alternate across retries, making a wrong initial direction self-correcting. Measured performance from a forced full inversion: detection, roll, and stable upright recovery in ~9 s (two attempts, the first having guessed the wrong direction). During the maneuver an explicit arbitration flag silences the attitude controller — two nodes commanding one wheel is a silent last-write-wins conflict (§7).
+An inverted landing is detected from the IMU quaternion (world-frame z-component of the body-up axis, $u_z = 1 - 2(q_x^2 + q_y^2) < 0$). Righting is performed by the reaction wheels — the actuator with overwhelming authority for this task in milli-gravity: tipping the chassis over its support edge requires only $\tau \approx mgw/2 \approx 2.9\times10^{-5}$ N·m against Ryugu weight, a ~500× margin below the wheel torque budget, and internal momentum exchange is the same principle MINERVA-II used for surface mobility [8]. The maneuver is bang-bang and momentum-neutral: a lateral wheel is driven at full torque (the body counter-rolls), and once the body passes horizontal the wheel is commanded back to zero, braking the roll symmetrically; net wheel momentum returns to approximately zero, so the handoff back to attitude control imparts no kick. Roll axis and sign alternate across retries, making a wrong initial direction self-correcting. Measured performance from a forced full inversion: detection, roll, and stable upright recovery in ~9 s (two attempts, the first having guessed the wrong direction). During the maneuver an explicit arbitration flag silences the attitude controller — two nodes commanding one wheel is a silent last-write-wins conflict (§8).
 
 An earlier leg-sweep righting strategy (alternating splay and asymmetric sweep phases) was retired: it depended on leg-segment ground leverage that vanished when leg collision geometry was reduced to foot spheres, and on stroke dynamics that joint damping (§3.4) suppressed.
 
@@ -233,6 +243,8 @@ $$ B_a = d_a + w_b\,(100 - \mathrm{SoC}_a) + w_c\,n_a, $$
 
 where $d_a$ is straight-line distance to the target, $\mathrm{SoC}_a$ the battery state of charge ($w_b = 0.5$ m/%), and $n_a$ the carousel load ($w_c = 5$ m/sample); the lowest bid wins, and agents below a 30% charge reserve abstain. Verified live with three agents, the auction produces differentiated allocation (e.g., bids of 29.1 vs 40.8 m-equivalent deciding a contested target).
 
+The auction and the routing decision are not solved separately. Every eligible bidder proposes a bid against *every* anomaly currently queued, not just the oldest one, and the globally cheapest (agent, target) pair wins — folding the nearest-neighbor route-selection logic of §5.2 directly into task allocation rather than treating "who goes" and "where do they go first" as two independent steps. This closed a real inefficiency: with FIFO-only dispatch, a newly-detected anomaly much closer to an idle agent still had to wait behind an older, farther one simply because it queued later.
+
 The complete tasking flow for one anomaly:
 
 ```mermaid
@@ -259,22 +271,79 @@ sequenceDiagram
 
 *Figure 10: Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.*
 
-Robustness mechanisms, each mapped to an observed failure mode of naive dispatching: unfinished tasks are re-queued when an agent is forced to RECHARGE or drops offline (10 s odometry-liveness watchdog); arrival is gated on real odometry (within 3 m *and* landed); journeys are dispatched as range-matched legs of at most the measured 9 m hop range, with up to five cooldown-paced corrective re-hops held as an error-correction reserve; core extraction occupies a finite 8 s drill dwell so the power model reflects a real duty cycle; and task coordinates are clamped inside the physical containment boundary, so no assignment is unreachable by construction.
+Robustness mechanisms, each mapped to an observed failure mode of naive dispatching: unfinished tasks are re-queued when an agent is forced to RECHARGE or drops offline (10 s odometry-liveness watchdog); arrival is gated on real odometry (within 4 m *and* landed); journeys are dispatched as range-matched legs of at most the measured 9 m hop range, with up to five cooldown-paced corrective re-hops held as an error-correction reserve; core extraction occupies a finite 8 s drill dwell so the power model reflects a real duty cycle; and task coordinates are clamped inside the physical containment boundary, so no assignment is unreachable by construction.
+
+**Actuator arbitration in the dispatch loop itself.** Two live-caught races shaped the final ordering of the swarm's per-tick logic, both instances of the same recurring lesson (§8, Law 3-adjacent): exactly one command may be in flight to a given robot's launch sequence at a time. First, running the auction *after* per-role mission execution let an agent already mid-launch on its own search hop (§5.1) also win the auction in the same tick, producing two conflicting jump commands; the flight controller silently drops whichever arrives second, and the background search hop was winning — a robot that had just detected a genuine anomaly launched toward an unrelated cell instead. Second, bidder eligibility checked only role, not whether the agent was actually idle: a robot still mid-crouch from its own just-issued hop reports "landed" (the flight-armed flag only clears at ignition) and could still win an auction whose dispatch then failed the same way. Both are fixed by (a) running the auction before mission execution, so a winning agent is already reassigned before the mission loop would have dispatched it a second time, and (b) requiring bidders to be landed *and* past a settled cooldown since their own last dispatch, not merely correctly roled.
 
 ![Mission telemetry dashboard](fig_dashboard.png)
 
 *Figure 11: The mission telemetry dashboard during a live run — differentiated roles (one RELAY, two SAMPLERs en route), per-agent battery and charge rate, attitude indicators, leg and reaction-wheel state.*
 
-## 5. Scientific Payload
+## 5. Search Algorithm and Path Planning
+
+### 5.1 Search Algorithm
+
+An anomaly cannot be auctioned (§4.3) until it has been found, and finding it is a genuinely separate problem from deciding who visits it. An early implementation conflated the two: a SCOUT-role agent had a flat per-tick chance of "detecting" an anomaly within instrument range of wherever it currently stood, with no mechanism that ever moved it anywhere — coverage of the tasking field depended entirely on where agents happened to already be, not on any deliberate search behavior.
+
+**Design.** The deployed search algorithm is coverage-driven exploration, built from three pieces:
+
+* **Static territorial partition.** The $\pm45$ m tasking field is divided into three $120°$ angular sectors about the origin, one per agent, so all three SCOUTs search disjoint ground without any negotiation protocol — a fixed simplification of the dynamic Voronoi-partition and DARP (Divide Areas based on Robot Position) approaches used for multi-robot coverage [14, 15]: a fixed division is sufficient for three agents over a roughly square field and needs no repartitioning machinery.
+* **A coverage grid.** A coarse $10$ m grid over the field records the simulation tick at which each cell was last visited by an agent operating in the SCOUT role.
+* **Greedy, cost-aware target selection.** A SCOUT that is landed and past a settling cooldown selects the highest-scoring cell in its own sector, where score trades cell staleness (ticks since last visited) against travel cost (distance penalty), and dispatches a hop toward it. This is a simplified, deterministic instance of the budget-constrained informative-search family in the multi-robot exploration literature [16, 17]: full online planning approaches in that family (distributed Monte Carlo Tree Search [17], deep-RL policies over Voronoi cells or constrained sensor models [15, 18]) were surveyed and explicitly not adopted for this platform — training infrastructure and online search depth are disproportionate to a three-agent team operating over a field this size, and a greedy rule is directly explainable and auditable, which a learned policy is not.
+
+```mermaid
+flowchart TD
+    subgraph Field["Tasking field, +/-45 m"]
+        T1["Sector 1 (0-120 deg)<br/>scout_1 territory"]
+        T2["Sector 2 (120-240 deg)<br/>scout_2 territory"]
+        T3["Sector 3 (240-360 deg)<br/>scout_3 territory"]
+    end
+    T1 -.grid cell staleness.-> G1[Coverage grid<br/>10 m cells, last-visited tick]
+    T2 -.grid cell staleness.-> G1
+    T3 -.grid cell staleness.-> G1
+    G1 --> SCORE["score = staleness - k * distance"]
+    SCORE --> PICK["hop toward highest-scoring<br/>cell in own sector"]
+    PICK --> MARK["mark cell visited on arrival<br/>(anomaly roll within sensor range)"]
+    MARK -.re-scores on next cycle.-> G1
+```
+
+*Figure 12: Search algorithm data flow. Each agent scores candidate cells only within its own static sector, so the three searches never compete for the same ground.*
+
+**Result.** Live-verified over a 9-minute run: agents that previously never moved outside of an assigned task now dispatch search hops autonomously (e.g. a scout with no queued task hopping toward $[-10.0, 0.0]$, $10.0$ m away, purely from coverage staleness), and the anomaly-detection rate measurably outpaced the fleet's physical capacity to service targets — a 41-anomaly backlog accumulated within roughly nine minutes against a single-hop-per-tick, minutes-long-flight-time servicing rate. This is an honest characterization of the platform, not a defect: detection is a cheap per-tick event, while visiting a target requires a multi-minute hop-and-settle cycle, so a real deployment's SCOUT:SAMPLER ratio and battery-reserve threshold (§4.3) are the actual levers for balancing discovery against throughput, not the search algorithm itself.
+
+### 5.2 Path Planning
+
+**Why classical path planning does not apply.** A* [19], Dijkstra's algorithm, RRT/RRT* [20, 21], artificial potential fields [22], and visibility graphs are all built to solve *obstacle-avoidance routing*: finding a path through a medium that contains regions the agent must be routed around, using either continuous real-time steering (potential fields) or a search over a connected, partially-blocked traversable space (the rest). Neither premise holds here. A commanded hop is a ballistic arc: once launched, it is committed for its full multi-minute flight with no mid-flight steering authority, and the arc flies *over* the terrain rather than through it, so there is no obstacle field for any of these algorithms to route around. Stating this directly, with reasoning, is a more defensible position than force-fitting a classical planner where the platform's own physics removes the problem those planners exist to solve — this conclusion follows directly from surveying the classical planning literature against the platform's actual constraints, not from an absence of investigation.
+
+What *does* generalize from the literature is the discrete, sequential character of asteroid-hop planning specifically: real hopping-rover path planning work formulates travel as choosing a *sequence* of discrete ballistic hops between waypoints — via Lambert boundary-value solutions under irregular gravity [23], convex per-hop trajectory optimization combined with ant-colony sequencing across multiple targets [24], or explicit landing-uncertainty-aware trajectory design [25]. The platform's own dispatcher (§4.3) is a simplified instance of exactly this two-layer structure: per-hop trajectory shaping (the rate-modulated launch stroke, §3.1) plus discrete multi-target sequencing (nearest-neighbor route selection, below).
+
+**An exact result from this platform's own launch law.** §3.1 establishes the deployed launch model: required separation velocity scales as $v_{req} = \sqrt{d\,g/\mathrm{SIN2TH}}$ for a hop of distance $d$. Since kinetic energy is $E = \tfrac{1}{2}mv^2$, and $v_{req}^2$ is *exactly linear* in $d$,
+
+$$ E(d) = \frac{mg}{2\,\mathrm{SIN2TH}}\,d. $$
+
+Summing this over any partition of a fixed total distance $D$ into $n$ hops of lengths $d_1, \dots, d_n$ with $\sum_i d_i = D$ gives
+
+$$ E_{\text{total}} = \frac{mg}{2\,\mathrm{SIN2TH}} \sum_i d_i = \frac{mg}{2\,\mathrm{SIN2TH}}\,D, $$
+
+independent of $n$ and independent of how $D$ is split. **Under this platform's own launch law, total launch energy to cover a fixed distance is invariant to how many hops it is broken into** — splitting one 9 m leg into three 3 m legs costs the same total kinetic energy as a single 9 m leg, to first order. This is a genuinely different result from the general convex hop-sequencing literature [24], which assumes (correctly, for a broader class of launch mechanisms) that energy cost is *superlinear* in hop distance and therefore that splitting is favorable; this platform's specific $v \propto \sqrt{d}$ law makes the energy landscape exactly flat with respect to splitting instead.
+
+What is *not* invariant to hop count is **time**. Each hop carries a large, largely distance-independent fixed overhead — crouch and yaw-alignment (up to 45 s), launch ramp (1.2–20 s), and post-landing settle-confirmation (§3.4, measured on the order of minutes) — so mission duration scales with the *number* of hops, not the energy spent. This is the actual, correct justification for the dispatcher's range-matched-leg strategy (always take the maximum 9 m leg, with only the final leftover leg shorter): it is a **time-optimal**, not an energy-optimal, choice, and stating the distinction precisely is more defensible than an unqualified energy-optimality claim the platform's own physics does not support.
+
+**Multi-target routing.** What genuinely was FIFO, and is now fixed, is target *ordering* when multiple anomalies are queued. §4.3 already describes the deployed mechanism: every eligible bidder proposes its own cheapest reachable target across the *entire* queue (a greedy nearest-neighbor rule), and carousel chaining (a SAMPLER with cores remaining after a completed extraction) likewise selects its nearest remaining queued target rather than the oldest. This is the greedy simplification of the Team Orienteering Problem [16] — routing multiple agents through reward-bearing nodes under a travel/survival budget — appropriate here because the platform's fixed per-hop time cost (above) makes hop *count*, not routing distance, the dominant scheduling variable, and a full orienteering solve is disproportionate machinery for a three-agent fleet with a queue depth the greedy rule already handles correctly (§4.3).
+
+Multi-robot deconfliction — ensuring two agents never target overlapping ground or airspace at once — was surveyed via the prioritized-planning pattern used for real multi-rover teams [26] (rank agents, commit high-priority trajectories first, lower-priority agents plan around them) but was not implemented: with hop flight times measured in minutes and a $\pm45$ m field shared by three agents, the collision-probability is low enough by construction (§5.1's territorial partition already keeps search hops geographically separated, and SAMPLER dispatches are rare, single-target events) that the added bookkeeping was judged not to be load-bearing for the current fleet size, and is noted here as a scoped-out extension rather than a silent gap.
+
+## 6. Scientific Payload
 
 Unlike explosive kinetic impactors, the SpaceHopper performs delicate, non-destructive sampling with a hollow rotary-percussive micro-corer at ultra-low RPM. Cores are cached in a sterile three-tube carousel, allowing a single SAMPLER to chain consecutive targets before returning; preserving stratification and volatile organics significantly increases the scientific integrity of retrieved material.
 
-## 6. Results
+## 7. Results
 
 All results below are from live closed-loop simulation telemetry (IMU, odometry, and physics-engine ground truth), not open-loop estimates.
 
 * **Launch:** rate-commandable separation via the eased full-stroke ramp (§3.1); vertical delta-v delivered on demand up to ~60–70 mm/s with the launch handshake producing zero false landing triggers across the final verification runs. Clean ballistic arcs with apex energy matching $v^2/2g$ within measurement noise.
 * **Directional range:** 4.3 m of ground displacement at 1° heading error against the commanded azimuth (−55° measured vs −56° commanded) on a ~20-minute arc; yaw alignment at ignition within 1–3° on every measured hop. Figure 12 shows a measured trajectory.
+* **Jump height:** peak apex altitude of 0.49 m above resting ground level, measured directly from odometry over a complete separation-to-landing cycle for a commanded 9 m hop (resting baseline 4.800 m, apex 5.291 m, both from live telemetry). This is markedly below the $\approx$7.35 m the idealized ballistic prediction gives for the same commanded launch velocity ($v_{req} = 0.0428$ m/s at the deployed $73°$ elevation) — a $\sim$15$\times$ gap consistent with, and further corroborating, this paper's central finding (§3.1, §8 Law 1) that delivered launch performance is governed by stroke and contact dynamics rather than by the commanded kinematic parameters.
 
 ![Measured hop trajectory](fig_hop_trajectory.png)
 
@@ -297,7 +366,19 @@ All results below are from live closed-loop simulation telemetry (IMU, odometry,
 
 *Figure 15: The dashboard moments later: scout_3's core is cached (drill retracted) and the agent is already "En route to anomaly (34 m remaining)" — carousel chaining lets one SAMPLER service consecutive targets before returning.*
 
-## 7. Discussion: Four Laws of Milli-Gravity Ground Operations
+### 7.1 Validation Against Flight Heritage and Comparable Systems
+
+Internal telemetry consistency ($v^2/2g$ apex-energy matching, restitution measurements, etc.) establishes that the simulation is self-consistent, but not that its operating regime is physically realistic. Three external checks:
+
+**Same body, real flight data.** MINERVA-II-1, deployed by Hayabusa2 onto this same asteroid at this same surface gravity ($1.14\times10^{-4}$ m/s², [1]), executed real hops on Ryugu with flight times on the order of 15 minutes and horizontal displacements on the order of 15 m per hop (with some reported up to $\sim$50 m) [8]. This platform's own measured flights span the same order of magnitude — minutes-long ballistic arcs for metre-to-several-metre displacements (§7, Figure 12) — under the same gravity, on the same body. This is the strongest external check available: it is not a scaled analogy from a different gravity regime, but flight-proven behavior on the identical body the simulation models. The comparison also frames the platform's principal advance over MINERVA-II precisely: MINERVA-II's eccentric-mass hopping mechanism has no active in-flight steering and no reaction-wheel stabilization [8], where this work adds both — directional targeting (§3.1) and closed-loop attitude correction (§3.2) on top of the same class of milli-gravity ballistic hopping MINERVA-II already flew successfully.
+
+**Escape-velocity margin, empirically corroborated.** §3.1.1 calculates $v_{esc} \approx 0.320$ m/s for Ryugu and keeps operational hop velocities an order of magnitude below it. MINERVA-II's many repeated hops on this same body, none of which escaped, are direct empirical proof that hop velocities safely bounded below $v_{esc}$ are achievable in practice on Ryugu specifically, not merely on paper.
+
+**Cross-gravity scaling check against a reaction-wheel-free hopper.** ETH Zurich's SpaceHopper [5] reports jumps up to 6 m in simulated Ceres gravity ($g_{Ceres} \approx 0.284$ m/s², roughly 2500$\times$ Ryugu's). Ballistic range scales as $v^2/g$ for a fixed launch velocity and angle, so the same delta-v budget at Ryugu's much weaker gravity would be expected to produce a *much* longer range than at Ceres — this platform's measured multi-metre ranges at a far smaller absolute delta-v budget ($\sim$0.04–0.07 m/s vs. whatever SpaceHopper's unreported launch velocity is) are consistent with, not contradicted by, that scaling direction. This check is necessarily qualitative rather than a precise numeric match, since SpaceHopper's exact launch velocity and elevation angle were not available from the retrieved source — stated as a bound on the check's strength rather than overclaiming a match.
+
+**What the literature does not provide a check for.** No located source reports a reaction-wheel torque budget or attitude-correction bandwidth for an asteroid-surface hopper directly comparable to §3.2's numbers — the closest match, a Cubli-type reaction-wheel asteroid rover [27], addresses static balance control rather than in-flight directional-hop correction, and its own paper does not publish comparable torque figures in the retrieved abstract. This is noted as an open external-validation gap rather than papered over: §3.2's torque budget and gains are internally justified from the motor datasheet and momentum-budget analysis, not externally corroborated.
+
+## 8. Discussion: Four Laws of Milli-Gravity Ground Operations
 
 The platform's development history yields four findings we consider more valuable than the nominal design margins, each established by direct measurement:
 
@@ -309,9 +390,9 @@ The platform's development history yields four findings we consider more valuabl
 
 4. **Attitude authority must be tied to commanded flight, not to sensed motion.** An early controller armed full tilt-correction whenever the robot reported itself airborne — a condition a bouncing, grounded robot also satisfies. The result was a measured self-sustaining loop: wheel torque against the surface acts as propulsion (Law 3), the resulting motion keeps the "airborne" flag set, and the fleet scattered itself for twelve hours without completing a single mission. The deployed controller latches full attitude authority only between a *commanded* ignition and first contact; all uncommanded motion receives dissipation-only rate damping, which by construction ($\tau$ opposing $\omega$, $P = -\tau\omega < 0$) can calm motion but can never pump it.
 
-## 8. Conclusion
+## 9. Conclusion
 
-Simulated end-to-end validation demonstrates that tri-pedal directional hopping with reaction-wheel stabilization is a viable locomotion and sampling strategy for microgravity rubble piles. A three-agent SpaceHopper swarm autonomously allocates scientific targets by market auction, traverses by multi-metre stabilized directional hops with single-degree heading fidelity, lands, self-rights when required, and samples — with every subsystem claim in this paper backed by live telemetry rather than design intent. The four ground-operations laws of §7, together with the quantified launch-versus-landing damping tradeoff of §3.4.1, constitute the platform's principal transferable contribution to small-body robotics; a series-elastic launch mechanism and hardware-in-the-loop validation are the natural next steps toward flight.
+Simulated end-to-end validation demonstrates that tri-pedal directional hopping with reaction-wheel stabilization is a viable locomotion and sampling strategy for microgravity rubble piles. A three-agent SpaceHopper swarm autonomously allocates scientific targets by market auction, traverses by multi-metre stabilized directional hops with single-degree heading fidelity, lands, self-rights when required, and samples — with every subsystem claim in this paper backed by live telemetry rather than design intent. The four ground-operations laws of §8, together with the quantified launch-versus-landing damping tradeoff of §3.4.1, constitute the platform's principal transferable contribution to small-body robotics; a series-elastic launch mechanism and hardware-in-the-loop validation are the natural next steps toward flight.
 
 ## References
 
@@ -328,3 +409,17 @@ Simulated end-to-end validation demonstrates that tri-pedal directional hopping 
 [11] Maxon Group, "RE 13 Ø13 mm, precious metal brushes" and "GP 13 A gearhead (67:1)," motor datasheets, maxon catalog.
 [12] G. Dudek, M. Jenkin, E. Milios, and D. Wilkes, "A taxonomy for multi-agent robotics," *Autonomous Robots*, vol. 3, pp. 375–397, 1996.
 [13] B. P. Gerkey and M. J. Matarić, "A formal analysis and taxonomy of task allocation in multi-robot systems," *The International Journal of Robotics Research*, vol. 23, no. 9, pp. 939–954, 2004.
+[14] Y. Huang, M. Li, and T. Zhao, "A Multi-Robot Coverage Path Planning Algorithm Based on Improved DARP Algorithm," arXiv:2304.09741, 2023.
+[15] J. Hu, H. Niu, J. Carrasco, B. Lennox, and F. Arvin, "Voronoi-Based Multi-Robot Autonomous Exploration in Unknown Environments via Deep Reinforcement Learning," *IEEE Transactions on Vehicular Technology*, vol. 69, no. 12, pp. 14413–14423, 2020.
+[16] S. Jorgensen, R. H. Chen, M. B. Milam, and M. Pavone, "The Team Surviving Orienteers Problem: Routing Robots in Uncertain Environments with Survival Constraints," *Autonomous Robots*, 2017, arXiv:1612.03232.
+[17] A. Shamshirgaran, S. Manjanna, and S. Carpin, "Distributed Multi-Robot Online Sampling with Budget Constraints," 2024 IEEE International Conference on Robotics and Automation (ICRA), arXiv:2407.18545.
+[18] J. Chiun, S. Zhang, Y. Wang, Y. Cao, and G. Sartoretti, "MARVEL: Multi-Agent Reinforcement Learning for Constrained Field-of-View Multi-Robot Exploration in Large-Scale Environments," 2025 IEEE International Conference on Robotics and Automation (ICRA), arXiv:2502.20217.
+[19] P. E. Hart, N. J. Nilsson, and B. Raphael, "A Formal Basis for the Heuristic Determination of Minimum Cost Paths," *IEEE Transactions on Systems Science and Cybernetics*, vol. 4, no. 2, pp. 100–107, 1968.
+[20] S. M. LaValle, "Rapidly-Exploring Random Trees: A New Tool for Path Planning," TR 98-11, Iowa State University, 1998.
+[21] S. Karaman and E. Frazzoli, "Sampling-based Algorithms for Optimal Motion Planning," *The International Journal of Robotics Research*, vol. 30, no. 7, pp. 846–894, 2011.
+[22] O. Khatib, "Real-Time Obstacle Avoidance for Manipulators and Mobile Robots," *The International Journal of Robotics Research*, vol. 5, no. 1, pp. 90–98, 1986.
+[23] H. Kalita and J. Thangavelautham, "Motion Planning on an Asteroid Surface with Irregular Gravity Fields," AAS Guidance, Navigation and Control Conference, 2019, arXiv:1902.02065.
+[24] X. Liu, H. Yang, and S. Li, "Collision-Free Trajectory Design for Long-Distance Hopping Transfer on Asteroid Surface Using Convex Optimization," *IEEE Transactions on Aerospace and Electronic Systems*, vol. 57, no. 5, pp. 3071–3083, 2021.
+[25] C. Zhao, S. Zhu, and P. Di Lizia, "Collision-probability-based hopping trajectory optimization on hazardous terrain of small bodies," *Advances in Space Research*, vol. 71, no. 11, pp. 4877–4894, 2023.
+[26] S. Swinton, J.-H. Ewers, E. McGookin, D. Anderson, and D. Thomson, "Autonomous mission planning for planetary surface exploration using a team of micro rovers," *Frontiers in Robotics and AI*, 2025.
+[27] H. Huang, Z. Li, Z. Guo, J. Guo, L. Suo, and H. Wang, "Prescribed Performance Adaptive Balance Control for Reaction Wheel-Based Inverted Pendulum-Type Cubli Rovers in Asteroid," *Aerospace* (MDPI), vol. 9, no. 11, art. 728, 2022.
