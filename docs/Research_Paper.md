@@ -116,7 +116,7 @@ A sufficiently energetic hop could genuinely exceed escape velocity and depart t
 
 $$ v_{esc} = \sqrt{2gR} = \sqrt{2 \times 1.14\times10^{-4} \times 450} \approx 0.320 \text{ m/s}. $$
 
-The longest dispatch under nominal swarm operation — a corner-to-corner traverse of the ±45 m tasking field (§4.3), $d \approx 127$ m — would require $v \approx 0.120$ m/s if taken as a single ballistic hop, a 2.7× margin below escape; the deployed range-per-hop dispatcher (§4.3) never requests more than one 9 m leg at a time, keeping operational velocities an order of magnitude below $v_{esc}$. Because the amplitude-to-velocity mapping is empirically calibrated rather than closed-form, the simulation additionally encloses the terrain in collision-only boundary walls and a 100 m ceiling, providing hard containment independent of calibration accuracy.
+The longest dispatch under nominal swarm operation — a corner-to-corner traverse of the ±45 m tasking field (§4.3), $d \approx 127$ m — would require $v \approx 0.161$ m/s if taken as a single ballistic hop, a 2.0× margin below escape. (This uses the platform's *own* launch law $v_{req} = \sqrt{d\,g/\mathrm{SIN2TH}}$ from §3.1, not the 45°-optimal $\sqrt{dg}$: the deployed stroke launches at $\approx$73° elevation, $\mathrm{SIN2TH} = 0.56$, so it needs more velocity for a given range than the minimum-energy launch would — using $\sqrt{dg}$ here would understate the required velocity, and hence overstate the margin, by $1/\sqrt{0.56} \approx 1.34\times$.) The deployed range-per-hop dispatcher (§4.3) never requests more than one 9 m leg at a time, whose $v_{req} = 0.043$ m/s sits 7.5× below $v_{esc}$. Because the amplitude-to-velocity mapping is empirically calibrated rather than closed-form, the simulation additionally encloses the terrain in collision-only boundary walls and a 100 m ceiling, providing hard containment independent of calibration accuracy.
 
 #### 3.1.2 Reaction Force at the Feet
 
@@ -151,7 +151,7 @@ a rotation-axis-aligned error valid at any tilt magnitude and independent of yaw
 
 $$ \tau_{des} = \mathrm{clip}\!\left(K_{ang}\,e - K_{rate}\,\omega,\ \pm\tau_{rw}\right), \qquad \dot{\omega}_{wheel,cmd} = -\tau_{des}/I_w, $$
 
-with $K_{ang} = 0.02$ N·m/rad and $K_{rate} = 0.05$ N·m·s/rad, sized against the whole-robot inertia for an overdamped response ($\zeta \approx 1.1$–$1.6$ across the posture-dependent inertia range) that cannot oscillate by construction. A 1° attitude deadband prevents momentum windup against terrain-imposed tilt (a tripod on regolith never reads exactly level; without the deadband the wheels integrate toward saturation over hours). Rate damping carries no deadband — it acts only during rotation and cannot wind up; a rate deadband was tried and produced a measurable ±1.2° limit cycle at exactly the deadband rate.
+with $K_{ang} = 0.05$ N·m/rad and $K_{rate} = 0.066$ N·m·s/rad, sized against the whole-robot inertia for an overdamped response ($\zeta \approx 1.05$–$1.35$ across the posture-dependent inertia range, natural frequency $\omega_n \approx 1.6$–$2.0$ rad/s) that cannot oscillate by construction. A 1° attitude deadband prevents momentum windup against terrain-imposed tilt (a tripod on regolith never reads exactly level; without the deadband the wheels integrate toward saturation over hours). Rate damping carries no deadband — it acts only during rotation and cannot wind up; a rate deadband was tried and produced a measurable ±1.2° limit cycle at exactly the deadband rate.
 
 Tilt correction is additionally gated on genuine motion ($|v| > 8$ mm/s or $|\omega| > 0.03$ rad/s) *and* on the commanded-flight latch of §8 Law 4: full attitude authority exists only between a commanded ignition and first contact. Torquing a *grounded* body against contact is functionally a rover drive (the mobility principle MINERVA-II exploits deliberately [8]) and, applied inadvertently, was observed to roll resting robots across the terrain and launch them off surface irregularities.
 
@@ -189,7 +189,7 @@ stateDiagram-v2
     FLIGHT --> CONTACT : impact spike OR<br/>rest window
     CONTACT --> LANDED : settle confirmed<br/>(velocity + altitude gates)
     CONTACT --> FLIGHT : genuine bounce<br/>(velocity-gated)
-    CONTACT --> RIGHTING : settled INVERTED<br/>(u_z < 0)
+    CONTACT --> RIGHTING : settled tilted/inverted<br/>(u_z < 0.85)
     RIGHTING --> CONTACT : upright<br/>(RW roll, ~9 s)
     LANDED --> FLIGHT : liftoff watchdog<br/>(|v| > 2 cm/s)
     LANDED --> IDLE : next task accepted
@@ -227,7 +227,7 @@ At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective 
 
 ### 4.1 Energy Budget
 
-This subsection is a component-level design estimate, not simulated telemetry — distinct from every other numeric claim in this paper. The swarm simulation itself models battery state with a simplified, role-based percentage-drain rate (§4.3), not a watt-level subsystem power budget; the table below sizes the physical pack against plausible subsystem draws for the hardware described in §3, and the two models are not currently cross-validated against each other. Powered by a 37.0 Wh space-grade lithium-ion pack:
+This subsection is a component-level design estimate, not simulated telemetry — distinct from every other numeric claim in this paper. The swarm simulation itself models battery state with a simplified, role-based percentage-drain rate (§4.3), not a watt-level subsystem power budget, and the two are deliberately *not* on the same timescale: at the sim's deployed role rates (0.05–0.15%/2 s tick, §4.3) a full discharge takes on the order of 20–70 minutes of sim time, whereas the watt-level estimate below implies ~10.5 h of real endurance — the sim drain is intentionally accelerated by roughly an order of magnitude so that battery-reserve gating and the RECHARGE role are actually exercised within a short demonstration run, rather than being a physical power model. The table below is the physical estimate: it sizes the pack against plausible subsystem draws for the hardware of §3. Powered by a 37.0 Wh space-grade lithium-ion pack:
 
 | Operational State | Subsystem | Peak Power (W) | Avg Continuous Power (W) |
 | :--- | :--- | :--- | :--- |
