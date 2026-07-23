@@ -224,7 +224,52 @@ class HopperLocomotion(Node):
         #      half of the eased stroke): T = V_GAIN / v_req. Trim V_GAIN
         #      from hop-meter ranges, not from geometry.
         SIN2TH = 0.56         # elevation ~73 deg with LEAN=0.3 (see LEAN note)
-        V_GAIN = 0.12         # m; empirical, from launch37 hop-meter data
+        # V_GAIN CALIBRATION INVESTIGATION (2026-07-23) -- kept at the
+        # original 0.12, NOT rescaled, after direct odometry measurement
+        # showed rescaling it would do more harm than good. Full story:
+        #   1. BUG, FOUND AND FIXED: _wake_model()'s keep-awake teleport (an
+        #      async, fire-and-forget gz-service set_pose call) fired
+        #      unconditionally every 2s through the ramp, including after
+        #      real separation speed had started building -- a teleport
+        #      zeroes body velocity as a side effect. Two robots given the
+        #      IDENTICAL command (same target, same ramp_T) delivered
+        #      0.003 m/s and 0.173 m/s of a 0.043 m/s request, a 64x spread
+        #      on a nominally deterministic command, tracking only the async
+        #      call's non-deterministic real-time collision with the stroke.
+        #      Fixed by gating that call on genuine quiescence (last_speed)
+        #      instead of a blind timer -- see the LAUNCH state's wake call.
+        #   2. REAL, CHARACTERIZED, DELIBERATELY NOT "FIXED" HERE: even after
+        #      that fix, the body frequently does not cleanly separate at
+        #      ramp end -- it tips during the post-separation hold and drags
+        #      a leg across the (irregular, boulder-strewn) terrain for up to
+        #      ~90s before reaching true constant-velocity ballistic flight.
+        #      Measured directly via odometry (velocity vector stabilized --
+        #      3 consecutive samples within 5% magnitude and 0.995 cosine
+        #      similarity -- or flagged never-stabilized and discarded): n=7
+        #      clean measurements, delivered/requested speed ratio = 0.147,
+        #      0.321, 0.941, 0.143, 0.165, 0.959, 0.193 (2 more discarded as
+        #      never-stabilized in 90s). Bimodal: 2/7 launches delivered
+        #      near-full speed (mean 0.95), 5/7 were degraded by terrain-drag
+        #      (mean 0.19) -- and NOT ramp_T-correlated across the 2.8-11.9s
+        #      range tested.
+        #   3. WHY V_GAIN ISN'T THE RIGHT LEVER FOR #2: rescaling V_GAIN by
+        #      the median ratio (0.193) was tried and reverted. ramp_T is
+        #      clamped to >=1.2s (below which the leg PID saturates and
+        #      reintroduces the pre-redesign uncontrolled-launch problem --
+        #      see the "MEASURED CORRECTION" note above) and <=20s. With the
+        #      original V_GAIN, that clamp only binds beyond ~49 m -- the
+        #      whole realistic mission range gets a distinct ramp_T. At the
+        #      median-rescaled V_GAIN (0.0231), the clamp binds beyond just
+        #      ~1.8 m: nearly every realistic hop collapses to the SAME
+        #      1.2s ramp regardless of commanded distance, destroying range
+        #      differentiation entirely -- a worse regression than the
+        #      degradation it was meant to fix. Since the degradation ratio
+        #      is empirically independent of ramp_T anyway, no rescaling of
+        #      this parameter can correct it without this side effect; a
+        #      real fix needs the launch state machine to confirm genuine
+        #      ground clearance before declaring separation, not a constant.
+        #      Reported in the paper as a characterized, open limitation.
+        V_GAIN = 0.12         # m; empirical, from launch37 hop-meter data (unchanged -- see note)
         v_req = math.sqrt(max(distance, 0.5) * g / SIN2TH)
         ramp_T = max(1.2, min(20.0, V_GAIN / v_req))
         self.ramp_ticks = max(1, round(ramp_T * 10))
@@ -451,7 +496,24 @@ class HopperLocomotion(Node):
             self.state_timer += 1
             # Keep-awake through long (up to 20 s) ramps: a slow stroke can
             # cross DART's quiescence window mid-push just like the crouch.
-            if self.state_timer % 20 == 0:
+            # GATED on genuine quiescence (2026-07-23): _wake_model() teleports
+            # the body via an async, fire-and-forget gz-service set_pose call
+            # -- calibration investigation found this call, previously fired
+            # unconditionally every 20 ticks through the ramp, colliding with
+            # the momentum the quadratic ease-in stroke was actively building
+            # (peaks near release, i.e. exactly when this fires on long
+            # ramps). Two identical hops (same target, same ramp_T=2.8s, same
+            # tick-20 wake schedule) delivered 0.003 m/s and 0.173 m/s of a
+            # 0.043 m/s request -- a 64x spread on a nominally deterministic
+            # command, tracking the async call's non-deterministic real-time
+            # landing rather than anything physical. A teleport is only safe
+            # while the body is still genuinely at rest; once real velocity
+            # is building (the ramp is working), re-teleporting it destroys
+            # exactly the momentum this launch exists to deliver. Gating on
+            # last_speed preserves the original fix (DART sleeping a
+            # quiescent model mid-push) while no longer firing once the
+            # stroke has real speed to lose.
+            if self.state_timer % 20 == 0 and getattr(self, 'last_speed', 0.0) < 0.001:
                 self._wake_model()
             # MID-STROKE TIP ABORT (2026-07-18): launch39 showed a stroke
             # can tip the robot over (uz 0.85 -> 0.38 in one 3.5 s ramp).
