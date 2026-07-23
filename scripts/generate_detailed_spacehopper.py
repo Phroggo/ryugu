@@ -27,6 +27,23 @@ RW_LENGTH = 0.02
 # with removing the thigh/calf cylinder collisions - see the leg section).
 FOOT_RADIUS = 0.025
 
+# Foot-regolith surface friction (2026-07-23). Previously left unconfigured,
+# meaning the sim silently ran on Gazebo/DART's engine default (mu~1.0,
+# backed out from the paper's own friction-capacity number) rather than any
+# examined value -- caught during a codebase justification audit. Set here
+# from an actual Ryugu measurement: Robin, Duchene, Murdoch, Vincent et al.,
+# "Mechanical properties of rubble pile asteroids (Dimorphos, Itokawa,
+# Ryugu, and Bennu) through surface boulder morphological analysis," Nature
+# Communications 15, 2024 -- boulder-roundness-derived internal friction
+# angle for Ryugu specifically: 31.6 +/- 2.5 deg. mu = tan(31.6 deg) = 0.615;
+# rounded to 0.62. This is the standard geotechnical proxy (bulk internal
+# friction angle standing in for surface sliding friction against a rigid
+# foot) used when no direct foot-regolith friction measurement exists --
+# an approximation, not a perfect physical identity, and stated as such in
+# the paper. mu2 (secondary friction axis) is set equal, since regolith has
+# no measured directional friction anisotropy to justify differing it.
+FOOT_FRICTION_MU = 0.62
+
 NUM_LEGS = 3
 
 # ── Material helpers ────────────────────────────────────────────────
@@ -849,6 +866,14 @@ for i in range(NUM_LEGS):
       <collision name="foot_collision">
         <pose>0 0 {CALF_LENGTH} 0 0 0</pose>
         <geometry><sphere><radius>{FOOT_RADIUS}</radius></sphere></geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>{FOOT_FRICTION_MU}</mu>
+              <mu2>{FOOT_FRICTION_MU}</mu2>
+            </ode>
+          </friction>
+        </surface>
       </collision>
     </link>
     <joint name="knee_joint_{i}" type="revolute">

@@ -66,6 +66,25 @@ class LandingController(Node):
         self.velocity_mag = 0.0
         self.pos_z = 0.0
 
+        # V_GAIN calibration diagnostic (2026-07-23). Prior calibration
+        # inferred delivered launch velocity indirectly from touchdown
+        # position/time minutes-to-hours later, over uneven terrain -- too
+        # noisy to fit (two near-identical ramp durations gave ratios of
+        # 0.52 and 1.20 of requested velocity). Odometry already computes
+        # velocity_mag every tick; sampling it after ignition reads the true
+        # launch speed directly -- IF the body has actually reached clean
+        # ballistic flight. It often hasn't at a fixed short delay: measured
+        # live, velocity kept climbing AND rotating in direction for 7+
+        # seconds after all commanded leg motion stopped (a tip-over during
+        # the post-separation hold dragging a leg across terrain, not a
+        # clean liftoff), so a single fixed-time sample can land mid-tumble.
+        # LAUNCH_V_WINDOW gives enough real time for that to either settle
+        # into true (constant-velocity) ballistic flight or be caught by the
+        # CALIBTIMEOUT path and discarded, rather than silently trusting a
+        # mid-chaos snapshot.
+        self.LAUNCH_V_WINDOW = 90.0
+        self.launch_v_deadline = None
+
         # Found 2026-07-15 (overnight run): a robot RESTING on the ground in
         # micro-gravity reads IMU proper acceleration ~= g ~= 0.0001 m/s^2,
         # BELOW flight_accel_threshold, i.e. indistinguishable from free-fall
@@ -252,6 +271,51 @@ class LandingController(Node):
         self.velocity_mag = math.sqrt(vx * vx + vy * vy + vz * vz)
         self.pos_z = msg.pose.pose.position.z
 
+        if self.launch_v_deadline is not None:
+            now = self.get_clock().now().nanoseconds / 1e9
+            elapsed = now - (self.launch_v_deadline - self.LAUNCH_V_WINDOW)
+            last = getattr(self, '_launch_v_last_log', -999)
+            if elapsed - last >= 2.0:
+                self._launch_v_last_log = elapsed
+                self.get_logger().info(
+                    f'[{self.robot_name}] 📏 CALIBSERIES t={elapsed:.1f}s '
+                    f'v={self.velocity_mag:.5f} m/s (vx={vx:.5f} vy={vy:.5f} vz={vz:.5f})')
+                # Stabilization check (2026-07-23): post-"separation" ground
+                # contact/tumbling was found to keep perturbing velocity for
+                # 7+ seconds after all leg motion stops (magnitude climbing
+                # AND direction rotating), well past a fixed sample deadline
+                # -- a fixed-time snapshot can land mid-tumble and read a
+                # meaningless value. True ballistic flight has (near-)
+                # constant velocity at this gravity scale, so require 3
+                # consecutive 2s samples where both magnitude and direction
+                # hold steady before trusting the reading as the real launch
+                # velocity.
+                hist = getattr(self, '_launch_v_hist', [])
+                hist.append((vx, vy, vz, self.velocity_mag))
+                hist = hist[-3:]
+                self._launch_v_hist = hist
+                if len(hist) == 3 and hist[0][3] > 1e-6:
+                    mags = [h[3] for h in hist]
+                    mag_spread = (max(mags) - min(mags)) / max(mags)
+                    dots = []
+                    for a, b in ((hist[0], hist[1]), (hist[1], hist[2])):
+                        dot = (a[0]*b[0] + a[1]*b[1] + a[2]*b[2]) / (a[3]*b[3])
+                        dots.append(max(-1.0, min(1.0, dot)))
+                    if mag_spread < 0.05 and min(dots) > 0.995:
+                        self.get_logger().info(
+                            f'[{self.robot_name}] 📏 CALIBSTABLE t={elapsed:.1f}s '
+                            f'v={self.velocity_mag:.5f} m/s (vx={vx:.5f} vy={vy:.5f} '
+                            f'vz={vz:.5f}) -- 3 consecutive samples steady')
+                        self.launch_v_deadline = None
+                        return
+            if now >= self.launch_v_deadline:
+                self.get_logger().warn(
+                    f'[{self.robot_name}] 📏 CALIBTIMEOUT t={elapsed:.1f}s -- '
+                    f'never stabilized within {self.LAUNCH_V_WINDOW:.0f}s '
+                    f'(last v={self.velocity_mag:.5f} m/s) -- likely tumbling/'
+                    f'terrain-snagged launch, discard from calibration')
+                self.launch_v_deadline = None
+
     def _rest_window_elapsed(self):
         """True once altitude has stayed inside REST_Z_BAND with velocity
         below REST_VEL_MAX for REST_Z_TICKS consecutive IMU ticks -- the
@@ -321,6 +385,9 @@ class LandingController(Node):
             # the launch stroke's own actuation transients, which used to
             # score every ramped hop as landed-in-place (launch34).
             self.contact_blank_until = self.get_clock().now().nanoseconds / 1e9 + 40.0
+            self.launch_v_deadline = self.get_clock().now().nanoseconds / 1e9 + self.LAUNCH_V_WINDOW
+            self._launch_v_last_log = -999
+            self._launch_v_hist = []
             self.get_logger().info(f'[{self.robot_name}] 🚀 Jump detected → FLIGHT mode '
                                    f'(contact detection blanked 40 s for launch)')
 
@@ -593,18 +660,29 @@ class LandingController(Node):
                 Float64(data=sign * self.RIGHTING_WHEEL_SPEED))
             self.rw_pubs[other].publish(Float64(data=0.0))
         elif u_z < 0.9:
-            # PARTIAL-TILT GENTLE ROLL (2026-07-18, rev 2): direction is
-            # computed from the measured tilt ONCE at attempt start and
-            # held constant. Rev 1 re-aimed every IMU tick, so as the body
-            # rolled through upright the command flipped sign and slammed
-            # the wheels +/-25 rad/s repeatedly -- each reversal a fresh
-            # momentum transfer, each transfer a ~0.05 m/s ground kick
-            # (70 righting attempts pumped a bot to 43 m altitude in
-            # launch42). Sign convention as attitude_controller's tilt PD:
-            # wheel momentum change OPPOSES desired body momentum.
-            # 8 rad/s of wheel speed -> ~0.18 rad/s body roll -> ground-
-            # surface kick <= 0.018 m/s, below the 0.02 bounce threshold.
-            if getattr(self, '_gentle_dir', None) is None:
+            # PARTIAL-TILT GENTLE ROLL (rev 3, 2026-07-23): direction is
+            # RE-DERIVED every ~1s (100 ticks), not held fixed for the whole
+            # attempt. Rev 2 (held fixed for the full 15s attempt) was found
+            # live to systematically fail: GENTLETRACE instrumentation showed
+            # u_z climbing correctly toward upright, peaking short of the 0.9
+            # success threshold (a single early-computed roll axis isn't the
+            # correct axis for the WHOLE trip to upright once the body has
+            # rotated partway), then rolling straight through that peak and
+            # back down for the remainder of the 15s window -- all 5 attempts
+            # of a real failure showed exactly this shape (e.g. attempt 1:
+            # 0.67 -> 0.84 -> 0.76 -> 0.48 -> 0.22, never crossing 0.9).
+            # Rev 1 re-aimed every single tick, which caused rapid sign flips
+            # right at vertical (the horizontal up-vector projection is
+            # noisy/near-degenerate there) and repeated momentum-transfer
+            # kicks (70 attempts pumped a bot to 43 m altitude in launch42).
+            # 1s is >>10ms (rev 1's chatter timescale) but <<15s (rev 2's
+            # fixed-for-the-whole-attempt timescale), so it tracks genuine
+            # drift without re-triggering the vertical-crossing chatter.
+            # Sign convention as attitude_controller's tilt PD: wheel
+            # momentum change OPPOSES desired body momentum. 8 rad/s of
+            # wheel speed -> ~0.18 rad/s body roll -> ground-surface kick
+            # <= 0.018 m/s, below the 0.02 bounce threshold.
+            if self.righting_ticks % 100 == 1:
                 qz, qw = msg.orientation.z, msg.orientation.w
                 up_x = 2.0 * (qx * qz + qw * qy)
                 up_y = 2.0 * (qy * qz - qw * qx)
@@ -615,6 +693,12 @@ class LandingController(Node):
                 w = self.GENTLE_RIGHTING_SPEED
                 self.rw_pubs['x'].publish(Float64(data=w * self._gentle_dir[0]))
                 self.rw_pubs['y'].publish(Float64(data=w * self._gentle_dir[1]))
+                if self.righting_ticks % 300 == 0:
+                    self.get_logger().info(
+                        f'[{self.robot_name}] 📐 GENTLETRACE attempt='
+                        f'{self.righting_attempt + 1} tick={self.righting_ticks} '
+                        f'u_z={u_z:.4f} dir=({self._gentle_dir[0]:.3f},'
+                        f'{self._gentle_dir[1]:.3f})')
         else:
             # Brake phase: command the wheel back to zero -- the decel
             # torque stops the body's roll as symmetrically as it started.
