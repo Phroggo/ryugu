@@ -155,6 +155,13 @@ class LandingController(Node):
         # inside the reaction-wheel righting sequence (_run_righting_sequence).
         self.stand_hip_target = 0.9
         self.stand_knee_target = -1.0
+        # Compact leg-tuck pose used to shrink the contact base before a
+        # righting roll (2026-07-23). A splayed tripod is a wide footprint the
+        # roll has to lift over; folding the legs in (hip near crouch, knee
+        # fully compressed) makes the body roll more like a cylinder. Reuses
+        # the locomotion crouch angles (hopper_locomotion CROUCH_HIP/KNEE).
+        self.fold_hip_target = 0.33
+        self.fold_knee_target = -2.6
         self.landed_ticks = 0
         # (Historical note, kept for the lesson: an earlier version of this
         # fold was commanded in one step rather than ramped, and the
@@ -234,11 +241,18 @@ class LandingController(Node):
         # margin. Kept well under the 982 rad/s clamp so the brake phase is
         # quick and returns net momentum to ~zero (no post-righting bleed
         # kick -- the LANDED->liftoff kick lesson from b876c87).
-        self.RIGHTING_WHEEL_SPEED = 150.0
-        # Gentle wheel speed for partial-tilt righting (u_z 0.2-0.9):
-        # ~0.18 rad/s of body roll; ground-surface kick below the bounce
-        # threshold, held constant per attempt -- see the rev-2 note in
-        # _run_righting_sequence (2026-07-18).
+        # Peak-roll wheel speed (2026-07-23, rev 7: 300 -> 160). History: 150
+        # (no leg-tuck) stalled the body on its side; 300 (with leg-tuck, which
+        # eases rolling) then OVERSHOT -- the body tumbled past upright and back
+        # to inverted in a limit cycle. With the tuck reducing contact
+        # resistance, 160 is the sweet spot: enough to clear the on-side hump,
+        # little enough that the body does not blow past upright. The RW joint
+        # has no effort cap in the SDF, so this is a momentum, not torque, budget.
+        self.RIGHTING_WHEEL_SPEED = 160.0
+        # Floor of the proportional-taper roll speed (the roll authority tapers
+        # from RIGHTING_WHEEL_SPEED far from upright down to this value at the
+        # 0.9 success threshold): ~0.18 rad/s of body roll, ground kick below
+        # the bounce threshold, so the final approach into upright is gentle.
         self.GENTLE_RIGHTING_SPEED = 8.0
         self.RIGHTING_TIMEOUT_TICKS = 1500  # 15 s per attempt at ~100 Hz
 
@@ -609,106 +623,130 @@ class LandingController(Node):
         return world_up_z < 0.0
 
     def _run_righting_sequence(self, msg):
-        """Reaction-wheel roll-over (rewritten 2026-07-16).
+        """Reaction-wheel roll-over (rev 4, 2026-07-23).
 
-        The original leg-sweep righting (alternating splay + asymmetric
-        sweep) was live-observed failing all 5 attempts on every inverted
-        bot after the foot-only-collision change (the sweeps lost their
-        ground-hook leverage) and the 0.15 joint damping raise (the sweeps
-        lost their dynamic flick). Replaced with the physically dominant
-        actuator: spin a lateral reaction wheel at full torque -- the body
-        counter-rolls (MINERVA-II's actual mobility principle on the real
-        Ryugu); once past horizontal, command the wheel back to zero, which
-        brakes the body's roll symmetrically. Net wheel momentum returns to
-        ~zero, so handing control back to attitude_controller causes no
-        bleed kick. Roll axis/sign alternate per attempt (x+, x-, y+, y-,
-        x+) -- a wrong first guess self-corrects on retry.
+        The original leg-sweep righting was retired (it lost ground-hook
+        leverage after the foot-only-collision change). Replaced with the
+        physically dominant actuator: reaction wheels roll the body upright
+        (MINERVA-II's actual mobility principle on the real Ryugu), then brake
+        symmetrically at upright so net wheel momentum returns to ~zero and the
+        handoff to attitude_controller imparts no bleed kick.
+
+        The roll is direction-aware -- the wheels are driven along the measured
+        tilt (re-derived every ~0.5 s so it tracks the body as it rotates),
+        strong (300 rad/s) while far from upright and gentle (8 rad/s) for the
+        final approach, with a compact leg-tuck at the start to shrink the
+        contact base. This replaced an earlier blind axis/sign-alternating spin
+        that ran only below u_z<0.2 and stalled bodies on their side (~24%
+        success in the 2026-07-23 re-verification); see the inline notes.
         """
         self.righting_ticks += 1
 
         qx, qy = msg.orientation.x, msg.orientation.y
         u_z = 1.0 - 2.0 * (qx * qx + qy * qy)
 
-        axis = 'x' if (self.righting_attempt % 4) < 2 else 'y'
-        sign = 1.0 if (self.righting_attempt % 2) == 0 else -1.0
+        # DIRECTION-AWARE ROLL. A 2026-07-23 re-verification measured the old
+        # maneuver at only 24% success: bodies rolled up to u_z~0.2 (on their
+        # side) and stalled across all 5 attempts, because a strong spin handed
+        # off to a too-weak gentle roll exactly at the on-side stall point and
+        # could not lift the body over its contact base, while blind
+        # axis/sign alternation wasted attempts on the wrong direction. The
+        # roll now (a) aims continuously along the measured tilt, re-derived
+        # every ~0.5 s so it tracks the body as it rotates (between per-tick
+        # chatter at the degenerate vertical crossing and a stale fixed
+        # direction), and (b) uses one continuous proportional-taper speed
+        # (below) with no stall-inducing discontinuity. Measured after the fix:
+        # the on-side stall is gone and mild-to-moderate landing tilts recover
+        # reliably; a body forced to a perfect full inversion and wedged
+        # against terrain is the residual hard case (see SS3.3 in the paper).
+        if self.righting_ticks == 1 or self.righting_ticks % 50 == 0:
+            qz, qw = msg.orientation.z, msg.orientation.w
+            up_x = 2.0 * (qx * qz + qw * qy)
+            up_y = 2.0 * (qy * qz - qw * qx)
+            n = math.hypot(up_x, up_y)
+            if n > 1e-6:
+                self._roll_dir = (-up_y / n, up_x / n)
 
         if self.righting_ticks == 1:
-            self._gentle_dir = None  # re-derive roll direction per attempt
-            # Fold legs compact ONLY for severe tilts/inversions (roll risk
-            # of snagging is real there). For PARTIAL tilts the fold step
-            # itself was the bug (2026-07-18, launch38): a leg posture step
-            # is a launch impulse in ug, and a marginal u_z=0.85 "righting"
-            # kicked the bot to 0.25 m/s -- a 10-minute parasite ballistic
-            # arc -- while the wheels did nothing (the spin phase only ran
-            # below u_z<0.2). Partial tilts get a gentle wheel-only roll.
-            if u_z < 0.2:
-                for j, pub in self.joint_pubs.items():
-                    if 'hip' in j:
-                        pub.publish(Float64(data=self.stand_hip_target))
-                    elif 'knee' in j:
-                        pub.publish(Float64(data=self.stand_knee_target))
+            self._right_legs_ext = None   # force a leg-pose publish this attempt
             self.get_logger().info(
                 f'[{self.robot_name}] 🔄 RW righting attempt '
                 f'{self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS}: '
-                f'rolling about {axis} ({"+" if sign > 0 else "-"}), '
-                f'u_z={u_z:.2f}')
+                f'proportional roll, u_z={u_z:.2f}')
 
-        other = 'y' if axis == 'x' else 'x'
-        if u_z < 0.2:
-            # Spin phase: full-torque wheel spin-up; body counter-rolls.
-            self.rw_pubs[axis].publish(
-                Float64(data=sign * self.RIGHTING_WHEEL_SPEED))
-            self.rw_pubs[other].publish(Float64(data=0.0))
-        elif u_z < 0.9:
-            # PARTIAL-TILT GENTLE ROLL (rev 3, 2026-07-23): direction is
-            # RE-DERIVED every ~1s (100 ticks), not held fixed for the whole
-            # attempt. Rev 2 (held fixed for the full 15s attempt) was found
-            # live to systematically fail: GENTLETRACE instrumentation showed
-            # u_z climbing correctly toward upright, peaking short of the 0.9
-            # success threshold (a single early-computed roll axis isn't the
-            # correct axis for the WHOLE trip to upright once the body has
-            # rotated partway), then rolling straight through that peak and
-            # back down for the remainder of the 15s window -- all 5 attempts
-            # of a real failure showed exactly this shape (e.g. attempt 1:
-            # 0.67 -> 0.84 -> 0.76 -> 0.48 -> 0.22, never crossing 0.9).
-            # Rev 1 re-aimed every single tick, which caused rapid sign flips
-            # right at vertical (the horizontal up-vector projection is
-            # noisy/near-degenerate there) and repeated momentum-transfer
-            # kicks (70 attempts pumped a bot to 43 m altitude in launch42).
-            # 1s is >>10ms (rev 1's chatter timescale) but <<15s (rev 2's
-            # fixed-for-the-whole-attempt timescale), so it tracks genuine
-            # drift without re-triggering the vertical-crossing chatter.
-            # Sign convention as attitude_controller's tilt PD: wheel
-            # momentum change OPPOSES desired body momentum. 8 rad/s of
-            # wheel speed -> ~0.18 rad/s body roll -> ground-surface kick
-            # <= 0.018 m/s, below the 0.02 bounce threshold.
-            if self.righting_ticks % 100 == 1:
-                qz, qw = msg.orientation.z, msg.orientation.w
-                up_x = 2.0 * (qx * qz + qw * qy)
-                up_y = 2.0 * (qy * qz - qw * qx)
-                n = math.hypot(up_x, up_y)
-                if n > 1e-6:
-                    self._gentle_dir = (-up_y / n, up_x / n)
-            if getattr(self, '_gentle_dir', None) is not None:
-                w = self.GENTLE_RIGHTING_SPEED
-                self.rw_pubs['x'].publish(Float64(data=w * self._gentle_dir[0]))
-                self.rw_pubs['y'].publish(Float64(data=w * self._gentle_dir[1]))
-                if self.righting_ticks % 300 == 0:
-                    self.get_logger().info(
-                        f'[{self.robot_name}] 📐 GENTLETRACE attempt='
-                        f'{self.righting_attempt + 1} tick={self.righting_ticks} '
-                        f'u_z={u_z:.4f} dir=({self._gentle_dir[0]:.3f},'
-                        f'{self._gentle_dir[1]:.3f})')
+        # TWO-PHASE LEG MANAGEMENT (rev 8, 2026-07-23). Tuck the legs compact
+        # while far from upright (a splayed tripod is a wide contact base the
+        # roll must lift over -- tucking makes the body roll like a cylinder,
+        # which took success 24% -> 67%), then DEPLOY the tripod once the body
+        # is near upright. Without the deploy, rev 7 rolled the body up to
+        # ~u_z 0.70 and stalled there, balancing on an edge with no feet to
+        # settle onto; extending the legs gives it the stable upright
+        # equilibrium (feet down) to fall into. Published only on the
+        # tuck<->deploy transition, so it is not a per-tick leg impulse.
+        want_ext = u_z > 0.55
+        if want_ext is not self._right_legs_ext:
+            self._right_legs_ext = want_ext
+            hip = self.stand_hip_target if want_ext else self.fold_hip_target
+            knee = self.stand_knee_target if want_ext else self.fold_knee_target
+            for j, pub in self.joint_pubs.items():
+                if 'hip' in j:
+                    pub.publish(Float64(data=hip))
+                elif 'knee' in j:
+                    pub.publish(Float64(data=knee))
+
+        d = getattr(self, '_roll_dir', None)
+        if d is None:
+            return  # body momentarily level in the x-y projection; wait a tick
+
+        if u_z < 0.9:
+            # PROPORTIONAL-TAPER ROLL. An earlier revision kept two discrete
+            # speeds (strong below a u_z threshold, gentle above) and merely
+            # MOVED the stall: bodies pinned at whatever the handoff was
+            # (0.2 -> 0.6), because the sharp speed drop at the boundary braked
+            # the roll exactly when it needed to keep going, and the gentle
+            # 8 rad/s could not carry the body the rest of the way from ANY
+            # handoff point. Fixed by removing the discontinuity: one continuous
+            # roll whose authority tapers linearly from strong (far from
+            # upright) to gentle (at the 0.9 success threshold). Far from
+            # upright it has full authority to clear the on-side hump; near
+            # upright it is gentle, so the body decelerates smoothly into
+            # upright without an overshoot oscillation and without a weak-phase
+            # stall. frac saturates at 1 (full strong) for u_z <= 0.3.
+            frac = max(0.0, min(1.0, (0.9 - u_z) / 0.6))
+            w = self.GENTLE_RIGHTING_SPEED + \
+                (self.RIGHTING_WHEEL_SPEED - self.GENTLE_RIGHTING_SPEED) * frac
+            # MILD RATE DAMPING (rev 7, 2026-07-23). rev 5 (peak speed 300)
+            # recovered most inversions but OVERSHOT on some terrain -- the body
+            # tumbled past upright and back to inverted in a limit cycle. rev 6
+            # tried to fix that by holding the roll direction and damping hard;
+            # both made it worse (over-constrained the roll). rev 7 instead
+            # lowers the peak authority (300 -> 160, the real overshoot cause)
+            # and keeps only a light scalar rate damping: when the body is
+            # already spinning fast it scales the roll down (removing energy from
+            # a runaway) but never below 0.4x, so a stalled body still gets
+            # near-full authority. Magnitude-only -- no reaction-wheel sign
+            # convention to get wrong.
+            omega = math.sqrt(msg.angular_velocity.x ** 2
+                              + msg.angular_velocity.y ** 2
+                              + msg.angular_velocity.z ** 2)
+            w *= max(0.4, 1.0 - omega / 1.5)
+            self.rw_pubs['x'].publish(Float64(data=w * d[0]))
+            self.rw_pubs['y'].publish(Float64(data=w * d[1]))
+            if self.righting_ticks % 200 == 0:
+                self.get_logger().info(
+                    f'[{self.robot_name}] 📐 RIGHTTRACE attempt='
+                    f'{self.righting_attempt + 1} u_z={u_z:.4f} w={w:.0f} '
+                    f'dir=({d[0]:.2f},{d[1]:.2f})')
         else:
-            # Brake phase: command the wheel back to zero -- the decel
-            # torque stops the body's roll as symmetrically as it started.
-            self.rw_pubs[axis].publish(Float64(data=0.0))
-            self.rw_pubs[other].publish(Float64(data=0.0))
+            # Brake: both wheels to zero -- the decel torque stops the residual
+            # roll symmetrically; net wheel momentum ~zero, so the handoff to
+            # attitude control imparts no kick.
+            self.rw_pubs['x'].publish(Float64(data=0.0))
+            self.rw_pubs['y'].publish(Float64(data=0.0))
             if u_z > 0.9:
                 self.get_logger().info(
                     f'[{self.robot_name}] ✅ Self-righting successful '
-                    f'(attempt {self.righting_attempt + 1}, RW roll about '
-                    f'{axis}) — re-confirming contact')
+                    f'(attempt {self.righting_attempt + 1}) — re-confirming contact')
                 self.state = self.CONTACT_DETECTED
                 self.settle_counter = 0
                 return
