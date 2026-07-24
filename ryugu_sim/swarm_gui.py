@@ -306,18 +306,18 @@ class BotPanel(tk.Frame):
             self.battery_canvas.create_text(cw / 2, 6, text=f"{pct:.0f}%",
                                              fill="white", font=(FONT_MONO, 8))
 
-        # Solar charge / discharge rate (swarm_manager.py's actual per-tick
-        # rate for whatever the bot is currently doing, not just a static
-        # spec number -- positive while RECHARGE-role sun-facing charging,
-        # negative otherwise).
+        # Solar charge / discharge indicator. Qualitative only, no numeric
+        # rate: the sim's per-tick drain/charge constants are deliberately
+        # accelerated ~10x against the physical watt-level budget (§4.1) for
+        # demo pacing, so a displayed number here isn't a verifiable
+        # physical quantity -- show state, not a rate that invites a
+        # question the sim can't back with real units.
         if st.power_rate > 0:
-            self.power_rate_label.config(text=f"☀ solar +{st.power_rate:.2f}%/tick",
-                                          fg="#4CAF50")
+            self.power_rate_label.config(text="☀ solar (charging)", fg="#4CAF50")
         elif st.power_rate < 0:
-            self.power_rate_label.config(text=f"⤓ draw {st.power_rate:.2f}%/tick",
-                                          fg="#FF9800")
+            self.power_rate_label.config(text="⤓ draw (discharging)", fg="#FF9800")
         else:
-            self.power_rate_label.config(text="- %/tick", fg=DIM_FG)
+            self.power_rate_label.config(text="-", fg=DIM_FG)
 
         # RW speed bars (scale against the 982 rad/s clamp — the EC 20 flat
         # no-load speed; the controller's clamp was corrected 1396 → 982 in
