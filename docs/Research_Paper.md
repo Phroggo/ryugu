@@ -105,7 +105,7 @@ The physical layout this budget is drawn from is shown in Fig. 4.
 
 The robot's operational weight on Ryugu is merely $W = 2.50 \times 1.14\times10^{-4} = 2.85\times10^{-4}$ N. As a representative energy-budget scale (an illustrative upper-bound design case, not a claim about typically-achieved height — the actually measured apex is far smaller and is reported precisely in §7), a 5 m vertical hop requires potential energy
 
-$$ E_p = mgh = 2.5 \times 1.14\times10^{-4} \times 5 = 1.43\times10^{-3} \text{ J}, $$
+$$ E_p = mgh = 2.5 \times 1.14\times10^{-4} \times 5 = 1.43\times10^{-3} \text{ J}, \qquad (1) $$
 
 and with a leg stroke of $d = 0.1$ m — a round-number approximation of crouch-to-extension vertical travel used only to size this illustrative energy budget, not a precisely defined or currently-referenced constant in the deployed code (the actual launch model, below, is parameterized by the empirically fitted $V_{GAIN}$ instead, which plays a related but distinct role) — a mean thrust of only $F = E_p/d = 1.4\times10^{-2}$ N. Converted to torque about the leg's 0.15 m thigh/calf segment length (§3.1's zigzag posture, below), this thrust requires only $F \times 0.15 \approx 2.1$ mNm at the joint. The hip and knee joints, driven by Maxon RE 13 motors through 67:1 GP 13 gearheads [11], supply up to 134 mNm — a $134/2.1 \approx$ >60× margin over this launch-torque requirement, intended to overcome vacuum cold-welding and thermal-blanket stiffness. This margin, while necessary, is far from sufficient, because it bounds the wrong failure mode: torque only converts to useful thrust up to the point where the leg's lateral reaction force exceeds foot–regolith friction (quantified in §3.1.1–§3.1.2) — beyond that, additional torque slides the feet rather than accelerating the body, so launch performance in milli-gravity is governed by stroke geometry and contact friction rather than by how much torque the motors have in reserve.
 
@@ -129,7 +129,7 @@ Second, a real and separately characterized effect: even after that fix, the bod
 
 A sufficiently energetic hop could genuinely exceed escape velocity and depart the body permanently. For a spherical approximation, using Ryugu's ~450 m mean radius [1]:
 
-$$ v_{esc} = \sqrt{2gR} = \sqrt{2 \times 1.14\times10^{-4} \times 450} \approx 0.320 \text{ m/s}. $$
+$$ v_{esc} = \sqrt{2gR} = \sqrt{2 \times 1.14\times10^{-4} \times 450} \approx 0.320 \text{ m/s}. \qquad (2) $$
 
 The longest dispatch under nominal swarm operation — a corner-to-corner traverse of the ±45 m tasking field (§4.3), $d \approx 127$ m — would require $v \approx 0.161$ m/s if taken as a single ballistic hop, a 2.0× margin below escape. (This uses the platform's *own* launch law $v_{req} = \sqrt{d\,g/\mathrm{SIN2TH}}$ from §3.1, not the 45°-optimal $\sqrt{dg}$: the deployed stroke launches at $\approx$73° elevation, $\mathrm{SIN2TH} = 0.56$, so it needs more velocity for a given range than the minimum-energy launch would — using $\sqrt{dg}$ here would understate the required velocity, and hence overstate the margin, by $1/\sqrt{0.56} \approx 1.34\times$.) The deployed range-per-hop dispatcher (§4.3) never requests more than one 9 m leg at a time, whose $v_{req} = 0.043$ m/s sits 7.5× below $v_{esc}$. Because the amplitude-to-velocity mapping is empirically calibrated rather than closed-form, the simulation additionally encloses the terrain in collision-only boundary walls and a 100 m ceiling, providing hard containment independent of calibration accuracy.
 
@@ -160,17 +160,17 @@ Fig. 6 sketches this three-wheel layout and the moment-of-inertia axes it is mea
 
 At the torque limit in the flight posture, body angular acceleration is $\alpha = \tau_{rw}/I_{bot} = 1.25$ rad/s². A usable correction must arrive at the target angle with zero residual rate; the minimum-time profile is therefore bang-bang [6]:
 
-$$ t_{min} = 2\sqrt{\theta/\alpha} \approx 2.24 \text{ s for } \theta = 90°. $$
+$$ t_{min} = 2\sqrt{\theta/\alpha} \approx 2.24 \text{ s for } \theta = 90°. \qquad (3) $$
 
 The deployed controller deliberately trades speed for monotonic convergence, and both timescales are negligible against ballistic flight times measured in minutes.
 
 **Controller structure.** Two structural lessons from live closed-loop testing shaped the final design. First, attitude error must be computed without small-angle assumptions: the controller rotates the body's local +Z axis into the world frame and forms the cross product with world-up,
 
-$$ \vec{e} = \hat{u}_{local} \times \hat{u}_{world}, $$
+$$ \vec{e} = \hat{u}_{local} \times \hat{u}_{world}, \qquad (4) $$
 
 a rotation-axis-aligned error valid at any tilt magnitude and independent of yaw. (An initial Euler-angle formulation oscillated at 85–160° tumble angles because body rates cease to correspond to Euler-angle rates there, so its damping term was damping the wrong quantity.) Second, and more fundamentally: a reaction wheel exchanges momentum with the body only **while it accelerates** ($\tau_{body} = -I_w\dot{\omega}_{wheel}$). Any law that commands wheel *velocity* proportional to attitude error stops transferring torque the moment the wheel reaches its commanded speed — leaving steady-state error uncorrected on the ground and a residual spin $\omega_{res} = L_0/(I_{bot} + I_wK_d)$ in flight, both of which were measured before the redesign. The deployed law is therefore the standard torque-based structure [6][7]: a PD law on attitude produces a desired body torque, clipped to the motor budget, converted to wheel acceleration, and integrated into the wheel-speed command:
 
-$$ \tau_{des} = \mathrm{clip}\!\left(K_{ang}\,e - K_{rate}\,\omega,\ \pm\tau_{rw}\right), \qquad \dot{\omega}_{wheel,cmd} = -\tau_{des}/I_w, $$
+$$ \tau_{des} = \mathrm{clip}\!\left(K_{ang}\,e - K_{rate}\,\omega,\ \pm\tau_{rw}\right), \qquad \dot{\omega}_{wheel,cmd} = -\tau_{des}/I_w, \qquad (5) $$
 
 with $K_{ang} = 0.05$ N·m/rad and $K_{rate} = 0.066$ N·m·s/rad, sized against the whole-robot inertia for an overdamped response ($\zeta \approx 1.05$–$1.35$ across the posture-dependent inertia range, natural frequency $\omega_n \approx 1.6$–$2.0$ rad/s) that cannot oscillate by construction. A 1° attitude deadband prevents momentum windup against terrain-imposed tilt (a tripod on regolith never reads exactly level; without the deadband the wheels integrate toward saturation over hours). Rate damping carries no deadband — it acts only during rotation and cannot wind up; a rate deadband was tried and produced a measurable ±1.2° limit cycle at exactly the deadband rate.
 
@@ -290,7 +290,7 @@ The architecture supports a decentralized swarm methodology: a low-power (<0.1 W
 
 Mission roles (SCOUT / SAMPLER / RELAY / RECHARGE) are allocated by a single-item market auction in the taxonomy of Gerkey & Matarić [13]. When a spectral anomaly enters the task queue, every eligible SCOUT bids
 
-$$ B_a = d_a + w_b\,(100 - \mathrm{SoC}_a) + w_c\,n_a, $$
+$$ B_a = d_a + w_b\,(100 - \mathrm{SoC}_a) + w_c\,n_a, \qquad (6) $$
 
 where $d_a$ is straight-line distance to the target, $\mathrm{SoC}_a$ the battery state of charge ($w_b = 0.5$ m/%), and $n_a$ the carousel load ($w_c = 5$ m/sample); the lowest bid wins, and agents below a 30% charge reserve abstain. These weights are engineering trade-off choices rather than uniquely-derivable constants — a point we make explicitly rather than dress up as optimization — but each is scaled deliberately against the platform's own physical dimensions rather than picked arbitrarily. The relevant length scale is the tasking field's corner-to-corner diagonal, $\approx 127$ m (§3.1.1). At $w_b = 0.5$ m/%, a fully-drained bidder carries a 50 m penalty — about 40% of that diagonal — so battery state is a *meaningful* tie-breaker (it can flip a decision between agents at comparable range) without overriding the distance term across the whole field; at $w_c = 5$ m/sample a full three-tube carousel adds only a 15 m penalty, deliberately smaller, since a loaded SAMPLER should still service a very close target rather than always deferring. The 30% charge-reserve threshold is a conservative safety margin, and honesty about *which* power model it is measured against matters: at the swarm layer's accelerated demo drain (§4.1) it is roughly two SAMPLER duty cycles, while against the physical watt-level budget of §4.1 it corresponds to on the order of five completed sampling tasks of headroom — conservative by either accounting, and not tied to a stated failure-probability target. Verified live with three agents, the auction produces differentiated allocation (e.g., bids of 29.1 vs 40.8 m-equivalent deciding a contested target).
 
@@ -368,11 +368,11 @@ What *does* generalize from the literature is the discrete, sequential character
 
 **An exact result from this platform's own launch law.** §3.1 establishes the deployed launch model: required separation velocity scales as $v_{req} = \sqrt{d\,g/\mathrm{SIN2TH}}$ for a hop of distance $d$. Since kinetic energy is $E = \tfrac{1}{2}mv^2$, and $v_{req}^2$ is *exactly linear* in $d$,
 
-$$ E(d) = \frac{mg}{2\,\mathrm{SIN2TH}}\,d. $$
+$$ E(d) = \frac{mg}{2\,\mathrm{SIN2TH}}\,d. \qquad (7) $$
 
 Summing this over any partition of a fixed total distance $D$ into $n$ hops of lengths $d_1, \dots, d_n$ with $\sum_i d_i = D$ gives
 
-$$ E_{\text{total}} = \frac{mg}{2\,\mathrm{SIN2TH}} \sum_i d_i = \frac{mg}{2\,\mathrm{SIN2TH}}\,D, $$
+$$ E_{\text{total}} = \frac{mg}{2\,\mathrm{SIN2TH}} \sum_i d_i = \frac{mg}{2\,\mathrm{SIN2TH}}\,D, \qquad (8) $$
 
 independent of $n$ and independent of how $D$ is split. **Under this platform's own launch law, total launch energy to cover a fixed distance is invariant to how many hops it is broken into** — splitting one 9 m leg into three 3 m legs costs the same total kinetic energy as a single 9 m leg, to first order. This is a genuinely different result from the general convex hop-sequencing literature [24], which assumes (correctly, for a broader class of launch mechanisms) that energy cost is *superlinear* in hop distance and therefore that splitting is favorable; this platform's specific $v \propto \sqrt{d}$ law makes the energy landscape exactly flat with respect to splitting instead.
 
