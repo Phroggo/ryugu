@@ -4,12 +4,14 @@
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{textcomp}
+\usepackage{tabularx}
 \usepackage{url}
 \IEEEoverridecommandlockouts
 \begin{document}
 \title{SpaceHopper: A Bio-Inspired Legged Swarm Robot for Microgravity Asteroid Exploration and Sampling}
-\author{\IEEEauthorblockN{Melvin Jacob Sajan\IEEEauthorrefmark{1}\quad Dr.~Vyshak Sureshkumar\IEEEauthorrefmark{1}\thanks{\IEEEauthorrefmark{1}Corresponding author: Dr.~Vyshak Sureshkumar.}}
-\IEEEauthorblockA{Department of Mechatronics Engineering\\ Manipal Academy of Higher Education, Dubai\\ melvinsajan20@gmail.com}}
+\author{\IEEEauthorblockN{Melvin Jacob Sajan\quad Dr.~Vyshak Sureshkumar$^{*}$}
+\IEEEauthorblockA{Department of Mechatronics Engineering\\ Manipal Academy of Higher Education, Dubai\\ melvinsajan20@gmail.com}
+\thanks{$^{*}$Corresponding author: Dr.~Vyshak Sureshkumar.}}
 \maketitle
 \begin{abstract}
 The exploration of low-gravity near-Earth objects (NEOs), such as the C-type asteroid 162173 Ryugu, poses unique traversal and sampling challenges. Traditional wheeled rovers lack sufficient traction in microgravity environments characterized by porous, rubble-pile topography. This paper presents the design and simulation validation of SpaceHopper, a 2.5 kg tri-pedal hopping robot with 3-axis reaction-wheel attitude control, deployed as a three-agent autonomous swarm. A high-fidelity Ryugu environment --- terrain derived from the Hayabusa2 shape model, surface gravity of 1.14\ensuremath{\times}\ensuremath{10^{-4}} m/s\textsuperscript{2} --- was constructed in the Gazebo Harmonic physics engine, and the complete mission loop (market-based task auction, directional hopping, stabilized ballistic flight, micro-gravity landing detection, reaction-wheel self-righting, and core sampling) was verified end-to-end with live telemetry. Measured performance includes rate-commandable launch separation with single-hop heading fidelity of 1\textdegree{} against the commanded azimuth, multi-metre directional hops on clean \textasciitilde{}20-minute ballistic arcs, in-flight body rates damped below 0.015 rad/s, and reaction-wheel self-righting that reliably recovers the moderate tilts characteristic of a milli-gravity landing (a redesign that raised measured success from a 24\% baseline, honestly bounded in \S7). We further report four empirically derived laws of milli-gravity ground operations --- contact dynamics, not actuator torque, are the binding design constraint; active landing compliance is destabilizing under feedback latency; every grounded actuator motion constitutes a propulsion event; and attitude authority must be tied to commanded flight, because full stabilization armed by residual motion pumps energy against the surface in a self-sustaining loop --- which we believe generalize to any small-body surface robot.
@@ -32,7 +34,7 @@ Accurate physical evaluation of locomotion strategies necessitates a high-fideli
 
 A 1025\ensuremath{\times}1025 collision heightmap was derived from the official Hayabusa2 Structure-from-Motion shape model (\texttt{SHAPE\_SFM\_49k\_v20180804.obj}) [3]. The selected cross-section reflects the dense cratering and rocky ridges characteristic of Ryugu's equatorial band, mapped onto a 100 m \ensuremath{\times} 100 m traversal field with 5 m of vertical relief.
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{heightmap_preview.png}
 \caption{Lateral X-axis projection heightmap derived from the Hayabusa2 SfM shape model, detailing Ryugu's equatorial ridge.}
 \label{fig:1}
@@ -42,7 +44,7 @@ A 1025\ensuremath{\times}1025 collision heightmap was derived from the official 
 
 The gravity vector was set to 1.14\ensuremath{\times}\ensuremath{10^{-4}} m/s\textsuperscript{2}, the lower bound of Ryugu's latitude-dependent surface gravity [1] and the most demanding case for traction and rebound control. The celestial backdrop is the ESO/S. Brunier Milky Way panorama mapped onto an equirectangular sky sphere [4]; scene illumination is a single directional source representing the Sun, consistent with Ryugu's atmosphere-free lighting. Solar power is physically plausible at Ryugu's 0.96--1.42 AU orbit [1] (\textasciitilde{}960 W/m\textsuperscript{2} at the 1.19 AU semi-major axis) --- the same orbital regime the solar-powered MINERVA-II rovers operated in, though [8] describes the MINERVA mobility concept rather than measured on-orbit power performance, so this is stated as a plausibility check against Ryugu's known orbit, not a claim independently corroborated by MINERVA-II telemetry.
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_swarm_terrain.png}
 \caption{The simulated environment --- heightmap regolith terrain beneath the ESO Milky Way panorama, with a landed scout in the foreground and a second agent visible against the galactic band.}
 \label{fig:2}
@@ -52,7 +54,7 @@ The gravity vector was set to 1.14\ensuremath{\times}\ensuremath{10^{-4}} m/s\te
 
 Each agent runs an identical four-node control stack; a single swarm-coordination node and a telemetry dashboard serve the fleet. All actuator and sensor traffic crosses a per-agent ROS--Gazebo bridge:
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=0.9\columnwidth]{diagram1.pdf}
 \caption{System architecture. The \texttt{landed} and \texttt{righting\_active} flags implement strict actuator arbitration --- exactly one node commands any actuator at any time (\S8).}
 \label{fig:3}
@@ -62,10 +64,10 @@ Each agent runs an identical four-node control stack; a single swarm-coordinatio
 
 The SpaceHopper is a compact, 2.50 kg tri-pedal robot whose mass distribution keeps the center of gravity close to the geometric center:
 
-\begin{table}[!t]\centering\footnotesize
-\begin{tabular}{|l|l|l|l|}
+\begin{table*}[!t]\centering\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
 \hline
-Subsystem & Components Included & Mass (kg) & Mass Fraction \\ \hline
+\textbf{Subsystem} & \textbf{Components Included} & \textbf{Mass (kg)} & \textbf{Mass Fraction} \\ \hline
 \textbf{Chassis} & Aluminum 7075-T6 core, CFRP structural panels & 0.70 & 28\% \\ \hline
 \textbf{Locomotion} & 6\ensuremath{\times} Maxon RE 13 leg motors (hip+knee \ensuremath{\times}3), planetary gearheads, legs & 0.45 & 18\% \\ \hline
 \textbf{Attitude Control} & 3\ensuremath{\times} Maxon EC 20 flat RW motors + flywheels (X/Y/Z) & 0.20 & 8\% \\ \hline
@@ -74,10 +76,10 @@ Subsystem & Components Included & Mass (kg) & Mass Fraction \\ \hline
 \textbf{Scientific Payload} & Rotary-percussive micro-corer, storage carousel & 0.20 & 8\% \\ \hline
 \textbf{Thermal \& Solar} & GaAs solar arrays, Kapton MLI blankets & 0.15 & 6\% \\ \hline
 \textbf{Total Operational Mass} &  & \textbf{2.50 kg} & \textbf{100\%} \\ \hline
-\end{tabular}
-\end{table}
+\end{tabularx}
+\end{table*}
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_robot_closeup.png}
 \caption{The SpaceHopper model --- face-on view showing the stereo hazard cameras and navigation camera, UHF antenna, solar array, and the tri-pedal articulated legs with spherical feet.}
 \label{fig:4}
@@ -103,7 +105,7 @@ Second, a real and separately characterized effect: even after that fix, the bod
 
 \textbf{Directional hopping.} A purely vertical stroke has no ground range. Directionality is obtained by combining reaction-wheel yaw pointing (the swarm layer commands a target heading; the yaw-hold loop aligns the body) with a forward-lean differential built into the crouch (the leading leg is flexed 0.3 rad further, the trailing pair 0.15 rad less, preserving mean stance height), tilting the thrust vector off vertical toward the commanded heading. The lean magnitude is a genuine stability trade: at 0.5 rad the multi-second stroke was measured \emph{tipping the robot over} (uprightness collapsing from 0.85 to 0.38 within a single 3.5 s ramp --- at $2.9\times10^{-4}$ N of weight, nothing anchors the stance), while attitude feedback cannot simply be left engaged during the stroke because levelling the body \emph{deletes the lean}: with tilt correction active mid-stroke, a commanded 9 m hop was measured flying 695 s almost perfectly vertically while translating 0.16 m. The deployed compromise holds tilt-position feedback off between ignition and separation, applies rate-only damping (which resists a runaway tip but barely brakes the slow intended lean), and aborts any stroke whose uprightness degrades below 0.7. Measured single-hop performance with this stack: \textbf{4.3 m of ground displacement at 1\textdegree{} of heading error} (commanded azimuth \ensuremath{-}56\textdegree{}, measured \ensuremath{-}55\textdegree{}) over a clean \textasciitilde{}20-minute ballistic arc, launched from a fully settled upright stance and confirmed landed without a false trigger. The launch-torque asymmetry introduced by the lean is bounded and removed within seconds of separation by the attitude controller (\S3.2).
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_hop_flight.png}
 \caption{A scout mid-hop. The forward lean is visible in the body attitude; the shadow on the regolith below shows the altitude gained within seconds of the stroke.}
 \label{fig:5}
@@ -186,7 +188,7 @@ Touchdown detection on a milli-g body faces a fundamental ambiguity: an accelero
 \item \textbf{Liftoff watchdog} --- LANDED is not terminal: sustained velocity above 2 cm/s reverts the state machine to FLIGHT, because "landed" must remain true in the physics, not merely in the software.
 \end{itemize}
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_descent_terrain.png}
 \caption{Final descent over the ridged heightmap terrain --- the antenna shadow on the regolith below marks the touchdown point the detector must confirm.}
 \label{fig:6}
@@ -194,7 +196,7 @@ Touchdown detection on a milli-g body faces a fundamental ambiguity: an accelero
 
 After confirmation, the legs simply hold their landing pose. No posture is commanded at or after touchdown --- a design rule with an empirical basis (\S3.4.1). The complete locomotion cycle, spanning both controllers, is:
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=0.9\columnwidth]{diagram2.pdf}
 \caption{The hop--land--right cycle. Attitude control runs during FLIGHT (motion-gated), stands down during RIGHTING, and holds yaw only when grounded.}
 \label{fig:7}
@@ -204,33 +206,33 @@ After confirmation, the legs simply hold their landing pose. No posture is comma
 
 Stiff position-controlled legs behave as near-lossless springs at touchdown: measured restitution from a 1.15 m drop was \ensuremath{\approx}0.96, producing non-decaying pogo rebound. Three actively controlled compliance schemes were implemented and measured, and \textbf{all three added energy at contact}:
 
-\begin{table}[!t]\centering\footnotesize
-\begin{tabular}{|l|l|l|l|}
+\begin{table*}[!t]\centering\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
 \hline
-Scheme & Impact v (mm/s) & Rebound v (mm/s) & Outcome \\ \hline
+\textbf{Scheme} & \textbf{Impact v (mm/s)} & \textbf{Rebound v (mm/s)} & \textbf{Outcome} \\ \hline
 Step to compliant posture at contact & --- & --- & 0.7--0.9 m kicks, non-decaying \\ \hline
 Posture ramped over 2 s & 32 & 38 & rebound exceeds impact \\ \hline
 Zero-stiffness catch (measured joint angles mirrored as targets) & 16 & 22 & rebound exceeds impact \\ \hline
-\end{tabular}
-\end{table}
+\end{tabularx}
+\end{table*}
 
 The third failure is the instructive one: the joint-state feedback crosses a transport layer with finite latency, so the mirrored target \emph{trails} the joint --- during rebound the lagged position error torques \emph{with} the motion, pumping the bounce. This is the classic phase-lag instability of delayed feedback, and in milli-gravity there is no weight margin to absorb it.
 
 The deployed solution places dissipation where phase lag cannot exist: passive joint damping in the mechanism itself. A sweep over the damping coefficient measured the launch/landing tradeoff directly:
 
-\begin{table}[!t]\centering\footnotesize
-\begin{tabular}{|l|l|l|}
+\begin{table*}[!t]\centering\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|X|}
 \hline
-$c$ (N\,\textperiodcentered\,m\,\textperiodcentered\,s/rad) & Separation velocity & Landing behavior \\ \hline
+\textbf{$c$ (N\,\textperiodcentered\,m\,\textperiodcentered\,s/rad)} & \textbf{Separation velocity} & \textbf{Landing behavior} \\ \hline
 0.005 & 39.8 mm/s & restitution \ensuremath{\approx} 0.96, non-decaying pogo \\ \hline
 \textbf{0.05 (deployed)} & \textbf{24.9 mm/s} & \textbf{decaying bounces; confirmed landing in \textasciitilde{}14 min} \\ \hline
 0.15 & few mm/s & overdamped launch; landing benign \\ \hline
-\end{tabular}
-\end{table}
+\end{tabularx}
+\end{table*}
 
 At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective vertical stiffness \ensuremath{\approx}48 N/m against the 2.5 kg mass), giving restitution $e \approx e^{-\pi\zeta/\sqrt{1-\zeta^2}} \approx 0.2$ --- bounces decay within two to three cycles --- while the launch stroke retains a 35\% separation-velocity margin over the 3 m-hop requirement. Series-elastic launch elements, which decouple launch delta-v from joint damping entirely, remain the recommended mechanism for flight hardware [5].
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_landed_scout.png}
 \caption{The end state the landing stack is built to reach --- a scout settled upright on its legs after a completed hop, holding its landing pose with no commanded motion.}
 \label{fig:8}
@@ -242,21 +244,21 @@ At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective 
 
 This subsection is a component-level design estimate, not simulated telemetry --- distinct from every other numeric claim in this paper. The swarm simulation itself models battery state with a simplified, role-based percentage-drain rate (\S4.3), not a watt-level subsystem power budget, and the two are deliberately \emph{not} on the same timescale: at the sim's deployed role rates (0.05--0.15\%/2 s tick, \S4.3) a full discharge takes on the order of 20--70 minutes of sim time, whereas the watt-level estimate below implies \textasciitilde{}10.5 h of real endurance --- the sim drain is intentionally accelerated by roughly an order of magnitude so that battery-reserve gating and the RECHARGE role are actually exercised within a short demonstration run, rather than being a physical power model. The table below is the physical estimate: it sizes the pack against plausible subsystem draws for the hardware of \S3. Powered by a 37.0 Wh space-grade lithium-ion pack:
 
-\begin{table}[!t]\centering\footnotesize
-\begin{tabular}{|l|l|l|l|}
+\begin{table*}[!t]\centering\footnotesize
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
 \hline
-Operational State & Subsystem & Peak Power (W) & Avg Continuous Power (W) \\ \hline
+\textbf{Operational State} & \textbf{Subsystem} & \textbf{Peak Power (W)} & \textbf{Avg Continuous Power (W)} \\ \hline
 \textbf{Continuous} & Avionics (CPU, IMU, comms Rx) & 2.00 & 2.00 \\ \hline
 \textbf{Continuous} & Reaction wheels (attitude hold) & 5.00 & 1.50 \\ \hline
 \textbf{Intermittent} & Leg motors (launch strokes) & 6.00 & 0.005 \\ \hline
 \textbf{Intermittent} & Micro-corer drill (300 s sequence) & 3.00 & 0.023 \\ \hline
  & \textbf{Total estimated draw} & \textbf{16.00} & \textbf{3.53} \\ \hline
-\end{tabular}
-\end{table}
+\end{tabularx}
+\end{table*}
 
 Continuous operation yields an estimated 10.5 h of shadowed endurance; the top-mounted GaAs arrays (28\% efficiency) generate \textasciitilde{}3.5 W net at 1.2 AU, allowing full recovery over the diurnal cycle. In the swarm layer, recharge is modeled as a dedicated RECHARGE role with battery-reserve gating (\S4.3).
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_recharge_dashboard.png}
 \caption{The power model operating live --- a scout depleted to 25\% has been reassigned to RECHARGE and regains charge at +0.60\%/tick while its squadmates continue their own tasks.}
 \label{fig:9}
@@ -278,7 +280,7 @@ The auction and the routing decision are not solved separately. Every eligible b
 
 The complete tasking flow for one anomaly:
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=0.9\columnwidth]{diagram3.pdf}
 \caption{Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.}
 \label{fig:10}
@@ -287,12 +289,6 @@ The complete tasking flow for one anomaly:
 Robustness mechanisms, each mapped to an observed failure mode of naive dispatching: unfinished tasks are re-queued when an agent is forced to RECHARGE or drops offline (10 s odometry-liveness watchdog); arrival is gated on real odometry (within 4 m \emph{and} landed); journeys are dispatched as range-matched legs of at most the measured 9 m hop range, with up to five cooldown-paced corrective re-hops held as an error-correction reserve; core extraction occupies a finite 8 s drill dwell so the power model reflects a real duty cycle; and task coordinates are clamped inside the physical containment boundary, so no assignment is unreachable by construction.
 
 \textbf{Actuator arbitration in the dispatch loop itself.} Two live-caught races shaped the final ordering of the swarm's per-tick logic, both instances of the same recurring lesson (\S8, Law 3-adjacent): exactly one command may be in flight to a given robot's launch sequence at a time. First, running the auction \emph{after} per-role mission execution let an agent already mid-launch on its own search hop (\S5.1) also win the auction in the same tick, producing two conflicting jump commands; the flight controller silently drops whichever arrives second, and the background search hop was winning --- a robot that had just detected a genuine anomaly launched toward an unrelated cell instead. Second, bidder eligibility checked only role, not whether the agent was actually idle: a robot still mid-crouch from its own just-issued hop reports "landed" (the flight-armed flag only clears at ignition) and could still win an auction whose dispatch then failed the same way. Both are fixed by (a) running the auction before mission execution, so a winning agent is already reassigned before the mission loop would have dispatched it a second time, and (b) requiring bidders to be landed \emph{and} past a settled cooldown since their own last dispatch, not merely correctly roled.
-
-\begin{figure}[!t]\centering
-\includegraphics[width=\columnwidth]{fig_dashboard.png}
-\caption{The mission telemetry dashboard during a live run --- differentiated roles (one RELAY, two SAMPLERs en route), per-agent battery and charge rate, attitude indicators, leg and reaction-wheel state.}
-\label{fig:11}
-\end{figure}
 
 \section*{5. Search Algorithm and Path Planning}
 
@@ -308,10 +304,10 @@ An anomaly cannot be auctioned (\S4.3) until it has been found, and finding it i
 \item \textbf{Greedy, cost-aware target selection.} A SCOUT that is landed and past a settling cooldown selects the highest-scoring cell in its own sector, where score trades cell staleness (ticks since last visited) against travel cost (distance penalty), and dispatches a hop toward it. This is a simplified, deterministic instance of the budget-constrained informative-search family in the multi-robot exploration literature [16, 17]: full online planning approaches in that family (distributed Monte Carlo Tree Search [17], deep-RL policies over Voronoi cells or constrained sensor models [15, 18]) were surveyed and explicitly not adopted for this platform --- training infrastructure and online search depth are disproportionate to a three-agent team operating over a field this size, and a greedy rule is directly explainable and auditable, which a learned policy is not.
 \end{itemize}
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=0.9\columnwidth]{diagram4.pdf}
 \caption{Search algorithm data flow. Each agent scores candidate cells only within its own static sector, so the three searches never compete for the same ground.}
-\label{fig:12}
+\label{fig:11}
 \end{figure}
 
 \textbf{Result.} Live-verified over a 9-minute run: agents that previously never moved outside of an assigned task now dispatch search hops autonomously (e.g. a scout with no queued task hopping toward $[-10.0, 0.0]$, $10.0$ m away, purely from coverage staleness), and the anomaly-detection rate measurably outpaced the fleet's physical capacity to service targets --- a 41-anomaly backlog accumulated within roughly nine minutes against a single-hop-per-tick, minutes-long-flight-time servicing rate. This is an honest characterization of the platform, not a defect: detection is a cheap per-tick event, while visiting a target requires a multi-minute hop-and-settle cycle, so a real deployment's SCOUT:SAMPLER ratio and battery-reserve threshold (\S4.3) are the actual levers for balancing discovery against throughput, not the search algorithm itself.
@@ -348,46 +344,40 @@ All results below are from live closed-loop simulation telemetry (IMU, odometry,
 
 \begin{itemize}
 \item \textbf{Launch:} rate-commandable separation via the eased full-stroke ramp (\S3.1); vertical delta-v delivered on demand up to \textasciitilde{}60--70 mm/s with the launch handshake producing zero false landing triggers across the final verification runs. Clean ballistic arcs with apex energy matching $v^2/2g$ within measurement noise.
-\item \textbf{Directional range:} 4.3 m of ground displacement at 1\textdegree{} heading error against the commanded azimuth (\ensuremath{-}55\textdegree{} measured vs \ensuremath{-}56\textdegree{} commanded) on a \textasciitilde{}20-minute arc; yaw alignment at ignition within 1--3\textdegree{} on every measured hop. Figure 13 shows a measured trajectory.
+\item \textbf{Directional range:} 4.3 m of ground displacement at 1\textdegree{} heading error against the commanded azimuth (\ensuremath{-}55\textdegree{} measured vs \ensuremath{-}56\textdegree{} commanded) on a \textasciitilde{}20-minute arc; yaw alignment at ignition within 1--3\textdegree{} on every measured hop. Figure 12 shows a measured trajectory.
 \item \textbf{Jump height and launch delivery:} direct odometry measurement of separation velocity (\S3.1) across $n=7$ stabilized hops gives a delivered-to-requested velocity ratio of median 0.193, mean 0.41, bimodally distributed --- 2/7 launches near-full delivery (mean ratio 0.95), 5/7 degraded by post-separation terrain contact (mean ratio 0.19). A representative clean flight (commanded 0.43 m hop, delivered ratio 0.94) reached apex within seconds of separation on the expected quasi-vertical arc; a representative degraded flight (commanded 9 m hop, delivered ratio 0.15) shows the terrain-drag signature directly in telemetry --- vertical delta-v climbing smoothly for over a minute past the point the commanded leg motion had already stopped, before settling to a much-reduced, still constant-velocity, ballistic value. Both are consequences of the terrain-contact effect characterized in \S3.1, not of an actuator torque deficit.
 \end{itemize}
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_hop_trajectory.png}
 \caption{Measured single-hop trajectory from odometry telemetry --- (a) the ballistic altitude profile over a multi-minute flight and (b) the straight-line ground track.}
-\label{fig:13}
+\label{fig:12}
 \end{figure}
 \begin{itemize}
 \item \textbf{Flight stabilization:} in-flight body rates damped to 0.005--0.015 rad/s; launch transients of 0.24 rad/s removed within seconds; no persistent yaw spin. A commanded 107\textdegree{} yaw slew converged overdamped and held within 1\textdegree{} at zero rate; a 165\textdegree{} tumble was damped to 3.6\textdegree{} in \textasciitilde{}20 s.
 \item \textbf{Self-righting (tilt-dependent, honestly characterized).} A dedicated re-verification exposed, and then drove the redesign of, the reaction-wheel righting maneuver (\S3.3). The pre-redesign maneuver succeeded in only \textbf{5 of 21 attempts (24\%)} over a long run: inverted bodies rolled onto their side and \emph{stalled} there, and each failure triggered a spurious low-velocity liftoff that sent the robot on an uncommanded multi-minute-to-hour re-flight --- the parasitic cascades that dominated earlier runs. The redesigned maneuver (direction-aware roll, proportional-taper speed, tuck-then-deploy legs) eliminates that stall. Its reliability was then measured directly by teleporting resting robots to controlled inversions and scoring recovery, and the result is genuinely tilt-dependent, so it is reported as such rather than as a single figure: the \textbf{mild-to-moderate tilts characteristic of an actual milli-gravity landing recovered reliably} (every such case in the sample), while a body forced to a \textbf{perfect full inversion} --- balanced on its dome and often wedged against a terrain feature --- recovered in only about \textbf{one case in four}, the residual failure being a physically-trapped configuration that internal reaction-wheel actuation cannot roll out of. A successful roll completes in a few seconds of active rolling; multi-attempt sequences take longer. This is a substantial, measured improvement over the 24\% baseline, honestly bounded: the platform reliably rights the tilts it actually incurs, and does not claim to recover every adversarial inversion.
 \item \textbf{Landing:} decaying-bounce settle and confirmed LANDED in \textasciitilde{}14 min after a full-stroke hop; no false confirmations in flight and no post-landing self-ejection across the final verification runs.
 \item \textbf{Swarm autonomy (3 agents):} differentiated role allocation on first boot (RELAY + 2\ensuremath{\times} SCOUT), competitive auctions on detected anomalies, dispatch, range-matched directional hops, and cooldown-paced corrective re-hops --- the full loop operating without operator intervention.
-\item \textbf{Sampling cycle:} on a SAMPLER reaching its anomaly (arrival check against live odometry, 0.9 m from target on the verified run), the swarm layer autonomously deployed the core drill, completed the extraction dwell, stowed the core in carousel tube 1/3, and immediately re-tasked the agent to its next queued anomaly --- the complete arrive \ensuremath{\rightarrow} drill \ensuremath{\rightarrow} cache \ensuremath{\rightarrow} chain sequence executed by the autonomy stack with no operator input. Figures 13--15 document the sequence from live telemetry.
+\item \textbf{Sampling cycle:} on a SAMPLER reaching its anomaly (arrival check against live odometry, 0.9 m from target on the verified run), the swarm layer autonomously deployed the core drill, completed the extraction dwell, stowed the core in carousel tube 1/3, and immediately re-tasked the agent to its next queued anomaly --- the complete arrive \ensuremath{\rightarrow} drill \ensuremath{\rightarrow} cache \ensuremath{\rightarrow} chain sequence executed by the autonomy stack with no operator input. Figures 13 and 14 document the sequence from live telemetry.
 \end{itemize}
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_sampling_dashboard.png}
 \caption{Live mission dashboard at the moment of sampling: scout\_3 (bottom panel, SAMPLER role) reports "Deploying core sampler drill..." with the drill state EXTENDED (\ensuremath{-}0.10 m), while scout\_2 is en route to a second anomaly and scout\_1 holds the relay role.}
-\label{fig:14}
+\label{fig:13}
 \end{figure}
 
-\begin{figure}[!t]\centering
+\begin{figure}[!ht]\centering
 \includegraphics[width=\columnwidth]{fig_sampling.png}
 \caption{scout\_3 departing the sampling site on its next commanded hop after caching the core, navigation lights on, silhouetted against the Milky Way panorama. The green wireframe marks the just-sampled anomaly site.}
-\label{fig:15}
-\end{figure}
-
-\begin{figure}[!t]\centering
-\includegraphics[width=\columnwidth]{fig_sampling_dashboard_2.png}
-\caption{The dashboard moments later: scout\_3's core is cached (drill retracted) and the agent is already "En route to anomaly (34 m remaining)" --- carousel chaining lets one SAMPLER service consecutive targets before returning.}
-\label{fig:16}
+\label{fig:14}
 \end{figure}
 
 \subsection*{7.1 Validation Against Flight Heritage and Comparable Systems}
 
 Internal telemetry consistency ($v^2/2g$ apex-energy matching, restitution measurements, etc.) establishes that the simulation is self-consistent, but not that its operating regime is physically realistic. Three external checks:
 
-\textbf{Same body, real flight data.} MINERVA-II-1, deployed by Hayabusa2 onto this same asteroid at this same surface gravity ($1.14\times10^{-4}$ m/s\textsuperscript{2}, [1]), executed real hops on Ryugu [2]. Widely-reported mission figures place individual hop flight times on the order of minutes and horizontal displacements on the order of tens of metres --- a citation caveat is warranted here: [2] is JAXA's own mission media record, not a peer-reviewed flight-dynamics paper with tabulated per-hop data, so these figures are cited as broadly-reported mission characteristics rather than precise, individually-verifiable measurements. Even at that lower bar of precision, this platform's own measured flights span the same order of magnitude --- minutes-long ballistic arcs for metre-to-several-metre displacements (\S7, Figure 13) --- under the same gravity, on the same body, which is a materially stronger check than a scaled analogy from a different gravity regime would be. The comparison also frames the platform's principal advance over MINERVA-II precisely: MINERVA-II's eccentric-mass hopping mechanism [8] has no active in-flight steering and no reaction-wheel stabilization, where this work adds both --- directional targeting (\S3.1) and closed-loop attitude correction (\S3.2) on top of the same class of milli-gravity ballistic hopping MINERVA-II already flew successfully.
+\textbf{Same body, real flight data.} MINERVA-II-1, deployed by Hayabusa2 onto this same asteroid at this same surface gravity ($1.14\times10^{-4}$ m/s\textsuperscript{2}, [1]), executed real hops on Ryugu [2]. Widely-reported mission figures place individual hop flight times on the order of minutes and horizontal displacements on the order of tens of metres --- a citation caveat is warranted here: [2] is JAXA's own mission media record, not a peer-reviewed flight-dynamics paper with tabulated per-hop data, so these figures are cited as broadly-reported mission characteristics rather than precise, individually-verifiable measurements. Even at that lower bar of precision, this platform's own measured flights span the same order of magnitude --- minutes-long ballistic arcs for metre-to-several-metre displacements (\S7, Figure 12) --- under the same gravity, on the same body, which is a materially stronger check than a scaled analogy from a different gravity regime would be. The comparison also frames the platform's principal advance over MINERVA-II precisely: MINERVA-II's eccentric-mass hopping mechanism [8] has no active in-flight steering and no reaction-wheel stabilization, where this work adds both --- directional targeting (\S3.1) and closed-loop attitude correction (\S3.2) on top of the same class of milli-gravity ballistic hopping MINERVA-II already flew successfully.
 
 \textbf{Escape-velocity margin, empirically corroborated.} \S3.1.1 calculates $v_{esc} \approx 0.320$ m/s for Ryugu and keeps operational hop velocities well below it (a 9 m leg's $v_{req} = 0.043$ m/s is 7.5\ensuremath{\times} below $v_{esc}$; even a hypothetical single 127 m corner-to-corner hop stays 2.0\ensuremath{\times} below). MINERVA-II's many repeated hops on this same body, none of which escaped, are direct empirical proof that hop velocities safely bounded below $v_{esc}$ are achievable in practice on Ryugu specifically, not merely on paper.
 

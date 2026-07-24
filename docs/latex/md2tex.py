@@ -10,11 +10,10 @@ FIGFILE = {
     1:'heightmap_preview.png', 2:'fig_swarm_terrain.png', 3:'diagram1.pdf',
     4:'fig_robot_closeup.png', 5:'fig_hop_flight.png', 6:'fig_descent_terrain.png',
     7:'diagram2.pdf', 8:'fig_landed_scout.png', 9:'fig_recharge_dashboard.png',
-    10:'diagram3.pdf', 11:'fig_dashboard.png', 12:'diagram4.pdf',
-    13:'fig_hop_trajectory.png', 14:'fig_sampling_dashboard.png',
-    15:'fig_sampling.png', 16:'fig_sampling_dashboard_2.png',
+    10:'diagram3.pdf', 11:'diagram4.pdf', 12:'fig_hop_trajectory.png',
+    13:'fig_sampling_dashboard.png', 14:'fig_sampling.png',
 }
-DIAGRAMS = {3,7,10,12}
+DIAGRAMS = {3,7,10,11}
 
 UNI = [
     ('—','---'), ('–','--'),
@@ -114,7 +113,7 @@ def convert(md):
                 cm = re.match(r'\*Figure (\d+):\s*(.*?)\*\s*$', lines[j].strip()) if j < n else None
                 if cm:
                     fign = int(cm.group(1)); cap = cm.group(2); f = FIGFILE[fign]
-                    out.append(r'\begin{figure}[!t]\centering')
+                    out.append(r'\begin{figure}[!ht]\centering')
                     out.append(rf'\includegraphics[width=0.9\columnwidth]{{{f}}}')
                     out.append(rf'\caption{{{inline(cap)}}}')
                     out.append(rf'\label{{fig:{fign}}}')
@@ -139,7 +138,7 @@ def convert(md):
                 i += 1; continue
             f = FIGFILE[fign]
             width = '0.85\\columnwidth' if fign in DIAGRAMS else '\\columnwidth'
-            out.append(r'\begin{figure}[!t]\centering')
+            out.append(r'\begin{figure}[!ht]\centering')
             out.append(rf'\includegraphics[width={width}]{{{f}}}')
             out.append(rf'\caption{{{inline(cap)}}}')
             out.append(rf'\label{{fig:{fign}}}')
@@ -219,13 +218,16 @@ def render_table(rows):
     header = cells(rows[0])
     data = [cells(r) for r in rows[2:]]
     ncol = len(header)
-    colspec = '|'+'|'.join(['l']*ncol)+'|'
-    out = [r'\begin{table}[!t]\centering\footnotesize', rf'\begin{{tabular}}{{{colspec}}}', r'\hline']
-    out.append(' & '.join(inline(h) for h in header)+r' \\ \hline')
+    # span both columns (table*) and use tabularx X columns so long cell text
+    # WRAPS to the full text width instead of overflowing the page margin.
+    colspec = '|'+'|'.join(['X']*ncol)+'|'
+    out = [r'\begin{table*}[!t]\centering\footnotesize',
+           rf'\begin{{tabularx}}{{\textwidth}}{{{colspec}}}', r'\hline']
+    out.append(' & '.join(r'\textbf{'+inline(h)+'}' for h in header)+r' \\ \hline')
     for d in data:
         d = (d+['']*ncol)[:ncol]
         out.append(' & '.join(inline(c) for c in d)+r' \\ \hline')
-    out += [r'\end{tabular}', r'\end{table}']
+    out += [r'\end{tabularx}', r'\end{table*}']
     return '\n'.join(out)
 
 # ---- build ----
@@ -241,12 +243,14 @@ preamble = r'''\documentclass[conference]{IEEEtran}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{textcomp}
+\usepackage{tabularx}
 \usepackage{url}
 \IEEEoverridecommandlockouts
 \begin{document}
 \title{''' + title_tex + r'''}
-\author{\IEEEauthorblockN{Melvin Jacob Sajan\IEEEauthorrefmark{1}\quad Dr.~Vyshak Sureshkumar\IEEEauthorrefmark{1}\thanks{\IEEEauthorrefmark{1}Corresponding author: Dr.~Vyshak Sureshkumar.}}
-\IEEEauthorblockA{Department of Mechatronics Engineering\\ Manipal Academy of Higher Education, Dubai\\ melvinsajan20@gmail.com}}
+\author{\IEEEauthorblockN{Melvin Jacob Sajan\quad Dr.~Vyshak Sureshkumar$^{*}$}
+\IEEEauthorblockA{Department of Mechatronics Engineering\\ Manipal Academy of Higher Education, Dubai\\ melvinsajan20@gmail.com}
+\thanks{$^{*}$Corresponding author: Dr.~Vyshak Sureshkumar.}}
 \maketitle
 '''
 
