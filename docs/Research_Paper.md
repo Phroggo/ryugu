@@ -266,7 +266,9 @@ At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective 
 
 ### 4.1 Energy Budget
 
-This subsection is a component-level design estimate, not simulated telemetry — distinct from every other numeric claim in this paper. The swarm simulation itself models battery state with a simplified, role-based percentage-drain rate (§4.3), not a watt-level subsystem power budget, and the two are deliberately *not* on the same timescale: at the sim's deployed role rates (0.05–0.15%/2 s tick, §4.3) a full discharge takes on the order of 20–70 minutes of sim time, whereas the watt-level estimate below implies ~10.5 h of real endurance — the sim drain is intentionally accelerated by roughly an order of magnitude so that battery-reserve gating and the RECHARGE role are actually exercised within a short demonstration run, rather than being a physical power model. The table below is the physical estimate: it sizes the pack against plausible subsystem draws for the hardware of §3. Powered by a 37.0 Wh space-grade lithium-ion pack:
+This subsection is a component-level design estimate, not simulated telemetry — distinct from every other numeric claim in this paper. The swarm simulation itself models battery state with a simplified, role-based percentage-drain rate (§4.3), not a watt-level subsystem power budget, and the two are deliberately *not* on the same timescale: at the sim's deployed role rates (0.05–0.15%/2 s tick, §4.3) a full discharge takes on the order of 20–70 minutes of sim time, whereas the watt-level estimate below implies ~10.5 h of real endurance — the sim drain is intentionally accelerated by roughly an order of magnitude so that battery-reserve gating and the RECHARGE role are actually exercised within a short demonstration run, rather than being a physical power model. Table IV below is the physical estimate: it sizes the pack against plausible subsystem draws for the hardware of §3. Powered by a 37.0 Wh space-grade lithium-ion pack:
+
+**Table IV. Component-Level Power Budget by Operational State**
 
 | Operational State | Subsystem | Peak Power (W) | Avg Continuous Power (W) |
 | :--- | :--- | :--- | :--- |
