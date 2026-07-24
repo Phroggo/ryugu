@@ -14,6 +14,13 @@ FIGFILE = {
     13:'fig_sampling_dashboard.png', 14:'fig_sampling.png',
 }
 DIAGRAMS = {3,7,10,11}
+# per-figure width override (fraction of \columnwidth). Fig 1 is a large square
+# heightmap; shrinking it lets it sit under its own section (2.1) instead of
+# floating to the next page as a full-column block.
+FIGWIDTH = {1:'0.72\\columnwidth'}
+# per-figure float placement override. Fig 1 is forced [H] (exactly here, right
+# under its own section 2.1) now that it is small enough to fit; others float.
+FIGPLACE = {1:'H'}
 
 UNI = [
     ('—','---'), ('–','--'),
@@ -113,7 +120,7 @@ def convert(md):
                 cm = re.match(r'\*Figure (\d+):\s*(.*?)\*\s*$', lines[j].strip()) if j < n else None
                 if cm:
                     fign = int(cm.group(1)); cap = cm.group(2); f = FIGFILE[fign]
-                    out.append(r'\begin{figure}[!ht]\centering')
+                    out.append(r'\begin{figure}[!tbp]\centering')
                     out.append(rf'\includegraphics[width=0.9\columnwidth]{{{f}}}')
                     out.append(rf'\caption{{{inline(cap)}}}')
                     out.append(rf'\label{{fig:{fign}}}')
@@ -137,8 +144,8 @@ def convert(md):
             if fign is None:
                 i += 1; continue
             f = FIGFILE[fign]
-            width = '0.85\\columnwidth' if fign in DIAGRAMS else '\\columnwidth'
-            out.append(r'\begin{figure}[!ht]\centering')
+            width = FIGWIDTH.get(fign, '0.85\\columnwidth' if fign in DIAGRAMS else '\\columnwidth')
+            out.append(rf'\begin{{figure}}[{FIGPLACE.get(fign, "!tbp")}]\centering')
             out.append(rf'\includegraphics[width={width}]{{{f}}}')
             out.append(rf'\caption{{{inline(cap)}}}')
             out.append(rf'\label{{fig:{fign}}}')
@@ -244,12 +251,13 @@ preamble = r'''\documentclass[conference]{IEEEtran}
 \usepackage{amsmath,amssymb}
 \usepackage{textcomp}
 \usepackage{tabularx}
+\usepackage{float}
 \usepackage{url}
 \IEEEoverridecommandlockouts
 \begin{document}
 \title{''' + title_tex + r'''}
 \author{\IEEEauthorblockN{Melvin Jacob Sajan\quad Dr.~Vyshak Sureshkumar$^{*}$}
-\IEEEauthorblockA{Department of Mechatronics Engineering\\ Manipal Academy of Higher Education, Dubai\\ melvinsajan20@gmail.com}
+\IEEEauthorblockA{Department of Mechatronics Engineering\\ Manipal Academy of Higher Education, Dubai}
 \thanks{$^{*}$Corresponding author: Dr.~Vyshak Sureshkumar.}}
 \maketitle
 '''
