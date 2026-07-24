@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant S3 as scout_3 (SCOUT)
+    participant SM as swarm manager
+    participant S2 as scout_2 (winner)
+    S3->>SM: spectral anomaly detected at (x, y)
+    SM->>SM: collect bids from eligible SCOUTs<br/>(distance + battery + carousel penalties)
+    Note over SM: e.g. scout_2 = 29.1 vs scout_3 = 40.8 → scout_2 wins
+    SM->>S2: assign SAMPLER role, heading + 9 m leg
+    loop until within 3 m of target (≤5 corrective re-hops)
+        S2->>S2: yaw-align → leaned hop → land → settle
+        S2->>SM: odometry (arrival check)
+        SM->>S2: next range-matched leg
+    end
+    S2->>S2: drill dwell (8 s), stow core in carousel
+    alt carousel has room and queue non-empty
+        SM->>S2: chain to next anomaly
+    else
+        SM->>S2: return to SCOUT (or RECHARGE if SoC low)
+    end
