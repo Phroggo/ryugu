@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph Coordination
+        SM[swarm manager<br/>auction / roles / tasking]
+        GUI[telemetry dashboard]
+    end
+    subgraph Per-agent controllers
+        HOP[hopper locomotion<br/>crouch–launch state machine]
+        ATT[attitude controller<br/>torque-based RW control]
+        LAND[landing controller<br/>touchdown / righting]
+    end
+    subgraph Simulation
+        BR[ROS–Gazebo bridge<br/>per-agent, YAML-configured]
+        GZ[Gazebo Harmonic<br/>DART physics]
+    end
+    SM -- "jump target, heading" --> HOP & ATT
+    HOP -- "jump initiated" --> LAND & ATT
+    LAND -- "landed, righting active" --> HOP & ATT
+    HOP -- "leg position cmds" --> BR
+    ATT -- "wheel velocity cmds" --> BR
+    LAND -- "wheel cmds (righting)" --> BR
+    BR <--> GZ
+    BR -- "IMU, odometry" --> ATT & LAND & SM & GUI

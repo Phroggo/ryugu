@@ -1,0 +1,13 @@
+stateDiagram-v2
+    direction LR
+    [*] --> IDLE
+    IDLE --> CROUCH : jump target received<br/>(wake physics, leaned crouch)
+    CROUCH --> LAUNCH : 10 s stroke loading
+    LAUNCH --> FLIGHT : 1 s extension,<br/>legs retract
+    FLIGHT --> CONTACT : impact spike OR<br/>rest window
+    CONTACT --> LANDED : settle confirmed<br/>(velocity + altitude gates)
+    CONTACT --> FLIGHT : genuine bounce<br/>(velocity-gated)
+    CONTACT --> RIGHTING : settled tilted/inverted<br/>(u_z < 0.85)
+    RIGHTING --> CONTACT : upright<br/>(RW roll)
+    LANDED --> FLIGHT : liftoff watchdog<br/>(|v| > 2 cm/s)
+    LANDED --> IDLE : next task accepted

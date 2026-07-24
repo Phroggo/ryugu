@@ -1,0 +1,13 @@
+flowchart TD
+    subgraph Field["Tasking field, +/-45 m"]
+        T1["Sector 1 (0-120 deg)<br/>scout_1 territory"]
+        T2["Sector 2 (120-240 deg)<br/>scout_2 territory"]
+        T3["Sector 3 (240-360 deg)<br/>scout_3 territory"]
+    end
+    T1 -.grid cell staleness.-> G1[Coverage grid<br/>10 m cells, last-visited tick]
+    T2 -.grid cell staleness.-> G1
+    T3 -.grid cell staleness.-> G1
+    G1 --> SCORE["score = staleness - k * distance"]
+    SCORE --> PICK["hop toward highest-scoring<br/>cell in own sector"]
+    PICK --> MARK["mark cell visited on arrival<br/>(anomaly roll within sensor range)"]
+    MARK -.re-scores on next cycle.-> G1
