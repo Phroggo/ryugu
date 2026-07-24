@@ -188,6 +188,12 @@ The maneuver rolls the body upright with the reaction wheels, and its final form
 * **Proportional-taper speed.** A single continuous roll speed tapers from strong far from upright down to gentle at the $u_z > 0.9$ success threshold, with a mild rate-damping term. An earlier two-speed design with a discrete strong/gentle handoff was found to *stall the body at the handoff point* (the sharp speed drop braked the roll exactly where it needed to continue), and simply raising the single speed instead made the body *overshoot and tumble past upright*; the taper resolves both.
 * **Tuck-then-deploy legs.** The legs are tucked compact while the body is far from upright — a splayed tripod is a wide contact base the roll must lift over, and tucking makes the body roll like a cylinder (this alone took measured success from 24% to the majority of cases) — and the tripod is then *re-deployed* as the body nears upright, so the feet capture it into the stable upright equilibrium instead of balancing on an edge and stalling short. Leg motion is suppressed near upright otherwise, because a posture step is itself a launch impulse in milli-gravity (a fold step at a marginal tilt was measured ejecting the robot into a multi-minute parasitic arc).
 
+Fig. 7 captures this tucked transition live, mid-roll during a real righting maneuver.
+
+![Tuck-then-deploy leg posture during self-righting](fig_tuck_deploy.png)
+
+*Figure 7: A scout mid-righting-roll: one leg tucked compact against the body while the other two remain extended — the transitional posture between the tucked (cylinder-roll) and re-deployed (upright-capture) phases described above.*
+
 Net wheel momentum returns to approximately zero at completion, so the handoff back to attitude control imparts no kick, and during any righting maneuver an explicit arbitration flag silences the attitude controller (two nodes commanding one wheel is a silent last-write-wins conflict, §8). Measured reliability is tilt-dependent and is reported honestly in §7: the redesign eliminated the dominant on-side stall, and the mild-to-moderate tilts typical of an actual milli-gravity landing recover reliably; a body forced to a *perfect* full inversion and wedged against a terrain feature is the residual hard case, which internal reaction-wheel actuation cannot always roll out of.
 
 An earlier self-righting strategy used the legs themselves, not the reaction wheels, to lever the body upright: alternating phases of splaying the tripod and sweeping one leg pushed against the regolith to roll the chassis, similar to a person pushing an arm against the floor to sit up. This depended on the leg segments making extended, gripping contact with the terrain along their length. It was retired for two compounding reasons: first, when the leg collision geometry was later simplified to point-like foot spheres (needed elsewhere in the model), the legs lost any extended contact surface to push through, only a point contact remained; second, the joint damping introduced in §3.4 to eliminate landing-impact energy pumping also damped the fast sweep motion this strategy relied on. With its ground leverage gone and its sweep speed suppressed, the mechanism no longer had a physical basis to work, and self-righting was moved entirely to the reaction-wheel maneuver described above.
@@ -200,19 +206,19 @@ Touchdown detection on a milli-g body faces a fundamental ambiguity: an accelero
 * **Rest windows** — altitude confined to a ±2 cm band for 60 s with velocity below 5 mm/s. The window length is set against worst-case *two-sided apex dwell*: near the top of a ballistic arc, a coasting body lingers within an altitude band of half-width $b$ around the apex point for up to $2\sqrt{2b/g}$ before its altitude drifts back out of that band — this is the flight condition the rest-window detector must not mistake for landing. At $b = 2$ cm (the deployed ±2 cm band), that worst-case dwell is $\approx37.5$ s, so a 60 s rest window cannot false-fire in flight. A velocity-only fallback (|v| < 5 mm/s for 120 s) carries an altitude-drift guard, because free-fall *from rest* also satisfies a pure velocity gate for its first ~44 s ($v = gt$) — a resting robot cannot drift 5 cm; a falling one always does within the window.
 * **Liftoff watchdog** — LANDED is not terminal: sustained velocity above 2 cm/s reverts the state machine to FLIGHT, because "landed" must remain true in the physics, not merely in the software.
 
-Fig. 7 sketches these bands schematically against a representative hop.
+Fig. 8 sketches these bands schematically against a representative hop.
 
 ![Landing-detector bands schematic](landing_detector_bands_sketch.png)
 
-*Figure 7: Landing-detector bands referenced above — the contact-spike acceleration threshold and the apex-dwell/rest-window altitude bands (schematic, not measured telemetry).*
+*Figure 8: Landing-detector bands referenced above — the contact-spike acceleration threshold and the apex-dwell/rest-window altitude bands (schematic, not measured telemetry).*
 
-Fig. 8 shows a scout during final descent over this terrain, moments before the detector above must confirm touchdown.
+Fig. 9 shows a scout during final descent over this terrain, moments before the detector above must confirm touchdown.
 
 ![Final descent over uneven terrain](fig_descent_terrain.png)
 
-*Figure 8: Final descent over the ridged heightmap terrain — the antenna shadow on the regolith below marks the touchdown point the detector must confirm.*
+*Figure 9: Final descent over the ridged heightmap terrain — the antenna shadow on the regolith below marks the touchdown point the detector must confirm.*
 
-After confirmation, the legs simply hold their landing pose. No posture is commanded at or after touchdown — a design rule with an empirical basis (§3.4.1). The complete locomotion cycle, spanning both controllers, is shown in Fig. 9:
+After confirmation, the legs simply hold their landing pose. No posture is commanded at or after touchdown — a design rule with an empirical basis (§3.4.1). The complete locomotion cycle, spanning both controllers, is shown in Fig. 10:
 
 ```mermaid
 stateDiagram-v2
@@ -230,7 +236,7 @@ stateDiagram-v2
     LANDED --> IDLE : next task accepted
 ```
 
-*Figure 9: The hop–land–right cycle. Attitude control runs during FLIGHT (motion-gated), stands down during RIGHTING, and holds yaw only when grounded.*
+*Figure 10: The hop–land–right cycle. Attitude control runs during FLIGHT (motion-gated), stands down during RIGHTING, and holds yaw only when grounded.*
 
 #### 3.4.1 Impact Dissipation: Why Active Compliance Fails in Milli-Gravity
 
@@ -256,11 +262,11 @@ The deployed solution places dissipation where phase lag cannot exist: passive j
 | **0.05 (deployed)** | **24.9 mm/s** | **decaying bounces; confirmed landing in ~14 min** |
 | 0.15 | few mm/s | overdamped launch; landing benign |
 
-At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective vertical stiffness ≈48 N/m against the 2.5 kg mass), giving restitution $e \approx e^{-\pi\zeta/\sqrt{1-\zeta^2}} \approx 0.2$ — bounces decay within two to three cycles — while the launch stroke retains a 35% separation-velocity margin over the 3 m-hop requirement. Series-elastic launch elements, which decouple launch delta-v from joint damping entirely, remain the recommended mechanism for flight hardware [5]. Fig. 10 shows the confirmed-landed end state this stack is designed to reach.
+At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective vertical stiffness ≈48 N/m against the 2.5 kg mass), giving restitution $e \approx e^{-\pi\zeta/\sqrt{1-\zeta^2}} \approx 0.2$ — bounces decay within two to three cycles — while the launch stroke retains a 35% separation-velocity margin over the 3 m-hop requirement. Series-elastic launch elements, which decouple launch delta-v from joint damping entirely, remain the recommended mechanism for flight hardware [5]. Fig. 11 shows the confirmed-landed end state this stack is designed to reach.
 
 ![A settled landing](fig_landed_scout.png)
 
-*Figure 10: The end state the landing stack is built to reach — a scout settled upright on its legs after a completed hop, holding its landing pose with no commanded motion.*
+*Figure 11: The end state the landing stack is built to reach — a scout settled upright on its legs after a completed hop, holding its landing pose with no commanded motion.*
 
 ## 4. Power and Communication Systems
 
@@ -278,11 +284,11 @@ This subsection is a component-level design estimate, not simulated telemetry �
 | **Intermittent** | Micro-corer drill (300 s sequence) | 3.00 | 0.023 |
 | | **Total estimated draw** | **16.00** | **3.53** |
 
-Continuous operation yields an estimated 10.5 h of shadowed endurance; the top-mounted GaAs arrays (28% efficiency) generate ~3.5 W net at 1.2 AU, allowing full recovery over the diurnal cycle. In the swarm layer, recharge is modeled as a dedicated RECHARGE role with battery-reserve gating (§4.3), shown live in Fig. 11. The dashboard deliberately reports charge/discharge state only, not a numeric rate: as noted above, the sim's per-tick drain constants are accelerated roughly an order of magnitude past the physical estimate for demo pacing, so a displayed rate would not be a verifiable physical quantity.
+Continuous operation yields an estimated 10.5 h of shadowed endurance; the top-mounted GaAs arrays (28% efficiency) generate ~3.5 W net at 1.2 AU, allowing full recovery over the diurnal cycle. In the swarm layer, recharge is modeled as a dedicated RECHARGE role with battery-reserve gating (§4.3), shown live in Fig. 12. The dashboard deliberately reports charge/discharge state only, not a numeric rate: as noted above, the sim's per-tick drain constants are accelerated roughly an order of magnitude past the physical estimate for demo pacing, so a displayed rate would not be a verifiable physical quantity.
 
 ![Battery management in action](fig_recharge_dashboard.png)
 
-*Figure 11: The power model operating live — a scout depleted to 25% has been reassigned to RECHARGE and is actively charging while its squadmates continue their own tasks.*
+*Figure 12: The power model operating live — a scout depleted to 25% has been reassigned to RECHARGE and is actively charging while its squadmates continue their own tasks.*
 
 ### 4.2 Swarm Communication
 
@@ -298,7 +304,7 @@ where $d_a$ is straight-line distance to the target, $\mathrm{SoC}_a$ the batter
 
 The auction and the routing decision are not solved separately. Every eligible bidder proposes a bid against *every* anomaly currently queued, not just the oldest one, and the globally cheapest (agent, target) pair wins — folding the nearest-neighbor route-selection logic of §5.2 directly into task allocation rather than treating "who goes" and "where do they go first" as two independent steps. This closed a real inefficiency: with FIFO-only dispatch, a newly-detected anomaly much closer to an idle agent still had to wait behind an older, farther one simply because it queued later. This is a simplified, single-target instance of a broader result already established in the multi-robot task-allocation literature: auction bids that incorporate route or insertion cost directly outperform pipelines that allocate first and route afterward as two separate steps [36]; the platform's mechanism keeps this to a single-target bid rather than a full multi-target route-insertion cost, which is sufficient at the current three-agent, single-active-queue fleet scale.
 
-The complete tasking flow for one anomaly is shown in Fig. 12:
+The complete tasking flow for one anomaly is shown in Fig. 13:
 
 ```mermaid
 sequenceDiagram
@@ -322,7 +328,7 @@ sequenceDiagram
     end
 ```
 
-*Figure 12: Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.*
+*Figure 13: Auction-based tasking and sampling sequence, as executed live by the three-agent swarm.*
 
 Robustness mechanisms, each mapped to an observed failure mode of naive dispatching: unfinished tasks are re-queued when an agent is forced to RECHARGE or drops offline (10 s odometry-liveness watchdog); arrival is gated on real odometry (within 4 m *and* landed); journeys are dispatched as range-matched legs of at most the measured 9 m hop range, with up to five cooldown-paced corrective re-hops held as an error-correction reserve; core extraction occupies a finite 8 s drill dwell so the power model reflects a real duty cycle; and task coordinates are clamped inside the physical containment boundary, so no assignment is unreachable by construction.
 
@@ -340,7 +346,7 @@ An anomaly cannot be auctioned (§4.3) until it has been found, and finding it i
 * **A coverage grid.** A coarse $10$ m grid over the field records the simulation tick at which each cell was last visited by an agent operating in the SCOUT role. The cell size is not arbitrary: it is matched to the platform's own maximum hop range (9 m, §3.1), which is the natural resolution for a hop-based searcher — a cell any smaller than one hop would let a single hop skip over unvisited cells (leaving coverage holes the staleness score cannot see), while a cell much larger would blur distinct reachable locations into one. At 10 m per cell the $\pm45$ m field partitions into a $9\times9 = 81$-cell search space, coarse enough that one maximal hop reliably advances into a new cell yet fine enough for the staleness scoring below to discriminate between candidates. It remains a resolution choice rather than a derived optimum, but a principled one tied to the hop range.
 * **Greedy, cost-aware target selection.** A SCOUT that is landed and past a settling cooldown selects the highest-scoring cell in its own sector, where score trades cell staleness (ticks since last visited) against travel cost (distance penalty), and dispatches a hop toward it. This is a simplified, deterministic instance of the budget-constrained informative-search family in the multi-robot exploration literature [16, 17]: full online planning approaches in that family (distributed Monte Carlo Tree Search [17], deep-RL policies over Voronoi cells or constrained sensor models [15, 18]) were surveyed and explicitly not adopted for this platform — training infrastructure and online search depth are disproportionate to a three-agent team operating over a field this size, and a greedy rule is directly explainable and auditable, which a learned policy is not.
 
-Fig. 13 summarizes the resulting data flow.
+Fig. 14 summarizes the resulting data flow.
 
 ```mermaid
 flowchart TD
@@ -358,7 +364,7 @@ flowchart TD
     MARK -.re-scores on next cycle.-> G1
 ```
 
-*Figure 13: Search algorithm data flow. Each agent scores candidate cells only within its own static sector, so the three searches never compete for the same ground.*
+*Figure 14: Search algorithm data flow. Each agent scores candidate cells only within its own static sector, so the three searches never compete for the same ground.*
 
 **Result.** Live-verified over a 9-minute run: agents that previously never moved outside of an assigned task now dispatch search hops autonomously (e.g. a scout with no queued task hopping toward $[-10.0, 0.0]$, $10.0$ m away, purely from coverage staleness), and the anomaly-detection rate measurably outpaced the fleet's physical capacity to service targets — a 41-anomaly backlog accumulated within roughly nine minutes against a single-hop-per-tick, minutes-long-flight-time servicing rate. This is an honest characterization of the platform, not a defect: detection is a cheap per-tick event, while visiting a target requires a multi-minute hop-and-settle cycle, so a real deployment's SCOUT:SAMPLER ratio and battery-reserve threshold (§4.3) are the actual levers for balancing discovery against throughput, not the search algorithm itself.
 
@@ -393,31 +399,31 @@ Unlike explosive kinetic impactors, the SpaceHopper performs delicate, non-destr
 All results below are from live closed-loop simulation telemetry (onboard attitude sensors, odometry, and physics-engine ground truth), not open-loop estimates.
 
 * **Launch:** rate-commandable separation via the eased full-stroke ramp (§3.1); vertical delta-v delivered on demand up to ~60–70 mm/s with the launch handshake producing zero false landing triggers across the final verification runs. Clean ballistic arcs with apex energy matching $v^2/2g$ within measurement noise.
-* **Directional range:** 4.3 m of ground displacement at 1° heading error against the commanded azimuth (−55° measured vs −56° commanded) on a ~20-minute arc; yaw alignment at ignition within 1–3° on every measured hop. Figure 14 shows a measured trajectory.
+* **Directional range:** 4.3 m of ground displacement at 1° heading error against the commanded azimuth (−55° measured vs −56° commanded) on a ~20-minute arc; yaw alignment at ignition within 1–3° on every measured hop. Figure 15 shows a measured trajectory.
 * **Jump height and launch delivery:** direct odometry measurement of separation velocity (§3.1) across $n=7$ stabilized hops gives a delivered-to-requested velocity ratio of median 0.193, mean 0.41, bimodally distributed — 2/7 launches near-full delivery (mean ratio 0.95), 5/7 degraded by post-separation terrain contact (mean ratio 0.19). A representative clean flight (commanded 0.43 m hop, delivered ratio 0.94) reached apex within seconds of separation on the expected quasi-vertical arc; a representative degraded flight (commanded 9 m hop, delivered ratio 0.15) shows the terrain-drag signature directly in telemetry — vertical delta-v climbing smoothly for over a minute past the point the commanded leg motion had already stopped, before settling to a much-reduced, still constant-velocity, ballistic value. Both are consequences of the terrain-contact effect characterized in §3.1, not of an actuator torque deficit.
 
 ![Measured hop trajectory](fig_hop_trajectory.png)
 
-*Figure 14: Measured single-hop trajectory from odometry telemetry — (a) the ballistic altitude profile over a multi-minute flight and (b) the straight-line ground track.*
+*Figure 15: Measured single-hop trajectory from odometry telemetry — (a) the ballistic altitude profile over a multi-minute flight and (b) the straight-line ground track.*
 * **Flight stabilization:** in-flight body rates damped to 0.005–0.015 rad/s; launch transients of 0.24 rad/s removed within seconds; no persistent yaw spin. A commanded 107° yaw slew converged overdamped and held within 1° at zero rate; a 165° tumble was damped to 3.6° in ~20 s.
 * **Self-righting (tilt-dependent, honestly characterized).** A dedicated re-verification exposed, and then drove the redesign of, the reaction-wheel righting maneuver (§3.3). The pre-redesign maneuver succeeded in only **5 of 21 attempts (24%)** over a long run: inverted bodies rolled onto their side and *stalled* there, and each failure triggered a spurious low-velocity liftoff that sent the robot on an uncommanded multi-minute-to-hour re-flight — the parasitic cascades that dominated earlier runs. The redesigned maneuver (direction-aware roll, proportional-taper speed, tuck-then-deploy legs) eliminates that stall. Its reliability was then measured directly by teleporting resting robots to controlled inversions and scoring recovery, and the result is genuinely tilt-dependent, so it is reported as such rather than as a single figure: the **mild-to-moderate tilts characteristic of an actual milli-gravity landing recovered reliably** (every such case in the sample), while a body forced to a **perfect full inversion** — balanced on its dome and often wedged against a terrain feature — recovered in only about **one case in four**, the residual failure being a physically-trapped configuration that internal reaction-wheel actuation cannot roll out of. A successful roll completes in a few seconds of active rolling; multi-attempt sequences take longer. This is a substantial, measured improvement over the 24% baseline, honestly bounded: the platform reliably rights the tilts it actually incurs, and does not claim to recover every adversarial inversion.
 * **Landing:** decaying-bounce settle and confirmed LANDED in ~14 min after a full-stroke hop; no false confirmations in flight and no post-landing self-ejection across the final verification runs.
 * **Swarm autonomy (3 agents):** differentiated role allocation on first boot (RELAY + 2× SCOUT), competitive auctions on detected anomalies, dispatch, range-matched directional hops, and cooldown-paced corrective re-hops — the full loop operating without operator intervention.
-* **Sampling cycle:** on a SAMPLER reaching its anomaly (arrival check against live odometry, 0.9 m from target on the verified run), the swarm layer autonomously deployed the core drill, completed the extraction dwell, stowed the core in carousel tube 1/3, and immediately re-tasked the agent to its next queued anomaly — the complete arrive → drill → cache → chain sequence executed by the autonomy stack with no operator input. Figures 15 and 16 document the sequence from live telemetry.
+* **Sampling cycle:** on a SAMPLER reaching its anomaly (arrival check against live odometry, 0.9 m from target on the verified run), the swarm layer autonomously deployed the core drill, completed the extraction dwell, stowed the core in carousel tube 1/3, and immediately re-tasked the agent to its next queued anomaly — the complete arrive → drill → cache → chain sequence executed by the autonomy stack with no operator input. Figures 16 and 17 document the sequence from live telemetry.
 
 ![Sampler drill deployed — mission dashboard](fig_sampling_dashboard.png)
 
-*Figure 15: Live mission dashboard at the moment of sampling: scout_3 (bottom panel, SAMPLER role) reports "Deploying core sampler drill..." with the drill state EXTENDED (−0.10 m), while scout_2 is en route to a second anomaly and scout_1 holds the relay role.*
+*Figure 16: Live mission dashboard at the moment of sampling: scout_3 (bottom panel, SAMPLER role) reports "Deploying core sampler drill..." with the drill state EXTENDED (−0.10 m), while scout_2 is en route to a second anomaly and scout_1 holds the relay role.*
 
 ![Sampler departing the sampling site](fig_sampling.png)
 
-*Figure 16: scout_3 departing the sampling site on its next commanded hop after caching the core, navigation lights on, silhouetted against the Milky Way panorama. The green wireframe marks the just-sampled anomaly site.*
+*Figure 17: scout_3 departing the sampling site on its next commanded hop after caching the core, navigation lights on, silhouetted against the Milky Way panorama. The green wireframe marks the just-sampled anomaly site.*
 
 ### 7.1 Validation Against Prior Flight Data and Comparable Hardware
 
 Internal telemetry consistency ($v^2/2g$ apex-energy matching, restitution measurements, etc.) establishes that the simulation is self-consistent, but not that its operating regime is physically realistic. Three external checks:
 
-**Same body, real flight data.** MINERVA-II-1, deployed by Hayabusa2 onto this same asteroid at this same surface gravity ($1.14\times10^{-4}$ m/s², [1]), executed real hops on Ryugu [2]. Widely-reported mission figures place individual hop flight times on the order of minutes and horizontal displacements on the order of tens of metres — a citation caveat is warranted here: [2] is JAXA's own mission media record, not a peer-reviewed flight-dynamics paper with tabulated per-hop data, so these figures are cited as broadly-reported mission characteristics rather than precise, individually-verifiable measurements. Even at that lower bar of precision, this platform's own measured flights span the same order of magnitude — minutes-long ballistic arcs for metre-to-several-metre displacements (§7, Figure 14) — under the same gravity, on the same body, which is a materially stronger check than a scaled analogy from a different gravity regime would be. The comparison also frames the platform's principal advance over MINERVA-II precisely: MINERVA-II's eccentric-mass hopping mechanism [8] has no active in-flight steering and no reaction-wheel stabilization, where this work adds both — directional targeting (§3.1) and closed-loop attitude correction (§3.2) on top of the same class of milli-gravity ballistic hopping MINERVA-II already flew successfully.
+**Same body, real flight data.** MINERVA-II-1, deployed by Hayabusa2 onto this same asteroid at this same surface gravity ($1.14\times10^{-4}$ m/s², [1]), executed real hops on Ryugu [2]. Widely-reported mission figures place individual hop flight times on the order of minutes and horizontal displacements on the order of tens of metres — a citation caveat is warranted here: [2] is JAXA's own mission media record, not a peer-reviewed flight-dynamics paper with tabulated per-hop data, so these figures are cited as broadly-reported mission characteristics rather than precise, individually-verifiable measurements. Even at that lower bar of precision, this platform's own measured flights span the same order of magnitude — minutes-long ballistic arcs for metre-to-several-metre displacements (§7, Figure 15) — under the same gravity, on the same body, which is a materially stronger check than a scaled analogy from a different gravity regime would be. The comparison also frames the platform's principal advance over MINERVA-II precisely: MINERVA-II's eccentric-mass hopping mechanism [8] has no active in-flight steering and no reaction-wheel stabilization, where this work adds both — directional targeting (§3.1) and closed-loop attitude correction (§3.2) on top of the same class of milli-gravity ballistic hopping MINERVA-II already flew successfully.
 
 **Escape-velocity margin, empirically corroborated.** §3.1.1 calculates $v_{esc} \approx 0.320$ m/s for Ryugu and keeps operational hop velocities well below it (a 9 m leg's $v_{req} = 0.043$ m/s is 7.5× below $v_{esc}$; even a hypothetical single 127 m corner-to-corner hop stays 2.0× below). MINERVA-II's many repeated hops on this same body, none of which escaped, are direct empirical proof that hop velocities safely bounded below $v_{esc}$ are achievable in practice on Ryugu specifically, not merely on paper.
 
