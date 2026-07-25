@@ -1,8 +1,22 @@
 # Robot Moment of Inertia (I_bot) — Worked Calculation
 
-Backs the claim in §3.2: "$I_{bot} = 0.012$–$0.020$ kg·m² about the body
-z-axis, posture-dependent (legs retracted vs. splayed), computed from the
-model's per-link inertias via the parallel-axis theorem."
+**Superseded by `compute_moi.py` in this same directory.** This file's
+single-static-pose result (0.018218 kg·m², SDF default/rest pose only) was
+the first-pass check and is kept below for the record, but it was never a
+real posture sweep — it used whatever leg angles happen to be the SDF's
+resting default, not the robot's actual commanded postures. `compute_moi.py`
+instead rotates each leg through the three joint angles the deployed nodes
+actually command (retracted flight-neutral, crouch, launch-extended) and
+gives a properly posture-varying range: **0.0160–0.0187 kg·m²**. That range
+does *not* reach the paper's previously-stated 0.012 lower bound — the
+paper text has been corrected to $I_{bot} = 0.016$–$0.019$ kg·m² (§3.2 and
+§7.1) to match what this model.sdf actually produces under commanded
+postures, rather than restating an unverified figure.
+
+Original note, retained for the record — backed the claim in §3.2 before
+correction: "$I_{bot} = 0.012$–$0.020$ kg·m² about the body z-axis,
+posture-dependent (legs retracted vs. splayed), computed from the model's
+per-link inertias via the parallel-axis theorem."
 
 **Method:** for each of the 12 links in the deployed
 `models/spacehopper/model.sdf`, rotate that link's local inertia tensor

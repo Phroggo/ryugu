@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Make each of the 4 tables (and its caption paragraph) span the full
+"""Make each of the 5 tables (and its caption paragraph) span the full
 page width, like a LaTeX table* -- by bracketing each table+caption with
 a continuous section break to 1-column, then back to 2-column
 afterward. Word cannot span a single table across live columns, so this
@@ -25,7 +25,7 @@ TO_2COL = break_para(2)
 # the very next </w:tbl> after it. Process in REVERSE so earlier offsets
 # stay valid while we insert text.
 captions = list(re.finditer(r'Table [IVX]+\.', xml))
-assert len(captions) == 4, f"expected 4 table captions, found {len(captions)}"
+assert len(captions) == 5, f"expected 5 table captions, found {len(captions)}"
 
 insertions = []  # (position, text) to splice in, applied in reverse order
 for m in captions:

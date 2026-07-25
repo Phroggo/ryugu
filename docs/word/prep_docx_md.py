@@ -13,7 +13,7 @@ OUT = 'paper_docx.md'
 # fresh grep of "*Figure N:" + "```mermaid" whenever figures are
 # renumbered -- this silently drops/mismatches diagrams otherwise, as
 # happened once already this session).
-DIAGRAM_PNG = {3: 'd1-1.png', 10: 'd2-1.png', 13: 'd3-1.png', 14: 'd4-1.png'}
+DIAGRAM_PNG = {3: 'd1-1.png', 12: 'd2-1.png', 15: 'd3-1.png', 16: 'd4-1.png'}
 
 md = open(SRC, encoding='utf-8').read()
 lines = md.split('\n')
