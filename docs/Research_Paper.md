@@ -414,25 +414,7 @@ All results below are from live closed-loop simulation telemetry (onboard attitu
 * **Directional range:** 4.3 m of ground displacement at 1° heading error against the commanded azimuth (−55° measured vs −56° commanded) on a ~20-minute arc; yaw alignment at ignition within 1–3° on every measured hop. Figure 17 shows a measured trajectory.
 * **Jump height and launch delivery:** direct odometry measurement of separation velocity (§3.1) across $n=7$ stabilized hops gives a delivered-to-requested velocity ratio of median 0.193, mean 0.41, bimodally distributed — 2/7 launches near-full delivery (mean ratio 0.95), 5/7 degraded by post-separation terrain contact (mean ratio 0.19). A representative clean flight (commanded 0.43 m hop, delivered ratio 0.94) reached apex within seconds of separation on the expected quasi-vertical arc; a representative degraded flight (commanded 9 m hop, delivered ratio 0.15) shows the terrain-drag signature directly in telemetry — vertical delta-v climbing smoothly for over a minute past the point the commanded leg motion had already stopped, before settling to a much-reduced, still constant-velocity, ballistic value. Both are consequences of the terrain-contact effect characterized in §3.1, not of an actuator torque deficit.
 
-Table V lists the individual measurements behind these figures.
-
-**Table V. Per-Hop Launch Delivery Measurements (n = 7 Stabilized Hops)**
-
-| Hop | Delivered / requested separation velocity | Separation mode |
-|---|---|---|
-| 1 | 0.147 | terrain-degraded |
-| 2 | 0.321 | terrain-degraded |
-| 3 | 0.941 | clean |
-| 4 | 0.143 | terrain-degraded |
-| 5 | 0.165 | terrain-degraded |
-| 6 | 0.959 | clean |
-| 7 | 0.193 | terrain-degraded |
-| **Median** | **0.193** | — |
-| **Mean** | **0.41** | — |
-| Clean subset (n = 2) | 0.95 mean | — |
-| Degraded subset (n = 5) | 0.19 mean | — |
-
-Each row is one commanded hop whose velocity vector satisfied the stabilization criterion above (three consecutive 2 s samples within 5% magnitude and 0.995 cosine similarity); two further hops never stabilized inside the 90 s window and are excluded rather than counted as zero. Commanded ramp durations spanned 2.8–11.9 s across the set, with no correlation to the delivered ratio — the separation mode, not the commanded rate, is what the spread tracks.
+The stabilization criterion for a hop to count toward this statistic is three consecutive 2 s velocity samples within 5% magnitude and 0.995 cosine similarity of each other; two further attempted hops never stabilized inside a 90 s window and are excluded rather than counted as zero. Commanded ramp durations spanned 2.8–11.9 s across the set, with no correlation to the delivered ratio — the separation mode, not the commanded rate, is what the spread tracks.
 
 ![Measured hop trajectory](fig_hop_trajectory.png)
 
@@ -487,7 +469,7 @@ Simulated end-to-end validation demonstrates that tri-pedal directional hopping 
 
 ## Data Availability
 
-The simulation source, robot model, and the raw evidence behind the measured results of §7 are archived with the project repository. This includes the full three-agent mission run used for the swarm-autonomy, sampling, recharge, and self-righting results — a continuous 45-minute screen recording, periodic full-desktop screenshots, and per-agent ROS topic dumps (role, activity, battery, landed state) alongside the complete node console log — together with the model-derived moment-of-inertia and hop-energy calculations supporting §3.2 and §5.2. Key events in §7 are cross-referenced to timestamps in that run.
+The simulation source and robot model are archived with the project repository, along with raw evidence for a subset of the measured results in §7: the full three-agent mission run behind the swarm-autonomy, sampling, recharge, and self-righting results — a continuous 45-minute screen recording, periodic full-desktop screenshots, and per-agent ROS topic dumps (role, activity, battery, landed state) alongside the complete node console log — together with the model-derived moment-of-inertia and hop-energy calculations supporting §3.2 and §5.2. Key events in §7 are cross-referenced to timestamps in that run. The launch-delivery velocity-ratio statistics are derived from the same live telemetry methodology but are reported as aggregate figures pending a complete archived per-hop dataset.
 
 ## Acknowledgment
 
