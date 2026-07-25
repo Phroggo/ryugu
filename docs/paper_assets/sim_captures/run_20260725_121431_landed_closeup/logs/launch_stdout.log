@@ -1,0 +1,427 @@
+[INFO] [launch]: All log files can be found below /home/melvin/.ros/log/2026-07-25-12-14-32-385387-ubuntu-mel-57602
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [gz-1]: process started with pid [57612]
+[INFO] [spawner-2]: process started with pid [57614]
+[INFO] [swarm_manager-3]: process started with pid [57616]
+[INFO] [swarm_gui-4]: process started with pid [57618]
+[INFO] [hopper_locomotion-5]: process started with pid [57620]
+[INFO] [attitude_controller-6]: process started with pid [57622]
+[INFO] [landing_controller-7]: process started with pid [57624]
+[INFO] [parameter_bridge-8]: process started with pid [57626]
+[INFO] [hopper_locomotion-9]: process started with pid [57628]
+[INFO] [attitude_controller-10]: process started with pid [57630]
+[INFO] [landing_controller-11]: process started with pid [57632]
+[INFO] [parameter_bridge-12]: process started with pid [57634]
+[INFO] [hopper_locomotion-13]: process started with pid [57636]
+[INFO] [attitude_controller-14]: process started with pid [57638]
+[INFO] [landing_controller-15]: process started with pid [57640]
+[INFO] [parameter_bridge-16]: process started with pid [57642]
+[hopper_locomotion-9] [INFO] [1784967272.987346201] [loco_scout_2]: [scout_2] Tri-Pedal Locomotion Engine: ONLINE
+[hopper_locomotion-5] [INFO] [1784967272.992675117] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[swarm_manager-3] [INFO] [1784967273.009582574] [swarm_manager_node]: 🧠 Ryugu Homogeneous Swarm Manager: ONLINE
+[landing_controller-15] [INFO] [1784967273.014992993] [landing_scout_3]: [scout_3] Landing Controller: ONLINE
+[hopper_locomotion-13] [INFO] [1784967273.033363540] [loco_scout_3]: [scout_3] Tri-Pedal Locomotion Engine: ONLINE
+[attitude_controller-14] [INFO] [1784967273.039576079] [attitude_scout_3]: [scout_3] Reaction Wheel Attitude Controller: ONLINE
+[attitude_controller-10] [INFO] [1784967273.051922238] [attitude_scout_2]: [scout_2] Reaction Wheel Attitude Controller: ONLINE
+[landing_controller-11] [INFO] [1784967273.055929278] [landing_scout_2]: [scout_2] Landing Controller: ONLINE
+[attitude_controller-6] [INFO] [1784967273.058588183] [attitude_scout_1]: [scout_1] Reaction Wheel Attitude Controller: ONLINE
+[landing_controller-7] [INFO] [1784967273.087336080] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[swarm_manager-3] [INFO] [1784967273.144370226] [swarm_manager_node]: Initiating Cooperative Mission Bidding Protocol...
+[spawner-2] data: true
+[spawner-2] 
+[parameter_bridge-12] [INFO] [1784967273.689364688] [bridge_scout_2]: Creating GZ->ROS Bridge: [/world/ryugu_world/model/scout_2/link/base_link/sensor/imu_sensor/imu (gz.msgs.IMU) -> /scout_2/imu (sensor_msgs/msg/Imu)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.689684698] [bridge_scout_3]: Creating GZ->ROS Bridge: [/world/ryugu_world/model/scout_3/link/base_link/sensor/imu_sensor/imu (gz.msgs.IMU) -> /scout_3/imu (sensor_msgs/msg/Imu)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.695376295] [bridge_scout_1]: Creating GZ->ROS Bridge: [/world/ryugu_world/model/scout_1/link/base_link/sensor/imu_sensor/imu (gz.msgs.IMU) -> /scout_1/imu (sensor_msgs/msg/Imu)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.768829221] [bridge_scout_1]: Creating GZ->ROS Bridge: [/model/scout_1/odometry (gz.msgs.Odometry) -> /scout_1/odometry (nav_msgs/msg/Odometry)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.768823913] [bridge_scout_3]: Creating GZ->ROS Bridge: [/model/scout_3/odometry (gz.msgs.Odometry) -> /scout_3/odometry (nav_msgs/msg/Odometry)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.768912192] [bridge_scout_2]: Creating GZ->ROS Bridge: [/model/scout_2/odometry (gz.msgs.Odometry) -> /scout_2/odometry (nav_msgs/msg/Odometry)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.773002761] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/rw_x_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_3/joint/rw_x_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.772996476] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/rw_x_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_1/joint/rw_x_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.773035167] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/rw_x_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_2/joint/rw_x_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.776424257] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/rw_y_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_1/joint/rw_y_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.776424257] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/rw_y_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_3/joint/rw_y_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.776440809] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/rw_y_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_2/joint/rw_y_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.777463975] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/rw_z_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_1/joint/rw_z_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.777519918] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/rw_z_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_3/joint/rw_z_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.778096383] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/rw_z_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_2/joint/rw_z_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.778736682] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_hip_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/hip_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.778779076] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/joint_hip_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_3/joint/hip_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.779826477] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/joint_hip_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_2/joint/hip_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.779886190] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_knee_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/knee_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.780507493] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/joint_knee_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_3/joint/knee_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.780883865] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_hip_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/hip_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.780941204] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/joint_knee_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_2/joint/knee_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.781895507] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_knee_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/knee_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.781974637] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/joint_hip_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_3/joint/hip_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.782265593] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/joint_hip_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_2/joint/hip_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.783021688] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_hip_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/hip_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.783228626] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/joint_knee_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_2/joint/knee_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.783354479] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/joint_knee_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_3/joint/knee_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.784478845] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_knee_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/knee_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.784867299] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/joint_hip_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_3/joint/hip_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.785057684] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/joint_hip_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_2/joint/hip_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-8] [INFO] [1784967273.785583096] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/cmd_drill (std_msgs/msg/Float64) -> /model/scout_1/joint/drill_joint/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.785982375] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/joint_knee_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_2/joint/knee_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.785981397] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/joint_knee_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_3/joint/knee_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-16] [INFO] [1784967273.787121197] [bridge_scout_3]: Creating ROS->GZ Bridge: [/scout_3/cmd_drill (std_msgs/msg/Float64) -> /model/scout_3/joint/drill_joint/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[parameter_bridge-12] [INFO] [1784967273.787324574] [bridge_scout_2]: Creating ROS->GZ Bridge: [/scout_2/cmd_drill (std_msgs/msg/Float64) -> /model/scout_2/joint/drill_joint/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[gz-1] libEGL warning: egl: failed to create dri2 screen
+[gz-1] libEGL warning: egl: failed to create dri2 screen
+[spawner-2] data: true
+[spawner-2] 
+[swarm_manager-3] [INFO] [1784967275.145041003] [swarm_manager_node]: 📡 scout_1 assuming RELAY role. Climbing to highest elevation.
+[swarm_manager-3] [INFO] [1784967275.145452434] [swarm_manager_node]: 🛰️ scout_2 assuming SCOUT role. Scanning regolith...
+[swarm_manager-3] [INFO] [1784967275.145822660] [swarm_manager_node]: 🛰️ scout_3 assuming SCOUT role. Scanning regolith...
+[swarm_manager-3] [INFO] [1784967275.146445499] [swarm_manager_node]: 🔭 scout_2 search hop toward [-10.0, 0.0] (10.0m, 9.0m leg)
+[attitude_controller-10] [INFO] [1784967275.146776474] [attitude_scout_2]: [scout_2] New target yaw received: -3.14 rad
+[swarm_manager-3] [INFO] [1784967275.146952402] [swarm_manager_node]: 🔭 scout_3 search hop toward [0.0, -10.0] (10.0m, 9.0m leg)
+[hopper_locomotion-9] [INFO] [1784967275.147243358] [loco_scout_2]: [scout_2] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 2.8s (full stroke)
+[attitude_controller-14] [INFO] [1784967275.147532499] [attitude_scout_3]: [scout_3] New target yaw received: -1.57 rad
+[hopper_locomotion-13] [INFO] [1784967275.147532499] [loco_scout_3]: [scout_3] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 2.8s (full stroke)
+[hopper_locomotion-9] [INFO] [1784967275.147898743] [loco_scout_2]: [scout_2] Initiating Tri-Pedal Jump Sequence!
+[hopper_locomotion-13] [INFO] [1784967275.147998755] [loco_scout_3]: [scout_3] Initiating Tri-Pedal Jump Sequence!
+[hopper_locomotion-9] [INFO] [1784967275.184731591] [loco_scout_2]: 1. Crouching (waking physics, planting feet under body)
+[hopper_locomotion-9] [WARN] [1784967275.185797220] [loco_scout_2]: [scout_2] No odometry yet — cannot wake model in place.
+[parameter_bridge-12] [INFO] [1784967275.187001902] [bridge_scout_2]: Passing message from ROS std_msgs/msg/Float64 to Gazebo gz.msgs.Double (showing msg only once per type)
+[hopper_locomotion-13] [INFO] [1784967275.209322069] [loco_scout_3]: 1. Crouching (waking physics, planting feet under body)
+[hopper_locomotion-13] [WARN] [1784967275.210218893] [loco_scout_3]: [scout_3] No odometry yet — cannot wake model in place.
+[parameter_bridge-16] [INFO] [1784967275.210609861] [bridge_scout_3]: Passing message from ROS std_msgs/msg/Float64 to Gazebo gz.msgs.Double (showing msg only once per type)
+[gz-1] [1;36mDbg[0m ODE Heightfield AABB: min = {-49.9512, -49.9512, -0.05} max = {49.9512, 49.9512, 5}
+[parameter_bridge-8] [INFO] [1784967275.322740791] [bridge_scout_1]: Passing message from ROS std_msgs/msg/Float64 to Gazebo gz.msgs.Double (showing msg only once per type)
+[attitude_controller-6] [INFO] [1784967275.324337348] [attitude_scout_1]: [scout_1] Airborne (landed=False) — tilt correction armed.
+[attitude_controller-10] [INFO] [1784967275.324517607] [attitude_scout_2]: [scout_2] Airborne (landed=False) — tilt correction armed.
+[spawner-2] data: true
+[spawner-2] 
+[attitude_controller-14] [INFO] [1784967276.211579456] [attitude_scout_3]: [scout_3] Airborne (landed=False) — tilt correction armed.
+[spawner-2] 🚀 Initiating Swarm Deployment Sequence...
+[spawner-2] Deploying scout_1 at [0.0, 0.5, 6.0]...
+[spawner-2] Deploying scout_2 at [8.0, -5.0, 6.0]...
+[spawner-2] Deploying scout_3 at [-8.0, -5.0, 6.0]...
+[spawner-2] ✅ Swarm Deployment Complete.
+[INFO] [spawner-2]: process has finished cleanly [pid 57614]
+[landing_controller-15] [INFO] [1784967278.123295612] [landing_scout_3]: [scout_3] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967278.143676639] [landing_scout_2]: [scout_2] Landing controller state: IDLE
+[landing_controller-7] [INFO] [1784967278.144697360] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967279.145049379] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [7.7, 3.4]!
+[landing_controller-11] [INFO] [1784967281.540289578] [landing_scout_2]: [scout_2] 🛫 Airborne while IDLE (v=0.060 m/s, free-fall accel) → FLIGHT mode armed
+[INFO] [bash-17]: process started with pid [58234]
+[INFO] [bash-17]: process has finished cleanly [pid 58234]
+[landing_controller-15] [INFO] [1784967283.123456444] [landing_scout_3]: [scout_3] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967283.143028905] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967283.145424156] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967285.145271532] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [16.2, 0.3]!
+[hopper_locomotion-9] [INFO] [1784967285.284293251] [loco_scout_2]: 2. IGNITION (stroke fraction=0.90, ramp=2.8s)
+[attitude_controller-10] [INFO] [1784967285.285991073] [attitude_scout_2]: [scout_2] Jump initiated. Flight mode active (tilt-PD held for stroke).
+[landing_controller-11] [INFO] [1784967285.285987302] [landing_scout_2]: [scout_2] 🚀 Jump detected → FLIGHT mode (contact detection blanked 40 s for launch)
+[hopper_locomotion-13] [INFO] [1784967285.308748183] [loco_scout_3]: 2. IGNITION (stroke fraction=0.90, ramp=2.8s)
+[attitude_controller-14] [INFO] [1784967285.310370997] [attitude_scout_3]: [scout_3] Jump initiated. Flight mode active (tilt-PD held for stroke).
+[landing_controller-15] [INFO] [1784967285.310610410] [landing_scout_3]: [scout_3] 🚀 Jump detected → FLIGHT mode (contact detection blanked 40 s for launch)
+[landing_controller-11] [INFO] [1784967285.315042838] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=0.0s v=0.00090 m/s (vx=-0.00003 vy=-0.00028 vz=-0.00086)
+[landing_controller-15] [INFO] [1784967285.750516763] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=0.4s v=0.05163 m/s (vx=-0.00080 vy=-0.00043 vz=0.05163)
+[landing_controller-11] [INFO] [1784967287.361527494] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=2.1s v=0.00414 m/s (vx=-0.00058 vy=0.00006 vz=-0.00410)
+[landing_controller-15] [INFO] [1784967287.762309094] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=2.5s v=0.00538 m/s (vx=-0.00124 vy=-0.00001 vz=-0.00523)
+[landing_controller-15] [INFO] [1784967288.123870351] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967288.142913401] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967288.144107044] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[hopper_locomotion-9] [INFO] [1784967288.484691249] [loco_scout_2]: 3. Separation — holding extension for clearance, then slow retract (FLIGHT)
+[attitude_controller-10] [INFO] [1784967288.485837890] [attitude_scout_2]: [scout_2] Separation — tilt correction engaged.
+[hopper_locomotion-13] [INFO] [1784967288.509976849] [loco_scout_3]: 3. Separation — holding extension for clearance, then slow retract (FLIGHT)
+[attitude_controller-14] [INFO] [1784967288.511991537] [attitude_scout_3]: [scout_3] Separation — tilt correction engaged.
+[landing_controller-11] [INFO] [1784967289.415528050] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=4.1s v=0.00116 m/s (vx=0.00020 vy=0.00009 vz=-0.00114)
+[landing_controller-15] [INFO] [1784967289.766766275] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=4.5s v=0.00110 m/s (vx=0.00001 vy=0.00000 vz=-0.00110)
+[landing_controller-11] [INFO] [1784967291.466501264] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=6.2s v=0.00132 m/s (vx=0.00000 vy=0.00004 vz=-0.00132)
+[landing_controller-15] [INFO] [1784967291.830250277] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=6.5s v=0.00128 m/s (vx=0.00001 vy=-0.00000 vz=-0.00128)
+[landing_controller-15] [INFO] [1784967293.124349742] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967293.143118579] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967293.144735524] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967293.146323624] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-6.9, -9.7]!
+[landing_controller-11] [INFO] [1784967293.513831369] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=8.2s v=0.00146 m/s (vx=0.00000 vy=0.00002 vz=-0.00146)
+[landing_controller-15] [INFO] [1784967293.892798664] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=8.6s v=0.00141 m/s (vx=0.00001 vy=-0.00000 vz=-0.00141)
+[landing_controller-11] [INFO] [1784967295.523448928] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=10.2s v=0.00161 m/s (vx=0.00000 vy=0.00014 vz=-0.00160)
+[landing_controller-15] [INFO] [1784967295.894234273] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=10.6s v=0.00156 m/s (vx=0.00001 vy=-0.00000 vz=-0.00156)
+[swarm_manager-3] [INFO] [1784967297.145373050] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-13.7, -12.2]!
+[landing_controller-11] [INFO] [1784967297.530354833] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=12.2s v=0.00252 m/s (vx=-0.00238 vy=0.00002 vz=-0.00083)
+[landing_controller-15] [INFO] [1784967297.897680142] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=12.6s v=0.00212 m/s (vx=-0.00183 vy=-0.00000 vz=-0.00108)
+[landing_controller-15] [INFO] [1784967298.126736859] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967298.142978016] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967298.144273624] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967299.572195120] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=14.3s v=0.00244 m/s (vx=-0.00209 vy=0.00006 vz=-0.00125)
+[landing_controller-15] [INFO] [1784967299.946008730] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=14.6s v=0.00325 m/s (vx=-0.00317 vy=-0.00001 vz=-0.00072)
+[swarm_manager-3] [INFO] [1784967301.144495604] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-5.1, 6.1]!
+[landing_controller-11] [INFO] [1784967301.626476162] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=16.3s v=0.00211 m/s (vx=0.00007 vy=0.00005 vz=-0.00211)
+[landing_controller-15] [INFO] [1784967301.992002940] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=16.7s v=0.00207 m/s (vx=0.00008 vy=-0.00000 vz=-0.00207)
+[landing_controller-15] [INFO] [1784967303.124083553] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967303.143066553] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967303.145198427] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967303.670302716] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=18.4s v=0.00228 m/s (vx=0.00008 vy=0.00005 vz=-0.00228)
+[landing_controller-15] [INFO] [1784967304.034511256] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=18.7s v=0.00224 m/s (vx=0.00009 vy=-0.00000 vz=-0.00224)
+[landing_controller-11] [INFO] [1784967305.693086679] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=20.4s v=0.00245 m/s (vx=0.00008 vy=0.00006 vz=-0.00245)
+[landing_controller-15] [INFO] [1784967306.071183016] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=20.8s v=0.00241 m/s (vx=0.00009 vy=-0.00000 vz=-0.00241)
+[landing_controller-11] [INFO] [1784967307.750639976] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=22.5s v=0.00262 m/s (vx=0.00009 vy=0.00006 vz=-0.00262)
+[landing_controller-15] [INFO] [1784967308.116606112] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=22.8s v=0.00258 m/s (vx=0.00010 vy=-0.00000 vz=-0.00258)
+[landing_controller-15] [INFO] [1784967308.123751881] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967308.143431100] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967308.145090084] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967309.787053914] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=24.5s v=0.00279 m/s (vx=0.00009 vy=0.00006 vz=-0.00279)
+[landing_controller-15] [INFO] [1784967310.144467564] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=24.8s v=0.00275 m/s (vx=0.00010 vy=-0.00000 vz=-0.00275)
+[landing_controller-11] [INFO] [1784967311.839367762] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=26.6s v=0.00297 m/s (vx=0.00010 vy=0.00007 vz=-0.00297)
+[landing_controller-15] [INFO] [1784967312.196281991] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=26.9s v=0.00293 m/s (vx=0.00011 vy=-0.00000 vz=-0.00293)
+[landing_controller-15] [INFO] [1784967313.123455519] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967313.142889582] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967313.144717159] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967313.894363434] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=28.6s v=0.00314 m/s (vx=0.00011 vy=0.00007 vz=-0.00314)
+[landing_controller-15] [INFO] [1784967314.210658867] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=28.9s v=0.00310 m/s (vx=0.00012 vy=-0.00000 vz=-0.00310)
+[swarm_manager-3] [INFO] [1784967315.144544265] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [2.7, -12.9]!
+[swarm_manager-3] [INFO] [1784967315.144949129] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-7.9, -11.0]!
+[landing_controller-11] [INFO] [1784967315.943075215] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=30.7s v=0.00332 m/s (vx=0.00011 vy=0.00007 vz=-0.00331)
+[landing_controller-15] [INFO] [1784967316.236124257] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=30.9s v=0.00327 m/s (vx=0.00012 vy=-0.00000 vz=-0.00327)
+[landing_controller-11] [INFO] [1784967317.989695135] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=32.7s v=0.00349 m/s (vx=0.00012 vy=0.00008 vz=-0.00349)
+[landing_controller-15] [INFO] [1784967318.123929218] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967318.142876410] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967318.144183327] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967318.289216289] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=33.0s v=0.00345 m/s (vx=0.00013 vy=-0.00000 vz=-0.00344)
+[landing_controller-11] [INFO] [1784967320.051544021] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=34.8s v=0.00367 m/s (vx=0.00012 vy=0.00008 vz=-0.00367)
+[landing_controller-15] [INFO] [1784967320.348259600] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=35.0s v=0.00362 m/s (vx=0.00014 vy=-0.00000 vz=-0.00362)
+[landing_controller-11] [INFO] [1784967322.071164556] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=36.8s v=0.00384 m/s (vx=0.00013 vy=0.00008 vz=-0.00384)
+[landing_controller-15] [INFO] [1784967322.371327133] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=37.1s v=0.00379 m/s (vx=0.00014 vy=0.00000 vz=-0.00379)
+[landing_controller-15] [INFO] [1784967323.123915813] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967323.143209186] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967323.144228082] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967324.073033828] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=38.8s v=0.00401 m/s (vx=0.00013 vy=0.00009 vz=-0.00401)
+[landing_controller-15] [INFO] [1784967324.377563196] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=39.1s v=0.00397 m/s (vx=0.00015 vy=0.00000 vz=-0.00396)
+[swarm_manager-3] [INFO] [1784967325.144614519] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [11.0, -10.0]!
+[swarm_manager-3] [INFO] [1784967325.145256418] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-16.2, -1.3]!
+[landing_controller-11] [INFO] [1784967326.113070782] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=40.8s v=0.00418 m/s (vx=0.00014 vy=0.00009 vz=-0.00418)
+[landing_controller-15] [INFO] [1784967326.413607860] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=41.1s v=0.00414 m/s (vx=0.00015 vy=0.00000 vz=-0.00413)
+[landing_controller-15] [INFO] [1784967328.123420144] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967328.144308787] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967328.144950476] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967328.154915730] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=42.9s v=0.00435 m/s (vx=0.00014 vy=0.00009 vz=-0.00435)
+[landing_controller-15] [INFO] [1784967328.448317657] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=43.1s v=0.00431 m/s (vx=0.00016 vy=0.00000 vz=-0.00430)
+[landing_controller-11] [INFO] [1784967330.171857840] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=44.9s v=0.00452 m/s (vx=0.00015 vy=0.00010 vz=-0.00452)
+[landing_controller-15] [INFO] [1784967330.473429204] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=45.2s v=0.00448 m/s (vx=0.00017 vy=0.00000 vz=-0.00448)
+[landing_controller-11] [INFO] [1784967332.233476767] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=46.9s v=0.00469 m/s (vx=0.00015 vy=0.00010 vz=-0.00469)
+[landing_controller-15] [INFO] [1784967332.533405476] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=47.2s v=0.00465 m/s (vx=0.00017 vy=0.00000 vz=-0.00465)
+[landing_controller-15] [INFO] [1784967333.123912845] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967333.143478565] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967333.145628796] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967334.255724707] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=49.0s v=0.00487 m/s (vx=0.00016 vy=0.00010 vz=-0.00486)
+[landing_controller-15] [INFO] [1784967334.559896240] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=49.2s v=0.00482 m/s (vx=0.00018 vy=0.00000 vz=-0.00482)
+[landing_controller-11] [INFO] [1784967336.293708088] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=51.0s v=0.00504 m/s (vx=0.00016 vy=0.00011 vz=-0.00503)
+[landing_controller-15] [INFO] [1784967336.594859936] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=51.3s v=0.00499 m/s (vx=0.00019 vy=0.00000 vz=-0.00499)
+[landing_controller-15] [INFO] [1784967338.123435475] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967338.143866426] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967338.144260812] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967338.327736468] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=53.0s v=0.00521 m/s (vx=0.00017 vy=0.00011 vz=-0.00520)
+[landing_controller-15] [INFO] [1784967338.628632057] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=53.3s v=0.00516 m/s (vx=0.00019 vy=0.00000 vz=-0.00516)
+[swarm_manager-3] [INFO] [1784967339.144896909] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [1.1, -2.3]!
+[landing_controller-11] [INFO] [1784967340.382730738] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=55.1s v=0.00538 m/s (vx=0.00017 vy=0.00012 vz=-0.00538)
+[landing_controller-15] [INFO] [1784967340.673191123] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=55.4s v=0.00534 m/s (vx=0.00020 vy=0.00001 vz=-0.00534)
+[landing_controller-11] [INFO] [1784967342.391128619] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=57.1s v=0.00556 m/s (vx=0.00018 vy=0.00012 vz=-0.00555)
+[landing_controller-15] [INFO] [1784967342.688304512] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=57.4s v=0.00551 m/s (vx=0.00020 vy=0.00001 vz=-0.00551)
+[landing_controller-15] [INFO] [1784967343.123371772] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967343.143257819] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967343.144604260] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967344.413815867] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=59.1s v=0.00573 m/s (vx=0.00019 vy=0.00012 vz=-0.00572)
+[landing_controller-15] [INFO] [1784967344.712702684] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=59.4s v=0.00568 m/s (vx=0.00021 vy=0.00001 vz=-0.00568)
+[landing_controller-11] [INFO] [1784967346.429605465] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=61.1s v=0.00590 m/s (vx=0.00019 vy=0.00012 vz=-0.00589)
+[landing_controller-15] [INFO] [1784967346.727327203] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=61.4s v=0.00585 m/s (vx=0.00022 vy=0.00001 vz=-0.00585)
+[landing_controller-15] [INFO] [1784967348.123433295] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967348.142935280] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967348.144312799] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967348.459719912] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=63.2s v=0.00607 m/s (vx=0.00019 vy=0.00013 vz=-0.00606)
+[landing_controller-15] [INFO] [1784967348.759543959] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=63.4s v=0.00602 m/s (vx=0.00022 vy=0.00001 vz=-0.00602)
+[landing_controller-11] [INFO] [1784967350.490634602] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=65.2s v=0.00624 m/s (vx=0.00020 vy=0.00013 vz=-0.00623)
+[landing_controller-15] [INFO] [1784967350.797762690] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=65.5s v=0.00619 m/s (vx=0.00023 vy=0.00001 vz=-0.00619)
+[landing_controller-11] [INFO] [1784967352.553958442] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=67.3s v=0.00641 m/s (vx=0.00020 vy=0.00013 vz=-0.00641)
+[landing_controller-15] [INFO] [1784967352.844867293] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=67.5s v=0.00637 m/s (vx=0.00023 vy=0.00001 vz=-0.00636)
+[landing_controller-15] [INFO] [1784967353.123512971] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967353.143197784] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967353.144405871] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967354.576279409] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=69.3s v=0.00658 m/s (vx=0.00021 vy=0.00014 vz=-0.00658)
+[landing_controller-15] [INFO] [1784967354.880759997] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=69.6s v=0.00654 m/s (vx=0.00024 vy=0.00001 vz=-0.00653)
+[landing_controller-11] [INFO] [1784967356.627660509] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=71.3s v=0.00675 m/s (vx=0.00022 vy=0.00014 vz=-0.00675)
+[landing_controller-15] [INFO] [1784967356.931083369] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=71.6s v=0.00671 m/s (vx=0.00025 vy=0.00001 vz=-0.00670)
+[landing_controller-15] [INFO] [1784967358.123739153] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967358.143265976] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967358.144439771] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967358.665906833] [landing_scout_2]: [scout_2] 📏 CALIBSERIES t=73.4s v=0.00692 m/s (vx=0.00022 vy=0.00014 vz=-0.00692)
+[landing_controller-11] [INFO] [1784967358.666554247] [landing_scout_2]: [scout_2] 📏 CALIBSTABLE t=73.4s v=0.00692 m/s (vx=0.00022 vy=0.00014 vz=-0.00692) -- 3 consecutive samples steady
+[landing_controller-15] [INFO] [1784967358.961458409] [landing_scout_3]: [scout_3] 📏 CALIBSERIES t=73.7s v=0.00688 m/s (vx=0.00025 vy=0.00001 vz=-0.00687)
+[landing_controller-15] [INFO] [1784967358.962163999] [landing_scout_3]: [scout_3] 📏 CALIBSTABLE t=73.7s v=0.00688 m/s (vx=0.00025 vy=0.00001 vz=-0.00687) -- 3 consecutive samples steady
+[landing_controller-15] [INFO] [1784967363.123506870] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967363.144478873] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[swarm_manager-3] [INFO] [1784967363.145312479] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [17.6, -4.8]!
+[landing_controller-7] [INFO] [1784967363.145794792] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967368.124351036] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967368.143137677] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967368.144208318] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967369.144909069] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-4.7, 5.3]!
+[landing_controller-15] [INFO] [1784967373.123411343] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967373.143848142] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967373.144261802] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967375.144886671] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [-2.8, -8.2]!
+[landing_controller-15] [INFO] [1784967378.123792198] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967378.143056800] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967378.144223678] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967379.145421588] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [2.7, -8.7]!
+[swarm_manager-3] [INFO] [1784967381.144893336] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-8.5, 6.6]!
+[landing_controller-15] [INFO] [1784967383.123502579] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967383.145513399] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967383.145559633] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967388.124753914] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967388.143158005] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967388.144422867] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967391.145319193] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-17.0, -7.1]!
+[landing_controller-15] [INFO] [1784967393.123739141] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967393.142903495] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967393.144133856] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967398.123416122] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967398.142936229] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967398.144921973] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967399.144669286] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-13.4, -9.2]!
+[landing_controller-15] [INFO] [1784967403.123547423] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967403.142988463] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967403.144248226] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967408.124316456] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967408.142952031] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967408.144454205] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967413.123882128] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967413.142972211] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967413.144354260] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967418.123520206] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967418.142973585] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967418.144404940] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967419.144874081] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [5.2, -0.2]!
+[landing_controller-15] [INFO] [1784967423.123825096] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967423.142860759] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967423.144383534] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967425.144428945] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-4.3, -12.3]!
+[landing_controller-15] [INFO] [1784967428.124030352] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967428.142927589] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967428.144105085] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967433.123742226] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967433.143083422] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967433.144274449] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967438.123524710] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967438.143544177] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967438.144484930] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967439.144800428] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-6.8, 6.1]!
+[landing_controller-15] [INFO] [1784967443.123900550] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967443.143063628] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967443.144289753] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967445.144604891] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-13.4, -5.0]!
+[landing_controller-15] [INFO] [1784967448.124231299] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967448.142942080] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967448.144309965] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967449.144566857] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [5.0, 1.4]!
+[landing_controller-15] [INFO] [1784967453.123491149] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967453.142855553] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967453.144982494] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967458.123438529] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967458.142835273] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967458.144217989] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967463.123637902] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967463.143112486] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967463.144409930] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967468.123618000] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967468.143891956] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967468.144378139] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967473.123442261] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967473.143095129] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967473.144689838] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967473.145232051] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [2.5, 4.3]!
+[landing_controller-15] [INFO] [1784967478.124645823] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967478.145052781] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967478.146642783] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967481.144648882] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [-1.2, -9.0]!
+[landing_controller-15] [INFO] [1784967483.123437518] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967483.142894201] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967483.144226146] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967484.311206453] [landing_scout_2]: [scout_2] 🎯 Contact detected! accel=0.1270 m/s² → hands-off settle (no posture commands at contact)
+[attitude_controller-10] [INFO] [1784967484.313715362] [attitude_scout_2]: [scout_2] Contact — commanded-flight latch cleared (full attitude PD locked out until next ignition).
+[landing_controller-11] [INFO] [1784967484.713309550] [landing_scout_2]: [scout_2] ⚠️ Bounce detected (v=0.0870 m/s) → back to FLIGHT
+[swarm_manager-3] [INFO] [1784967485.144695708] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [11.4, -2.6]!
+[landing_controller-15] [INFO] [1784967488.123585617] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967488.143063321] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967488.144399858] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967493.124348370] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967493.142851969] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967493.144272888] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967498.123324127] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967498.143083623] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967498.144173909] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967503.124173243] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967503.143449770] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967503.144607323] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967504.139777585] [landing_scout_3]: [scout_3] 🎯 Contact detected! accel=0.0807 m/s² → hands-off settle (no posture commands at contact)
+[attitude_controller-14] [INFO] [1784967504.142178620] [attitude_scout_3]: [scout_3] Contact — commanded-flight latch cleared (full attitude PD locked out until next ignition).
+[landing_controller-15] [INFO] [1784967504.577642954] [landing_scout_3]: [scout_3] ⚠️ Bounce detected (v=0.0419 m/s) → back to FLIGHT
+[landing_controller-15] [INFO] [1784967508.123723668] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967508.142859521] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967508.144291632] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967513.123354765] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967513.143977183] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967513.144598772] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967513.144805154] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [7.2, -15.7]!
+[swarm_manager-3] [INFO] [1784967517.144810400] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [2.2, 4.6]!
+[landing_controller-15] [INFO] [1784967518.123434940] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967518.142961017] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967518.144733682] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967521.144527878] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [1.3, 0.9]!
+[landing_controller-15] [INFO] [1784967523.123511107] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967523.142898844] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967523.144116215] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967525.144566202] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [13.3, 1.3]!
+[landing_controller-15] [INFO] [1784967528.123420948] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967528.143266355] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967528.144276221] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967533.123643753] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967533.142889329] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967533.144282377] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967538.123573698] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967538.143377063] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967538.144321448] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967543.123460546] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967543.142956265] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967543.144378207] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967543.144610703] [swarm_manager_node]: 📍 scout_3 detected high-value spectral anomaly at [-10.0, -0.6]!
+[landing_controller-15] [INFO] [1784967548.124808111] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967548.143013476] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967548.144377701] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967548.562241324] [landing_scout_3]: [scout_3] 🎯 Altitude static (±2 cm for 60 s) — grounded without an impact spike, settling in place
+[landing_controller-15] [INFO] [1784967549.489060949] [landing_scout_3]: [scout_3] ✅ LANDED — stable contact confirmed
+[hopper_locomotion-13] [INFO] [1784967549.490407497] [loco_scout_3]: [scout_3] Landing controller reported LANDED. Settling to IDLE.
+[attitude_controller-14] [INFO] [1784967549.490652216] [attitude_scout_3]: [scout_3] Landed — tilt correction stopped, yaw-hold pinned to current heading.
+[swarm_manager-3] [INFO] [1784967549.490856346] [swarm_manager_node]: 🧭 scout_3 heading calibration: measured offset -57°, bias now -29°
+[swarm_manager-3] [INFO] [1784967551.145001932] [swarm_manager_node]: 🏷️ Auction for [-6.9, -9.7]: scout_3 wins at cost 15.3 (30 target(s), 1 bidder(s) considered)
+[swarm_manager-3] [INFO] [1784967551.145748592] [swarm_manager_node]: 🚀 scout_3 accepting bid for SAMPLER. Navigating to [-6.9, -9.7] via 4.7m jump.
+[attitude_controller-14] [INFO] [1784967551.146409463] [attitude_scout_3]: [scout_3] New target yaw received: -0.86 rad
+[hopper_locomotion-13] [INFO] [1784967551.146594521] [loco_scout_3]: [scout_3] Target distance: 4.72m. Required Delta-V: 0.0310 m/s. Launch ramp: 3.9s (full stroke)
+[hopper_locomotion-13] [INFO] [1784967551.147027231] [loco_scout_3]: [scout_3] Initiating Tri-Pedal Jump Sequence!
+[hopper_locomotion-13] [INFO] [1784967551.208810974] [loco_scout_3]: 1. Crouching (waking physics, planting feet under body)
+[landing_controller-15] [WARN] [1784967552.933617914] [landing_scout_3]: [scout_3] ⚠️ Liftoff detected while LANDED (v=0.054 m/s sustained) → back to FLIGHT
+[attitude_controller-14] [INFO] [1784967552.935519838] [attitude_scout_3]: [scout_3] Airborne (landed=False) — tilt correction armed.
+[landing_controller-15] [INFO] [1784967553.123861558] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967553.143074761] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967553.144217799] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967555.144487000] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [10.6, -8.8]!
+[landing_controller-15] [INFO] [1784967558.123993653] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967558.143528182] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967558.144355100] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967563.123805395] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967563.142995573] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967563.144328187] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-15] [INFO] [1784967568.123693594] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967568.142952918] [landing_scout_2]: [scout_2] Landing controller state: FLIGHT
+[landing_controller-7] [INFO] [1784967568.144198060] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[swarm_manager-3] [INFO] [1784967569.144557436] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [18.8, -0.9]!
+[swarm_manager-3] [INFO] [1784967571.145292457] [swarm_manager_node]: 📍 scout_2 detected high-value spectral anomaly at [10.5, -0.9]!
+[landing_controller-11] [INFO] [1784967571.562539364] [landing_scout_2]: [scout_2] 🎯 Altitude static (±2 cm for 60 s) — grounded without an impact spike, settling in place
+[landing_controller-11] [WARN] [1784967572.464209415] [landing_scout_2]: [scout_2] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[attitude_controller-10] [INFO] [1784967572.465983858] [attitude_scout_2]: [scout_2] RW righting in progress — attitude controller standing down.
+[landing_controller-11] [INFO] [1784967572.475262009] [landing_scout_2]: [scout_2] 🔄 RW righting attempt 1/5: proportional roll, u_z=-0.49
+[landing_controller-15] [INFO] [1784967573.124570666] [landing_scout_3]: [scout_3] Landing controller state: FLIGHT
+[landing_controller-11] [INFO] [1784967573.142931132] [landing_scout_2]: [scout_2] Landing controller state: RIGHTING
+[landing_controller-7] [INFO] [1784967573.144332745] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[landing_controller-11] [INFO] [1784967573.363018170] [landing_scout_2]: [scout_2] 📐 RIGHTTRACE attempt=1 u_z=-0.6222 w=64 dir=(-0.21,0.98)
