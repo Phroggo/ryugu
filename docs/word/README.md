@@ -1,15 +1,71 @@
 # Word build pipeline
 
-`spacehopper_word.docx` is built against the **official IEEE
-conference-template-A4** (`ieee_conference_template_a4.docx`, saved
-alongside these scripts so the build is reproducible without depending
-on wherever the template was originally downloaded from). This is the
-current, primary pipeline -- an earlier custom two-column build (not
-using the official template) is documented at the bottom of this file
-for reference, but is no longer what `spacehopper_word.docx` is built
-from.
+`spacehopper_word.docx` is built by the **custom two-column pipeline**
+(content driven entirely by `../Research_Paper.md` — manual "1.
+Introduction" section numbers, "Figure N:" captions, "[N]" references,
+all exactly as written in the source), with **Times New Roman font and
+the official IEEE conference-template-A4's point sizes** applied on top
+via `apply_ieee_typography_only.py`.
 
-## IEEE-template pipeline (current)
+An earlier attempt rebuilt the whole document against the official
+template as a pandoc `--reference-doc` (auto-numbered sections, Word's
+own figure/table/reference numbering, full section-break restructuring)
+-- that produced a structurally different document from what was asked
+for ("just use that format, meaning the font and size... I didn't mean
+for you to rewrite the entire paper"), so it was reverted. That
+pipeline (`prep_ieee_template_md.py`, `add_ieee_image_widths.py`,
+`apply_ieee_template_styles.py`, still present below) is kept for
+reference / in case a fully-templated version is wanted later, but is
+**not** what `spacehopper_word.docx` is currently built from.
+
+## Current pipeline (typography-only match to the IEEE template)
+
+1. `python3 prep_docx_md.py` — strips the HTML author/abstract/nomenclature
+   divs out of `../Research_Paper.md` and swaps mermaid fences for the
+   pre-rendered diagram PNGs, writing `paper_docx.md`. `DIAGRAM_PNG` is
+   keyed by figure number — re-verify whenever figures are renumbered.
+2. `python3 add_image_widths.py` — sizes images to fit a ~3.3in column
+   (generic Letter-based estimate; close enough to the template's own
+   ~3.26in A4 column that it hasn't needed correcting).
+3. `pandoc paper_docx.md -o spacehopper_word_fresh2.docx --from markdown+tex_math_dollars --resource-path=.:..`
+4. Unzip **directly into a `docx_root/` working directory** (`mkdir
+   docx_root && unzip -q -o spacehopper_word_fresh2.docx -d docx_root`,
+   then `cd docx_root` for the remaining steps) — its `word/document.xml`
+   must be sibling to `docx_root/[Content_Types].xml` and
+   `docx_root/_rels/`, or the re-zip in step 8 silently drops required
+   parts and the docx won't open.
+5. `python3 ../apply_two_column.py` — continuous section break before
+   "1. Introduction" (title/authors/abstract/nomenclature single-column,
+   everything after two-column).
+6. `python3 ../apply_table_spans.py` — full-width table spans.
+7. `python3 ../apply_figure_spans.py` — full-width span for wide figures.
+8. `python3 ../apply_compact_typography.py` — tightens paragraph/heading
+   spacing (independent of the font/size pass below).
+9. `python3 ../apply_ieee_typography_only.py` — **the actual format
+   match**: sets the document-wide font to Times New Roman and applies
+   the template's measured point sizes (title 24pt, author 11pt,
+   abstract 9pt, figure/table captions and references 8pt, body/headings
+   10pt) directly to `styles.xml`, with per-paragraph overrides for the
+   caption/reference text that pandoc styles via inline run formatting
+   rather than a dedicated style. Also fixes two things that were wrong
+   even before this pass: the title paragraph was pStyle="Heading1" (a
+   leftover from pandoc's own h1 mapping) instead of "Title", so it was
+   never picking up the Title style's size at all; and Title/Heading1-4
+   had a blue accent color baked in from pandoc's default reference
+   template that doesn't match the IEEE template's plain black headings.
+10. Re-zip from inside `docx_root/`: `zip -q -r -X ../spacehopper_word.docx . -x '.*'`.
+
+Always re-verify visually after a rebuild (`soffice --headless
+--convert-to pdf spacehopper_word.docx`, check several pages) — this
+document has a page count in the low 20s; if the content looks
+unusually short after a rebuild, something upstream silently failed
+(wrong pandoc path, a step run from the wrong directory, etc.) rather
+than the format pass having dropped content, since none of these steps
+delete paragraphs.
+
+---
+
+## Official-template pipeline (not currently used, kept for reference)
 
 1. `python3 prep_ieee_template_md.py` — converts `../Research_Paper.md`
    into `paper_ieee.md`. This does more than the old prep script: the
@@ -105,29 +161,3 @@ each script ran without asserting — a bad section-break offset, a stale
 `DIAGRAM_PNG` entry, a missing blank line, or an image sized for the
 wrong column width can all silently mis-render without raising an
 error.
-
----
-
-## Earlier custom two-column pipeline (superseded, kept for reference)
-
-This produced a two-column layout *not* based on the official IEEE
-template — superseded by the pipeline above once the actual template
-was available, but the section-break and full-width-span mechanisms it
-introduced are what the current pipeline's `apply_ieee_template_styles.py`
-reuses.
-
-1. `python3 prep_docx_md.py` — strips the HTML author/abstract/nomenclature
-   divs out of `../Research_Paper.md` and swaps mermaid fences for the
-   pre-rendered diagram PNGs, writing `paper_docx.md`.
-2. `python3 add_image_widths.py` — sizes images to a generic ~3.3in
-   column (Letter-based estimate, not the template's real A4 geometry).
-3. `pandoc paper_docx.md -o spacehopper_word.docx --from markdown+tex_math_dollars --resource-path=.:..`
-4. Unzip directly into `docs/word/` (same caveat as step 4 above).
-5. `python3 apply_two_column.py` — continuous section break before
-   "1. Introduction" (title/authors/abstract/nomenclature single-column,
-   everything after two-column).
-6. `python3 apply_table_spans.py` — full-width table spans.
-7. `python3 apply_figure_spans.py` — full-width span for wide figures.
-8. `python3 apply_compact_typography.py` — 10pt body text, tightened
-   spacing, 8pt table text.
-9. Re-zip into `spacehopper_word.docx`.
