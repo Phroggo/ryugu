@@ -1,0 +1,29 @@
+[13:39:16] --- distance=0.5m v_req=0.01009 m/s ---
+[13:43:16] ready-timeout (proceeding anyway)
+[13:43:16] published jump_target_distance=0.5
+[13:43:38] separation detected, sampling velocity for stabilization...
+[13:43:42] STABILIZED: delivered=0.0095 ratio=0.938 t=4.0s
+[13:43:42] --- distance=1.5m v_req=0.01747 m/s ---
+[13:47:42] ready-timeout (proceeding anyway)
+[13:47:42] published jump_target_distance=1.5
+[13:49:42] TIMEOUT waiting for separation
+[13:49:42] --- distance=3.0m v_req=0.02471 m/s ---
+[13:51:10] published jump_target_distance=3.0
+[13:53:10] TIMEOUT waiting for separation
+[13:53:10] --- distance=4.5m v_req=0.03027 m/s ---
+[13:53:12] published jump_target_distance=4.5
+[13:55:12] TIMEOUT waiting for separation
+[13:55:12] --- distance=6.0m v_req=0.03495 m/s ---
+[13:59:12] ready-timeout (proceeding anyway)
+[13:59:12] published jump_target_distance=6.0
+[14:01:12] TIMEOUT waiting for separation
+[14:01:12] --- distance=7.5m v_req=0.03907 m/s ---
+[14:05:12] ready-timeout (proceeding anyway)
+[14:05:12] published jump_target_distance=7.5
+[14:07:12] TIMEOUT waiting for separation
+[14:07:12] --- distance=9.0m v_req=0.04280 m/s ---
+[14:11:12] ready-timeout (proceeding anyway)
+[14:11:12] published jump_target_distance=9.0
+[14:11:39] separation detected, sampling velocity for stabilization...
+[14:12:01] STABILIZED: delivered=0.0089 ratio=0.209 t=22.1s
+[14:12:01] === sweep complete ===

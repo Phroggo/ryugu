@@ -1,0 +1,72 @@
+[
+  {
+    "distance": 0.5,
+    "v_req": 0.010088890637018238,
+    "delivered": 0.009460744047245045,
+    "ratio": 0.9377387849295945,
+    "status": "stabilized",
+    "stabilize_time_s": 4.018606901168823,
+    "n_samples": 3,
+    "source_pass": "pass1"
+  },
+  {
+    "distance": 1.5,
+    "v_req": 0.017474471175321526,
+    "status": "no_separation",
+    "pass1_attempt": {
+      "v_req": 0.017474471175321526,
+      "status": "no_separation"
+    },
+    "source_pass": "pass2 (retried after stance-gate fix)"
+  },
+  {
+    "distance": 3.0,
+    "v_req": 0.02471263413143742,
+    "status": "no_separation",
+    "pass1_attempt": {
+      "v_req": 0.02471263413143742,
+      "status": "no_separation"
+    },
+    "source_pass": "pass2 (retried after stance-gate fix)"
+  },
+  {
+    "distance": 4.5,
+    "v_req": 0.030266671911054716,
+    "status": "no_separation",
+    "pass1_attempt": {
+      "v_req": 0.030266671911054716,
+      "status": "no_separation"
+    },
+    "source_pass": "pass2 (retried after stance-gate fix)"
+  },
+  {
+    "distance": 6.0,
+    "v_req": 0.03494894235064305,
+    "status": "no_separation",
+    "pass1_attempt": {
+      "v_req": 0.03494894235064305,
+      "status": "no_separation"
+    },
+    "source_pass": "pass2 (retried after stance-gate fix)"
+  },
+  {
+    "distance": 7.5,
+    "v_req": 0.039074105418879575,
+    "status": "no_separation",
+    "pass1_attempt": {
+      "v_req": 0.039074105418879575,
+      "status": "no_separation"
+    },
+    "source_pass": "pass2 (retried after stance-gate fix)"
+  },
+  {
+    "distance": 9.0,
+    "v_req": 0.04280353790451038,
+    "delivered": 0.008944788708145078,
+    "ratio": 0.20897311638350646,
+    "status": "stabilized",
+    "stabilize_time_s": 22.115400314331055,
+    "n_samples": 12,
+    "source_pass": "pass1"
+  }
+]
