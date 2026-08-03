@@ -76,3 +76,35 @@ research_report.md/Study_Guide.md/HANDOFF.md.
 Full stdout of the three ROS2 controller nodes across this whole session
 (multiple respawns of scout_1). Includes the incidental self-righting
 failure referenced above.
+
+## c14_tumble_natural_spawn_frozen_dart_sleep.jsonl -- third independent C14 attempt, different failure mode
+Follow-up requested after the first two C14 tests: try a "cleaner" trigger
+by baking the 165 deg tumble orientation directly into the initial gz
+entity-create call (no mid-flight teleport this time), spawned at a modest
+z=0.3m for a short natural fall under Ryugu gravity, then logged for 90s.
+
+Result: the robot never moved AT ALL for the full 87.8s window -- tilt
+pinned at exactly 165.006 deg the entire time, not even drifting under
+gravity. landing2.log shows the same nonphysical high-velocity artifact
+on spawn ("Airborne while IDLE (v=583.097 m/s, free-fall accel)") that
+appeared on the teleport test too -- this turns out to be inherent to how
+the velocity estimator reacts to a freshly-created entity, not specific to
+mid-flight teleporting.
+
+The complete lack of motion (not even gravity) is explained by
+attitude_controller.py's own documented DART-sleep-defeat mechanism (see
+the "SLEEP-DEFEAT ROTOR" comment ~line 483): gz-sim8 puts a quiescent model
+to sleep regardless of allow_auto_disable=false, and the only anti-sleep
+trick in the code (idling the yaw wheel at a small constant speed) is
+explicitly gated `if (not self.in_flight)` -- grounded only. An airborne,
+undisturbed robot has no anti-sleep mechanism at all, so a motionless
+in-flight spawn just freezes indefinitely in whatever orientation it starts.
+
+Taken together, all three C14 attempts (airborne injection, ground
+teleport, natural spawn) hit a different real technical obstacle, and none
+reproduced anything resembling the paper's "165 -> 3.6 deg in ~20s" claim.
+This is not proof the claim is unreproducible under all conditions (e.g. a
+tumble induced by genuine in-progress flight dynamics, with existing motion
+preventing DART sleep, is untested), but it's a consistent enough pattern
+across independent methods that the claim should be treated as unconfirmed
+pending a cleaner test setup, not treated as confirmed.
