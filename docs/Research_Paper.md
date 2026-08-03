@@ -274,7 +274,7 @@ The deployed solution places dissipation where phase lag cannot exist: passive j
 | **0.05 (deployed)** | **24.9 mm/s** | **decaying bounces; confirmed landing in ~14 min** |
 | 0.15 | few mm/s | overdamped launch; landing benign |
 
-At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective vertical stiffness ≈48 N/m against the 2.5 kg mass), giving restitution $e \approx e^{-\pi\zeta/\sqrt{1-\zeta^2}} \approx 0.2$ — bounces decay within two to three cycles — while the launch stroke retains a 35% separation-velocity margin over the 3 m-hop requirement. Series-elastic launch elements, which decouple launch delta-v from joint damping entirely, remain the recommended mechanism for flight hardware [5]. Fig. 13 shows the confirmed-landed end state this stack is designed to reach.
+At the deployed value, contact damping ratio is $\zeta \approx 0.45$ (effective vertical stiffness ≈48 N/m against the 2.5 kg mass), giving restitution $e \approx e^{-\pi\zeta/\sqrt{1-\zeta^2}} \approx 0.2$ — bounces decay within two to three cycles — while the launch stroke retains a $\approx$1% separation-velocity margin over the 3 m-hop requirement (24.9 mm/s delivered vs. $v_{req} = \sqrt{3g/\mathrm{SIN2TH}} \approx 24.7$ mm/s under the platform's own launch law, §3.1.1 — the 45°-optimal formula $\sqrt{dg}$ used in an earlier pass of this figure gives a looser 18.5 mm/s requirement and a misleadingly large 35% margin). Series-elastic launch elements, which decouple launch delta-v from joint damping entirely, remain the recommended mechanism for flight hardware [5]. Fig. 13 shows the confirmed-landed end state this stack is designed to reach.
 
 ![A settled landing](fig_landed_scout.png)
 
