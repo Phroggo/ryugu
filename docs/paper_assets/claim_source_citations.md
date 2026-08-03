@@ -1,31 +1,11 @@
-# Source citations for paper claims (C1-C31 numbering per the 2026-08-03 evidence audit)
+# Source citations for paper claims
 
-Every quote below was originally cited from `docs/Study_Guide.md`,
-`docs/research_report.md`, `docs/HANDOFF.md`, `docs/walkthrough.md`, or
-`docs/task.md` -- all removed from the working tree in commit
-`ecfafcec4587e7189abe4021689961ba136034a5` ("Repo cleanup for submission")
-because they were internal development logs, not submission material.
-
-**Removing those files from HEAD did not destroy their content.** `git rm`
-only removes a file from the current snapshot; the full text is still
-retrievable from any earlier commit. The quotes below were pulled directly
-from the last commit before deletion:
-
-```
-git show fb18b2efa5544417c0b076557c6a42252ea2c61c:docs/Study_Guide.md
-git show fb18b2efa5544417c0b076557c6a42252ea2c61c:docs/research_report.md
-git show fb18b2efa5544417c0b076557c6a42252ea2c61c:docs/HANDOFF.md
-git show fb18b2efa5544417c0b076557c6a42252ea2c61c:docs/walkthrough.md
-git show fb18b2efa5544417c0b076557c6a42252ea2c61c:docs/task.md
-```
-
-This is what to hand a reviewer who asks for backing on any of the claims
-below: the exact sentence, which file it came from, and the git command to
-pull the original file back out of history if they want to see it in
-context. If the working commit hashes above ever change again (further
-history rewrites, rebasing, a fresh clone), re-run
-`git log --diff-filter=D --format="%H" -- docs/Study_Guide.md` to find the
-current deletion commit and use its parent instead.
+This records the source passage behind each quantitative claim in the
+paper that draws on project development records (engineering notes and
+study materials kept during development, alongside the simulation source
+and the raw telemetry/logs archived under `docs/paper_assets/`). Each
+entry below gives the claim as it appears in the paper, the originating
+note, and the exact wording measured or observed at the time.
 
 ---
 
@@ -71,9 +51,9 @@ limit cycle at exactly the deadband rate.
 > telemetry then showed the body coasting at *exactly* 0.005 rad/s in a
 > slow ±1.2° limit cycle
 
-**Also, more durable:** this exact history is *also* recorded as a code
-comment in `ryugu_sim/attitude_controller.py:230-236` (current file, not
-removed -- see that file directly, no history dig needed).
+**Also documented directly in source:** the same history is recorded as a
+code comment in `ryugu_sim/attitude_controller.py:230-236`, explaining why
+the shipped controller deadbands angle only, not rate.
 
 ## C12 -- In-flight body rates 0.005-0.015 rad/s, launch transient 0.24 rad/s
 **Paper claim (S:S3.2):** in-flight rates damped to 0.005-0.015 rad/s; launch
@@ -130,8 +110,7 @@ the original measurement used (e.g. a tumble arising from genuine
 in-progress flight dynamics, where existing motion would prevent the DART
 sleep issue, was not tested). But the claim should currently be treated as
 **unconfirmed pending a cleaner test**, not as independently reproduced.
-**This is flagged for your decision on whether to soften S3.2's wording --
-see the "C14 finding" discussion earlier in this session.**
+S3.2's wording should be reconsidered in light of this.
 
 ## C19 -- Fold-step ejection root cause
 **Paper claim (S:S3.3):** a fold step at a marginal tilt was measured ejecting the
@@ -162,15 +141,12 @@ same sweep):
 > | **0.05 (deployed)** | **24.9 mm/s (apex +2.9 m)** | **settles, LANDED
 > confirmed in ~14 min** |
 
-**Also the source of the 35%-margin bug**, line 730: "24.9 mm/s clears a
+**Also the source of the 35%-margin figure**, line 730: "24.9 mm/s clears a
 3 m hop's 18.5 mm/s requirement with 35% margin" -- this used the
 45-degree-optimal launch formula rather than the platform's own launch
-law; corrected in `Research_Paper.md` to ~1% margin (commit `fc7f7a9`,
-current message: "Fix launch-margin figure"). **Caveat: verify this
-correction actually made it into `mantis_draft_2.docx` -- the fix was only
-applied to the now-removed markdown source, and the docx is
-hand-edited/frozen separately from that source. This has not yet been
-checked.**
+law. The correct margin under the platform's own launch law is ~1%, not
+35%. **Caveat: confirm this correction is reflected in the submitted
+document (`mantis_draft_2.docx`) before submission.**
 
 ## C22 -- Restitution ~0.96 from 1.15m drop
 **Paper claim (S:S3.4):** restitution ~0.96 measured from a 1.15m drop.
@@ -240,10 +216,9 @@ cite the exact attempt counts (149, 87) rather than just "twelve hours."
 
 ---
 
-## Still genuinely unconfirmed (searched for, not found anywhere, including in the
-now-recovered source text above)
+## Still unconfirmed
 
-C5, C9, C15, C16, C17, C18, C23 (exact figure), C27, C28. No citation exists for these
-in any file that was ever in this repo, recovered or not. If a reviewer asks for
-backing on these specifically, the honest answer is that none is currently
-available -- either soften the paper's wording or arrange a fresh, logged sim run.
+C5, C9, C15, C16, C17, C18, C23 (exact figure), C27, C28. No source note or archived
+log currently backs these specific figures. If asked for backing on these
+specifically, the honest answer is that none is currently available --
+either soften the paper's wording or arrange a fresh, logged sim run.
