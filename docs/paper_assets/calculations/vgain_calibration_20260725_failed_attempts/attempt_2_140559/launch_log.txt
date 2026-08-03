@@ -1,0 +1,18 @@
+[14:06:22] --- trial 1: commanding distance=0.5 m ---
+[14:06:22] published jump_target_distance=0.5, v_req=0.0101 m/s
+[14:06:45] separation detected, monitoring velocity for stabilization...
+[14:07:25] STABILIZED: delivered=0.0054 m/s, ratio=0.534
+[14:07:25] --- trial 2: commanding distance=1.5 m ---
+[14:11:26] published jump_target_distance=1.5, v_req=0.0175 m/s
+[14:11:44] separation detected, monitoring velocity for stabilization...
+[14:13:12] STABILIZED: delivered=0.1277 m/s, ratio=7.306
+[14:13:12] --- trial 3: commanding distance=3.0 m ---
+[14:23:12] TIMEOUT waiting for agent to be landed/ready; skipping trial
+[14:23:12] --- trial 4: commanding distance=4.5 m ---
+[14:33:12] TIMEOUT waiting for agent to be landed/ready; skipping trial
+[14:33:12] --- trial 5: commanding distance=6.0 m ---
+[14:43:12] TIMEOUT waiting for agent to be landed/ready; skipping trial
+[14:43:12] --- trial 6: commanding distance=7.5 m ---
+[14:53:12] TIMEOUT waiting for agent to be landed/ready; skipping trial
+[14:53:12] --- trial 7: commanding distance=9.0 m ---
+[15:03:12] TIMEOUT waiting for agent to be landed/ready; skipping trial

@@ -1,0 +1,20 @@
+[13:28:23] --- trial 1: commanding distance=0.5 m ---
+[13:28:25] published jump_target_distance=0.5, v_req=0.0101 m/s
+[13:28:49] separation detected, monitoring velocity for stabilization...
+[13:30:19] never stabilized within 90s window -- discarding per methodology
+[13:30:19] --- trial 2: commanding distance=1.5 m ---
+[13:30:25] published jump_target_distance=1.5, v_req=0.0175 m/s
+[13:31:55] TIMEOUT waiting for separation signal
+[13:31:55] --- trial 3: commanding distance=3.0 m ---
+[13:39:44] published jump_target_distance=3.0, v_req=0.0247 m/s
+[13:41:14] TIMEOUT waiting for separation signal
+[13:41:14] --- trial 4: commanding distance=4.5 m ---
+[13:41:27] published jump_target_distance=4.5, v_req=0.0303 m/s
+[13:42:57] TIMEOUT waiting for separation signal
+[13:42:57] --- trial 5: commanding distance=6.0 m ---
+[13:43:05] published jump_target_distance=6.0, v_req=0.0349 m/s
+[13:44:35] TIMEOUT waiting for separation signal
+[13:44:35] --- trial 6: commanding distance=7.5 m ---
+[13:54:35] TIMEOUT waiting for agent to be landed/ready; skipping trial
+[13:54:35] --- trial 7: commanding distance=9.0 m ---
+[14:04:35] TIMEOUT waiting for agent to be landed/ready; skipping trial
