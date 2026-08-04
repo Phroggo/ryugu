@@ -106,11 +106,17 @@ full detail:
 None of the three failure modes prove the original dev-log claim is false
 -- each hit a different artifact of *how* the tumble was injected in this
 rerun, not necessarily a property of the controller under the conditions
-the original measurement used (e.g. a tumble arising from genuine
-in-progress flight dynamics, where existing motion would prevent the DART
-sleep issue, was not tested). But the claim should currently be treated as
-**unconfirmed pending a cleaner test**, not as independently reproduced.
-S3.2's wording should be reconsidered in light of this.
+the original measurement used. A fourth attempt (asymmetric-launch-torque
+injection, matching the original measurement's own method -- see
+`docs/paper_assets/calculations/launch_stance_reliability_tests_20260803/README.md`)
+never got far enough to test the tumble-recovery logic at all: it was
+blocked at the launch-stance gate, which turned out to be a spawn-height
+test artifact, not a real platform limitation (the test spawned too close
+to the ground at an XY point with ~4.8m of local terrain height -- see
+that README for the full explanation and the confirmed fix). A rerun with
+that fix applied has not yet been done. The claim should currently be
+treated as **unconfirmed pending a cleaner test**, not as independently
+reproduced. S3.2's wording should be reconsidered in light of this.
 
 ## C19 -- Fold-step ejection root cause
 **Paper claim (S:S3.3):** a fold step at a marginal tilt was measured ejecting the
@@ -218,7 +224,35 @@ cite the exact attempt counts (149, 87) rather than just "twelve hours."
 
 ## Still unconfirmed
 
-C5, C9, C15, C16, C17, C18, C23 (exact figure), C27, C28. No source note or archived
-log currently backs these specific figures. If asked for backing on these
-specifically, the honest answer is that none is currently available --
-either soften the paper's wording or arrange a fresh, logged sim run.
+**C5, C23 (exact figure), C27** -- no source note or archived log currently backs
+these specific figures, and no live-test attempt was made. If asked for backing,
+the honest answer is that none is currently available -- either soften the
+paper's wording or arrange a fresh, logged sim run.
+
+**C9** (headline 4.3m/~20min directional hop) -- one live-rerun attempt made,
+2026-08-03. Never reached ignition: blocked at the same launch-stance gate as
+the C14 retest above, for the same reason (spawn-height test artifact, now
+understood and fixed, not yet retried). See
+`docs/paper_assets/calculations/launch_stance_reliability_tests_20260803/README.md`.
+This is the highest-exposure unconfirmed claim in the paper (appears in the
+abstract) and the fix for a clean rerun is now known.
+
+**C15, C16, C17, C18** (self-righting statistics, pre- and post-redesign) --
+one live-rerun attempt made, 2026-08-03 (six iterations). Never produced a
+valid measurement: blocked by a combination of a stale test-subscription bug
+(fixed), a landing-controller FSM state that doesn't reset on entity respawn
+(fixed), and ultimately the same spawn-height artifact as C9/C14 (understood
+afterward, not yet retried with the fix). See
+`docs/paper_assets/calculations/self_righting_reliability_test_20260803/README.md`
+for the full attempt-by-attempt history.
+
+**C28** ("zero false landing triggers across the final verification runs") --
+not confirmed, and there is real counter-evidence worth knowing about: multiple
+genuine false landing-trigger events ("Sustained contact accel but velocity
+still X m/s -- not actually landed... likely a false accel trigger") were
+observed in *current* code during this week's live-rerun testing (see the node
+console logs under `docs/paper_assets/calculations/attitude_rerun_20260803/`
+and `launch_stance_reliability_tests_20260803/`). This doesn't disprove the
+specific historical run the paper cites (a one-off run this testing wasn't
+part of), but "zero... final verification runs" is a real risk if a reviewer
+presses on it. Recommend softening the "zero" framing.

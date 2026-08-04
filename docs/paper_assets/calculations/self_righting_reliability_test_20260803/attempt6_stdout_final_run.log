@@ -1,0 +1,17 @@
+[15:52:59] --- trial 1/4: moderate (45 deg, az=199) ---
+[15:53:08] start uz=0.7063214795136499 (got 30 fresh msgs); spawned at z=0.4m, waiting for a genuine fall+impact to reach landed=True (up to 160s)
+[15:55:48] landed=False after 160.0s, uz=0.7061479564168405, nudges_used=5
+[15:57:18] outcome=failed final_uz=0.7061479790421517 peak_uz=0.7061479790421517 time=90.0s
+[15:57:18] --- trial 2/4: moderate (45 deg, az=38) ---
+[15:57:26] start uz=0.7071054891803439 (got 30 fresh msgs); spawned at z=0.4m, waiting for a genuine fall+impact to reach landed=True (up to 160s)
+[16:00:06] landed=False after 160.0s, uz=0.7071054969233297, nudges_used=5
+[16:01:36] outcome=failed final_uz=0.7071055013116261 peak_uz=0.7071055013116261 time=90.0s
+[16:01:36] --- trial 3/4: full_inversion (175 deg, az=92) ---
+[16:01:45] start uz=-0.9961976076173242 (got 30 fresh msgs); spawned at z=0.4m, waiting for a genuine fall+impact to reach landed=True (up to 160s)
+[16:04:25] landed=False after 160.0s, uz=-0.9961975944883168, nudges_used=5
+[16:05:55] outcome=failed final_uz=-0.9961975873630897 peak_uz=-0.9961975873630897 time=90.0s
+[16:05:55] --- trial 4/4: full_inversion (175 deg, az=247) ---
+[16:06:04] start uz=-0.9961946423085968 (got 30 fresh msgs); spawned at z=0.4m, waiting for a genuine fall+impact to reach landed=True (up to 160s)
+[16:08:44] landed=False after 160.0s, uz=-0.9961946421997707, nudges_used=5
+[16:10:14] outcome=failed final_uz=-0.9961946421378234 peak_uz=-0.9961946421378234 time=90.0s
+[16:10:14] === batch complete ===
