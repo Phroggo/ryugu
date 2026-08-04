@@ -92,31 +92,32 @@ telemetry from a live rerun.
 **Paper claim (S:S3.2):** same source citations as C13 above (both numbers appear in
 the same sentences, tied to commit `cb470b7`).
 
-**2026-08-03 live rerun status: DID NOT REPRODUCE, in three independent
-attempts.** See
-`docs/paper_assets/calculations/attitude_rerun_20260803/README.md` for
-full detail:
-- Tumble injected while airborne: no recovery in 30s (frozen at ~165°).
-- Tumble injected near ground: got stuck at 93° after a teleport-induced
-  velocity artifact.
-- Tumble baked into a fresh spawn: robot never moved at all (DART physics
-  sleep, no anti-sleep mechanism while airborne -- see
-  `attitude_controller.py`'s own "SLEEP-DEFEAT ROTOR" comment, ~line 483).
+**2026-08-03 live rerun status: recovery mechanism CONFIRMED working;
+specific 165 deg magnitude NOT reached.** Three early attempts (artificial
+pose injection while airborne/near-ground/at-spawn) all failed to even
+engage the controller -- each hit a different test artifact, documented in
+`docs/paper_assets/calculations/attitude_rerun_20260803/README.md`. A
+fourth attempt using the original measurement's own method (forcing
+`hip_joint_0` to overextend during the launch phase, inducing a genuine
+asymmetric-torque tumble rather than an artificial pose injection) was
+initially blocked by a spawn-height test artifact (fixed -- see
+`docs/paper_assets/calculations/launch_stance_reliability_tests_20260803/README.md`),
+then succeeded across four follow-up runs:
 
-None of the three failure modes prove the original dev-log claim is false
--- each hit a different artifact of *how* the tumble was injected in this
-rerun, not necessarily a property of the controller under the conditions
-the original measurement used. A fourth attempt (asymmetric-launch-torque
-injection, matching the original measurement's own method -- see
-`docs/paper_assets/calculations/launch_stance_reliability_tests_20260803/README.md`)
-never got far enough to test the tumble-recovery logic at all: it was
-blocked at the launch-stance gate, which turned out to be a spawn-height
-test artifact, not a real platform limitation (the test spawned too close
-to the ground at an XY point with ~4.8m of local terrain height -- see
-that README for the full explanation and the confirmed fix). A rerun with
-that fix applied has not yet been done. The claim should currently be
-treated as **unconfirmed pending a cleaner test**, not as independently
-reproduced. S3.2's wording should be reconsidered in light of this.
+- Two small-override runs produced only mild wobbles (4.6 deg, 6.5 deg).
+- Two large-override runs (-2.8 rad, near the hip joint's physical limit)
+  produced genuine tumbles: **54.0 deg** peak, recovered to <1 deg within
+  ~6s and held at 0.82 deg for the rest of a 40s window; **28.4 deg** peak,
+  recovered to <1 deg within ~5s and held at exactly 1.019 deg for the
+  rest of the window.
+
+Both large tumbles show fast, overdamped, no-overshoot recovery to a
+stable sub-1.1-degree residual -- qualitatively matching the paper's
+description closely. Neither reached 165 deg specifically (a larger
+induced tumble would need a different method -- the hip joint was already
+near its physical limit). **Treat this as confirming the recovery
+mechanism is real and works as described, but not as confirming the
+specific 165->3.6 deg numbers.**
 
 ## C19 -- Fold-step ejection root cause
 **Paper claim (S:S3.3):** a fold step at a marginal tilt was measured ejecting the
@@ -222,29 +223,78 @@ cite the exact attempt counts (149, 87) rather than just "twelve hours."
 
 ---
 
+## C9 -- headline 4.3m / ~20min directional hop (abstract + S3.1 + S7)
+**2026-08-03 live rerun status: real flight measured, and it CONTRADICTS
+the paper's specific figures.** See
+`docs/paper_assets/calculations/launch_stance_reliability_tests_20260803/README.md`
+for full detail and raw telemetry (`c9_success_flight_1.24m_wrong_heading.jsonl`,
+9159 samples covering a complete real flight).
+
+- Commanded azimuth -56 deg; **measured yaw at launch -55.03 deg** --
+  matches the paper's own stated "-55 deg measured vs -56 deg commanded"
+  almost exactly.
+- Ground displacement at contact: **1.24 m**, far short of the claimed
+  4.3m (commanded distance was 3.0m, not necessarily the same commanded
+  value behind the paper's original number, so this isn't strictly
+  apples-to-apples on distance).
+- **Achieved ground-travel azimuth at contact: 122.66 deg** -- does not
+  match the held yaw heading (-55 deg) at all. This is the more
+  significant discrepancy, independent of the distance mismatch: the body
+  pointed one way, the robot travelled a very different way.
+- Yaw spiked to +135 deg at least once during otherwise-stable flight --
+  an unexplained mid-flight disturbance.
+- Flight time to contact: 6.1 min (shorter than the paper's ~20 min,
+  consistent with the smaller commanded distance).
+- The landing was not clean: several genuine false "not actually landed"
+  resets occurred (see the C28 note below), then it settled badly tilted
+  (u_z=0.07) and had to self-right -- see C17/C18 below for what happened
+  next.
+
+This is the highest-exposure claim in the paper (appears in the abstract).
+Given a real test now directly contradicts both the displacement and
+heading figures, this needs attention before submission, not just a
+hedge.
+
+## C15, C16 -- pre-redesign self-righting baseline (5 of 21, 24%)
+Not attempted. Reproducing this would require reverting to the
+pre-redesign self-righting code (available in git history) and running
+~21 trials -- a larger undertaking than the other live-rerun work done so
+far. No source note or archived log currently backs these specific
+figures independent of the dev-log citation already in this document.
+
+## C17, C18 -- post-redesign self-righting statistics
+**2026-08-03: real counter-evidence found, though not from a controlled
+sample.** The purpose-built batch test (six iterations) never produced a
+valid measurement -- see
+`docs/paper_assets/calculations/self_righting_reliability_test_20260803/README.md`.
+But a genuine, organic self-righting failure was captured live during the
+C9 rerun above: the hop landed at a **moderate ~45.6 deg tilt** (u_z=0.70)
+-- squarely within the range C17 claims recovers "reliably... every such
+case in the sample" -- and failed all 5 righting attempts, u_z barely
+moving across any of them. The exact failure message
+("Self-righting failed after 5 attempts... Robot may still be physically
+inverted") matches, verbatim, an unrelated incidental failure found
+earlier in the same session at a different tilt (~39.4 deg, during the
+C12 attempt in `attitude_rerun_20260803/`). Two independent real
+occurrences of the identical failure mode, both at moderate tilts, is a
+real pattern worth taking seriously against a claim of 100% recovery in
+this range -- though neither is from a large controlled sample, so this
+doesn't establish what the *actual* success rate is, only that it isn't
+the clean 100% the paper states.
+
+As an unplanned coda: after the failed righting, the robot was marked
+LANDED anyway (the code's own documented fallback), then an uncommanded
+liftoff (0.164 m/s, closely matching the paper's own cited Law-3 magnitude
+of 0.128 m/s) kicked it from ~45 deg all the way to a near-total **165 deg
+inversion** -- worse than where it started. Full sequence and raw
+telemetry in the self-righting README above.
+
 ## Still unconfirmed
 
 **C5, C23 (exact figure), C27** -- no source note or archived log currently backs
 these specific figures, and no live-test attempt was made. If asked for backing,
 the honest answer is that none is currently available -- either soften the
 paper's wording or arrange a fresh, logged sim run.
-
-**C9** (headline 4.3m/~20min directional hop) -- one live-rerun attempt made,
-2026-08-03. Never reached ignition: blocked at the same launch-stance gate as
-the C14 retest above, for the same reason (spawn-height test artifact, now
-understood and fixed, not yet retried). See
-`docs/paper_assets/calculations/launch_stance_reliability_tests_20260803/README.md`.
-This is the highest-exposure unconfirmed claim in the paper (appears in the
-abstract) and the fix for a clean rerun is now known.
-
-**C15, C16, C17, C18** (self-righting statistics, pre- and post-redesign) --
-one live-rerun attempt made, 2026-08-03 (six iterations). Never produced a
-valid measurement: blocked by a combination of a stale test-subscription bug
-(fixed), a landing-controller FSM state that doesn't reset on entity respawn
-(fixed), and ultimately the same spawn-height artifact as C9/C14 (understood
-afterward, not yet retried with the fix). See
-`docs/paper_assets/calculations/self_righting_reliability_test_20260803/README.md`
-for the full attempt-by-attempt history.
 
 **C28** ("zero false landing triggers across the final verification runs") --
 not confirmed, and there is real counter-evidence worth knowing about: multiple

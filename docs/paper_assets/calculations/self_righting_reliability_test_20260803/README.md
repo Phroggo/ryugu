@@ -73,6 +73,54 @@ fixed first, in the order below, before the actual cause was found.
   clearance at spawn) was found afterward, in a separate investigation --
   see above.
 
+## Incidental failure #2, captured live during the C9 rerun
+
+The batch-test approach above was never revisited after the terrain-height
+fix (see `../launch_stance_reliability_tests_20260803/README.md`
+instead, which reruns C14 and C9 with the fix applied) -- but a genuine,
+organic self-righting failure happened live during that C9 rerun, and it
+was caught and logged. This is real evidence, not from a purpose-built
+righting test, and it is a direct contradiction of the paper's specific
+C17 claim ("mild-to-moderate tilts... recovered reliably, every such case
+in the sample").
+
+**Sequence, from `../launch_stance_reliability_tests_20260803/landing_controller_console_c9_final_INCLUDES_righting_cascade.log`:**
+
+1. The C9 hop landed with real contact, but several genuine false
+   "not actually landed" resets occurred first (see the C28 note in
+   `../../claim_source_citations.md`).
+2. It settled badly tilted: u_z=0.07 (~86 deg from vertical) -- "Settled
+   badly tilted/inverted -- initiating RW righting roll".
+3. Five RIGHTTRACE attempts followed. u_z barely moved across any of
+   them, converging on ~0.70-0.703 (~45.4 deg) and never improving further
+   -- this is a **moderate tilt by the paper's own definition**, not a
+   full inversion, yet it did not recover.
+4. `"Self-righting failed after 5 attempts -- giving up, marking LANDED
+   anyway... Robot may still be physically inverted."` -- the exact same
+   message, verbatim, as an unrelated incidental failure found earlier in
+   today's session (during the C12 attempt in `../attitude_rerun_20260803/`,
+   u_z stuck at 0.7727). Two independent real occurrences of the identical
+   failure mode is a meaningful pattern, not a one-off fluke.
+5. Marked LANDED anyway (the code's own documented fallback, to avoid
+   hanging downstream logic).
+6. `"Liftoff detected while LANDED (v=0.164 m/s sustained) -> back to
+   FLIGHT"` -- an uncommanded kick, closely matching the magnitude of the
+   paper's own cited "Law 3" example (0.128 m/s). Likely the post-landing
+   stand-up/fold posture ramp acting on a still-tilted body.
+7. That kick made things *worse*: raw telemetry
+   (`incidental_failure_2_during_c9_test_45deg_to_165deg.jsonl`, captured
+   live by `live_righting_capture_harness.py`) shows u_z settling at
+   **-0.9661 (~165 deg -- essentially fully inverted)** for the rest of the
+   180s capture window, apparently DART-asleep and undisturbed after the
+   kick (the same in-flight anti-sleep gap documented in
+   `../attitude_rerun_20260803/README.md`'s C14 section).
+
+**This is real, organic counter-evidence to C17**: a moderate-tilt
+(~45 deg) landing that the paper claims should recover "every... case in
+the sample" instead failed all 5 attempts, was marked landed anyway per
+the code's own known-limitation fallback, and was then kicked by an
+unrelated bug into a full inversion -- worse than where it started.
+
 ## Files in this directory
 
 - `self_righting_batch_harness_final_version.py` -- the attempt-6 harness
@@ -83,7 +131,16 @@ fixed first, in the order below, before the actual cause was found.
 
 ## Status
 
-**Not confirmed or refuted.** No attempt produced a valid measurement of the
-current self-righting reliability. A rerun with the spawn-height fix
-applied would very likely produce usable data and is the recommended next
-step if this claim needs live evidence.
+**The purpose-built batch test (attempts 1-6) never produced a valid
+measurement.** But an incidental, organic failure captured live during a
+separate C9 rerun (see above) provides real counter-evidence to C17: a
+moderate (~45 deg) tilt failed to recover in all 5 attempts, matching an
+earlier independent incidental failure (~39 deg tilt) from earlier in the
+same session. Two real, independent, moderate-tilt failures against a
+claim of 100% recovery in this tilt range is a meaningful discrepancy, not
+proof the claim is entirely false (neither was from a large, controlled
+sample), but it is no longer accurate to say this claim is completely
+untested. C15/C16/C18 remain fully unconfirmed. A properly-run batch test
+with the z>=6.0 spawn fix (see
+`../launch_stance_reliability_tests_20260803/README.md`) would still be
+the right way to get a real sample size if that's wanted.

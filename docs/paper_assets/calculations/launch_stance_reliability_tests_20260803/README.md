@@ -34,17 +34,38 @@ the artificial pose-injection methods tried in the first attitude rerun
 (`../attitude_rerun_20260803/`), which never got the controller to even
 attempt a correction.
 
-- `c14_asymmetric_torque_harness.py` -- the test script. Watches
-  `hopper_locomotion`'s console log for the IGNITION line, then overrides
-  `hip_joint_0`'s commanded position for 1.5s right at liftoff (racing the
-  normal launch choreography, last-write-wins) before logging odometry/IMU
-  through the resulting flight.
-- `c14_attempt1_stdout.log` through `c14_attempt4_stdout.log` -- four
-  attempts. All four failed at the crouch-stance gate before ever reaching
-  IGNITION (see `hopper_locomotion_console_c14_attempts.log` for the exact
-  abort messages -- uz values of 0.83, 0.84, and one crouch that was kicked
-  airborne to z=18m by its own aborted attempt). The torque-injection logic
-  itself was never actually exercised.
+- `c14_asymmetric_torque_harness.py` -- the original script (attempts 1-4,
+  all blocked by the spawn-height gate, see above).
+- `c14_attempt1_stdout.log` through `c14_attempt4_stdout.log` -- the four
+  blocked attempts. All four failed at the crouch-stance gate before ever
+  reaching IGNITION (see `hopper_locomotion_console_c14_attempts.log`).
+- `c14_asymmetric_torque_harness_FINAL_working_version.py` -- same test
+  logic, but spawning at z=4.95 (just above the ~4.8m local terrain) so a
+  real crouch/ignition cycle could actually happen. Reached IGNITION
+  reliably across four follow-up runs.
+
+**Result: the recovery mechanism is confirmed working, though the induced
+tumble never reached the full 165 deg magnitude.**
+
+| File | Override value / duration | Peak tilt | Recovery |
+|---|---|---|---|
+| `c14_success_5deg_mild_wobble.jsonl` | -0.35 rad / 1.5s | 4.6 deg | held ~1.4 deg |
+| `c14_success_6deg_mild_wobble.jsonl` | -0.35 rad / 8.0s | 6.5 deg (still rising at window end) | inconclusive, too short |
+| `c14_success_54deg_tumble_recovered.jsonl` | -2.8 rad / 8.0s | **54.0 deg** at t+14.4s | to <1 deg by t+20s, held at 0.82 deg for the rest of the 40s window |
+| `c14_success_28deg_tumble_recovered.jsonl` | -2.8 rad / 12.0s | **28.4 deg** at t+17.3s | to <1 deg by t+22.4s, held at exactly 1.019 deg for the rest of the window |
+
+The two large-override runs are clean, real, induced tumbles (not
+artificial pose injection) recovered by the actual flight-mode tilt-PD:
+fast (recovery to <1 deg within ~5-6s of peak), overdamped (no
+oscillation/overshoot visible in either trace), and settling to a stable
+sub-1.1-degree residual that holds indefinitely -- qualitatively exactly
+what the paper describes. Neither run reached anywhere near 165 deg
+(-2.8 rad is close to the hip joint's physical limit of +/-3.14 rad; a
+larger tumble would need a different induction method, e.g. combining the
+override with a knee-joint disturbance, or timing it to coincide with
+actual separation rather than mid-ramp). **Treat this as confirming the
+recovery mechanism works and is overdamped, not as confirming the specific
+165->3.6 deg numbers.**
 
 ## C9 attempt (headline 4.3m / ~20min directional hop)
 
@@ -54,14 +75,51 @@ yaw-hold to converge (a mechanism independently confirmed working in
 odometry position/time throughout to measure actual displacement, heading
 error, and flight duration against the claimed 4.3m / ~20min figures.
 
-- `c9_directional_hop_harness.py` -- the test script.
-- `c9_attempt1_stdout.log` -- one attempt (see
-  `hopper_locomotion_console_c9_attempt.log` for the raw abort message:
-  uz=0.84, speed=0.084). Same crouch-stance-gate failure as C14; never
-  reached IGNITION, so no displacement/timing data was collected.
+- `c9_directional_hop_harness.py` / `c9_attempt1_stdout.log` -- the
+  original blocked attempt (crouch-stance-gate failure, uz=0.84).
+- `c9_directional_hop_harness_FINAL_working_version.py` -- same logic,
+  spawned at z=4.95. Reached IGNITION and flew a complete, real flight.
+
+**Result: a real flight was measured, and it does not match the paper's
+claim.** Full data in `c9_success_flight_1.24m_wrong_heading.jsonl`
+(9159 samples) and `c9_final_test_stdout.log`; console logs in
+`attitude_controller_console_c9_final.log`,
+`hopper_locomotion_console_c9_final.log`, and
+`landing_controller_console_c9_final_INCLUDES_righting_cascade.log`.
+
+- Commanded azimuth -56 deg; measured yaw at launch -55.03 deg -- this part
+  matches the paper's own stated "-55 deg measured vs -56 deg commanded"
+  almost exactly.
+- Commanded distance 3.0m (not the paper's specific commanded value, which
+  isn't stated). Genuine separation, flight, and landing all occurred.
+- Ground displacement at the moment of contact: only **1.24 m**, far short
+  of the claimed 4.3m (note this used a smaller commanded distance than
+  whatever produced the paper's headline number, so this is not a strict
+  apples-to-apples comparison on distance).
+- **Achieved ground-travel azimuth at contact: 122.66 deg** -- this does
+  *not* match the held yaw heading of -55 deg at all. The body pointed one
+  way; the robot travelled a very different way. This is the more
+  significant discrepancy, independent of the distance mismatch.
+- Yaw during the "clean" pre-contact flight was mostly held near -55 deg
+  (mean -55.24 deg) but spiked to +135 deg at least once mid-flight --
+  a real, unexplained disturbance during what the paper describes as
+  yaw-hold-stabilized flight.
+- Flight time to contact: 365.6s (6.1 min) -- shorter than the paper's
+  ~20 min, consistent with the smaller commanded distance.
+- **The landing itself was not clean**: contact triggered several genuine
+  false "not actually landed" resets (see the C28 note in
+  `claim_source_citations.md`), then the robot settled badly tilted
+  (u_z=0.07, ~86 deg) and self-righting had to engage -- see
+  `../self_righting_reliability_test_20260803/README.md` for the full
+  cascade that followed. This directly contradicts the paper's "confirmed
+  landed without a false trigger" framing for this class of hop.
 
 ## Status
 
-**Neither C14 nor C9 was confirmed or refuted.** Both harnesses are ready
-to rerun with the z>=6.0 spawn fix; that's the recommended next step if
-live evidence is still wanted for either claim.
+**C14: recovery mechanism confirmed working (qualitatively), specific
+165 deg magnitude not reached.** **C9: real flight measured, and it
+contradicts the paper's specific displacement (1.24m vs 4.3m) and heading
+(122.66 deg travel vs -55 deg yaw) figures**, though the yaw-hold accuracy
+figure itself (-55.03 deg vs -56 deg commanded) does match. Given this
+directly contradicts rather than merely fails to confirm the claim, the
+paper's wording should be revisited.
