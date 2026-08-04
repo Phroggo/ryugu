@@ -1,0 +1,122 @@
+[INFO] [1785849415.246869696] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1785849420.297235169] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849425.296875934] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849430.296872056] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849435.296729560] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849440.296922744] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849445.296874373] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849450.296948872] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849455.297652118] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849460.297749968] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849465.297626153] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849470.296825359] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849475.297032798] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849480.297693336] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849485.297426597] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849490.296647619] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849495.297327365] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849500.297429324] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849505.298029825] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849510.297096619] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849515.297154561] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849520.297578714] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849525.297220534] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849530.296937963] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849535.296781830] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849540.296786290] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849545.297195272] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849550.296694876] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849555.297209421] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849560.296754729] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849565.297433607] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849570.296701323] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849575.296679849] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849580.297341660] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785849582.325548483] [landing_scout_1]: [scout_1] 🎯 Resting while IDLE (altitude static) — confirming ground contact
+[WARN] [1785849584.327535523] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1785849584.337238624] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.78
+[INFO] [1785849585.297278313] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849587.327283683] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.8215 dir=(0.931,0.366)
+[INFO] [1785849590.297297940] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849590.329700293] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=600 u_z=0.8608 dir=(0.932,0.362)
+[INFO] [1785849593.331556828] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=900 u_z=0.8942 dir=(0.935,0.355)
+[INFO] [1785849593.901653250] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849595.297456512] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849595.921762745] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0188 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785849599.922879505] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1785849599.932043052] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.54
+[INFO] [1785849600.297477471] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849602.922540855] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.7469 dir=(0.925,0.379)
+[INFO] [1785849605.297323839] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849605.917202958] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849607.919147094] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1785849610.296803655] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[WARN] [1785849613.363961278] [landing_scout_1]: [scout_1] ⚠️ Tilted while LANDED (u_z=0.81 sustained) — initiating RW righting roll
+[INFO] [1785849613.374098488] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.81
+[INFO] [1785849615.297444094] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849615.364800920] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849617.384077692] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1785849620.296839641] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[WARN] [1785849622.555553749] [landing_scout_1]: [scout_1] ⚠️ Tilted while LANDED (u_z=0.81 sustained) — initiating RW righting roll
+[INFO] [1785849622.565460190] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.81
+[INFO] [1785849624.847736005] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849625.297072203] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[INFO] [1785849626.849767692] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1785849630.297307257] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[WARN] [1785849631.784958647] [landing_scout_1]: [scout_1] ⚠️ Tilted while LANDED (u_z=0.81 sustained) — initiating RW righting roll
+[INFO] [1785849631.794096340] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.81
+[INFO] [1785849634.784796875] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.8883 dir=(0.638,0.770)
+[INFO] [1785849635.297706695] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849637.785004207] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=600 u_z=0.8978 dir=(0.563,0.826)
+[INFO] [1785849638.445298181] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849638.955469421] [landing_scout_1]: [scout_1] ⚠️ Bounce detected (v=0.0240 m/s) → back to FLIGHT
+[INFO] [1785849640.297319829] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785849645.297271882] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785849649.031563967] [landing_scout_1]: [scout_1] 🎯 Contact detected! accel=0.0839 m/s² → hands-off settle (no posture commands at contact)
+[INFO] [1785849650.297157466] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849651.034986934] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1785849651.045006557] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.21
+[INFO] [1785849654.037604718] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.4310 dir=(0.747,0.664)
+[INFO] [1785849655.296770539] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849657.038892664] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=600 u_z=0.6092 dir=(0.637,0.770)
+[INFO] [1785849660.042159763] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=900 u_z=0.7757 dir=(0.625,0.781)
+[INFO] [1785849660.297122179] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849663.046898217] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=1200 u_z=0.8969 dir=(0.710,0.704)
+[INFO] [1785849663.148525161] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[WARN] [1785849665.149683063] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0140 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785849665.297443355] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849667.150119693] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0142 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785849670.296898278] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849671.150745799] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0146 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785849673.151046103] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0148 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785849675.297186312] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849677.150627197] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1785849677.160287728] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.36
+[INFO] [1785849680.171466121] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.5288 dir=(0.964,0.265)
+[INFO] [1785849680.297280712] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849683.171228608] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=600 u_z=0.6855 dir=(0.981,0.194)
+[INFO] [1785849685.297271563] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849686.174585253] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=900 u_z=0.8184 dir=(0.984,0.178)
+[INFO] [1785849688.566016956] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849690.297211889] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849690.566862222] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0122 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785849692.566907522] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0122 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785849694.586591798] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0123 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785849695.297088457] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849696.587298049] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0124 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785849698.589432518] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0126 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785849700.297599876] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785849700.609669493] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1785849700.620101887] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.57
+[INFO] [1785849703.614152386] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.7902 dir=(0.948,0.318)
+[INFO] [1785849705.297503046] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849705.677468598] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785849707.678963609] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1785849710.297209146] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785849715.297408392] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[WARN] [1785849719.394283661] [landing_scout_1]: [scout_1] ⚠️ Tilted while LANDED (u_z=0.83 sustained) — initiating RW righting roll
+[INFO] [1785849719.404241988] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.83
+[INFO] [1785849720.297309887] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849722.400698305] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.8724 dir=(0.896,0.444)
+[INFO] [1785849725.296791901] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785849725.405678785] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=600 u_z=0.8733 dir=(0.800,0.600)

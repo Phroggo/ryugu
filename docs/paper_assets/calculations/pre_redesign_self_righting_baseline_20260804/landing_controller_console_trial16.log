@@ -1,0 +1,54 @@
+[INFO] [1785851262.745960895] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1785851267.795847053] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851272.795311431] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851277.795329537] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851282.795186343] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851287.795700019] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851292.795294919] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851297.795321877] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851302.795467186] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851307.795186148] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851312.795859599] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851317.795829712] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851322.795257284] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851327.797029067] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851332.795638638] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851337.795220833] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851342.795684477] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851347.795388995] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851352.795225660] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851357.795204979] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785851361.986077457] [landing_scout_1]: [scout_1] 🎯 Resting while IDLE (altitude static) — confirming ground contact
+[INFO] [1785851362.795938719] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[INFO] [1785851363.987831984] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1785851367.795672971] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851372.795656298] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851377.795740158] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851382.796155410] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851387.796245213] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851392.795178627] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851397.795158668] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851402.795729701] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851407.795753536] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851412.795876713] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851417.795323270] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1785851422.795858145] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[WARN] [1785851425.508070507] [landing_scout_1]: [scout_1] ⚠️ Tilted while LANDED (u_z=0.83 sustained) — initiating RW righting roll
+[INFO] [1785851425.518459749] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=0.83
+[INFO] [1785851427.796134778] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785851428.519852232] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=300 u_z=0.8471 dir=(1.000,0.031)
+[INFO] [1785851431.539949421] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=600 u_z=0.8664 dir=(0.999,0.032)
+[INFO] [1785851432.795863959] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785851434.540085958] [landing_scout_1]: [scout_1] 📐 GENTLETRACE attempt=1 tick=900 u_z=0.8843 dir=(0.999,0.034)
+[INFO] [1785851437.539957533] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 1, RW roll about x) — re-confirming contact
+[INFO] [1785851437.795862443] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[INFO] [1785851438.051749009] [landing_scout_1]: [scout_1] ⚠️ Bounce detected (v=0.0239 m/s) → back to FLIGHT
+[INFO] [1785851442.795630340] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851447.795850617] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851452.795435875] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851457.795351920] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851462.796096119] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851467.795673500] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851472.795200175] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851477.795676264] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785851482.795458632] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
