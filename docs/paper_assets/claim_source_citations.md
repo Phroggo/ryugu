@@ -284,6 +284,25 @@ of 0.128 m/s) kicked it from ~45 deg all the way to a near-total **165 deg
 inversion** -- worse than where it started. Full sequence and raw
 telemetry in the self-righting README above.
 
+**2026-08-05: real controlled batch result, same methodology as the
+C15/C16 pre-redesign rerun.** 21 trials, uniform-random tilt 20-180 deg,
+against the current shipped controller. See
+`docs/paper_assets/calculations/post_redesign_self_righting_baseline_20260805/README.md`
+for full detail. **1 of 21 recovered (4.8%)** -- identical to the
+pre-redesign controller's own 1/21 result on the same methodology, despite
+the redesign's stated purpose of fixing the self-righting failure mode.
+Qualitative evidence (several large partial-improvement trials, including
+one that reached u_z=0.883 against the 0.9 recovery threshold) suggests
+the redesigned controller is doing more real corrective work per attempt
+than its predecessor, but this did not translate into a higher raw
+recovery count in this sample. Given the paper's own framing describes
+post-redesign self-righting as "highly reliable... from moderate tilts,"
+this is a real, substantial discrepancy -- though this batch drew tilts
+uniformly across the full 20-180 deg range rather than restricting to
+"moderate" specifically, so a tighter moderate-tilt-only rerun would be
+the fairest direct test of that specific wording if more precision is
+wanted.
+
 ## C27 -- sampling cycle: arrival check, drill/dwell/stow, chain to next anomaly
 **2026-08-04 live rerun status: CONFIRMED.** Full 3-agent swarm, live,
 organic anomaly detection (no seeding). See

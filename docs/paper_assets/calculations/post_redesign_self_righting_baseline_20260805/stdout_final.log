@@ -1,0 +1,76 @@
+[01:13:01] Starting gz sim...
+[01:13:09] --- trial 1/21: commanded_tilt=42 deg az=248 ---
+[01:13:17] start uz=0.7411487787124231
+[01:16:37] landed=False after 200.0s uz=0.9964588787499415
+[01:16:37] --- trial 2/21: commanded_tilt=72 deg az=322 ---
+[01:16:45] start uz=0.30989319727290265
+[01:17:44] landed=True after 59.3s uz=0.33541685186212167
+[01:19:44] outcome=failed final_uz=0.47736449904420886
+[01:19:44] --- trial 3/21: commanded_tilt=66 deg az=267 ---
+[01:19:52] start uz=0.41199616253139026
+[01:21:59] landed=True after 127.4s uz=0.492331802599251
+[01:23:59] outcome=failed final_uz=0.09872556269724053
+[01:23:59] --- trial 4/21: commanded_tilt=129 deg az=163 ---
+[01:24:07] start uz=-0.6320089574111949
+[01:27:27] landed=False after 200.0s uz=-0.9996149499564464
+[01:27:27] --- trial 5/21: commanded_tilt=130 deg az=247 ---
+[01:27:35] start uz=-0.6396094262269376
+[01:29:34] landed=True after 119.4s uz=-0.42414037265499527
+[01:31:34] outcome=failed final_uz=-0.4290471984724744
+[01:31:34] --- trial 6/21: commanded_tilt=104 deg az=328 ---
+[01:31:42] start uz=-0.25700750942449857
+[01:35:02] landed=False after 200.0s uz=-0.9991437882404735
+[01:35:02] --- trial 7/21: commanded_tilt=109 deg az=175 ---
+[01:35:10] start uz=-0.33057883221592554
+[01:38:30] landed=False after 200.0s uz=-0.9905188939632443
+[01:38:30] --- trial 8/21: commanded_tilt=57 deg az=201 ---
+[01:38:37] start uz=0.5373725492300022
+[01:41:57] landed=False after 200.0s uz=0.9987571944289918
+[01:41:57] --- trial 9/21: commanded_tilt=23 deg az=286 ---
+[01:42:05] start uz=0.9177637494023885
+[01:44:29] landed=True after 144.0s uz=0.999308320785852
+[01:44:29] outcome=recovered final_uz=0.999308320785852
+[01:44:29] --- trial 10/21: commanded_tilt=117 deg az=187 ---
+[01:44:37] start uz=-0.4712774387407397
+[01:47:57] landed=False after 200.0s uz=-0.9848614918945924
+[01:47:57] --- trial 11/21: commanded_tilt=52 deg az=219 ---
+[01:48:05] start uz=0.6162955094907984
+[01:51:25] landed=False after 200.0s uz=0.999154493935499
+[01:51:25] --- trial 12/21: commanded_tilt=104 deg az=168 ---
+[01:51:33] start uz=-0.25574803829944637
+[01:53:51] landed=True after 138.3s uz=-0.2552493322644662
+[01:55:51] outcome=failed final_uz=-0.2552493322644662
+[01:55:51] --- trial 13/21: commanded_tilt=171 deg az=162 ---
+[01:55:59] start uz=-0.9888561740284381
+[01:57:58] landed=True after 119.5s uz=-0.9994090439177907
+[01:59:58] outcome=failed final_uz=-0.9994090439177907
+[01:59:58] --- trial 14/21: commanded_tilt=128 deg az=130 ---
+[02:00:06] start uz=-0.6153473373711726
+[02:02:01] landed=True after 115.0s uz=-0.735331639956359
+[02:04:01] outcome=failed final_uz=-0.7007074611552806
+[02:04:01] --- trial 15/21: commanded_tilt=135 deg az=267 ---
+[02:04:09] start uz=-0.7102763198275468
+[02:05:30] landed=True after 81.4s uz=-0.6165030436764369
+[02:07:30] outcome=failed final_uz=-0.446298590326641
+[02:07:30] --- trial 16/21: commanded_tilt=127 deg az=101 ---
+[02:07:38] start uz=-0.6036615819210094
+[02:10:58] landed=False after 200.0s uz=-0.9991608232189895
+[02:10:58] --- trial 17/21: commanded_tilt=89 deg az=94 ---
+[02:11:06] start uz=0.0034218899075836307
+[02:14:26] landed=False after 200.0s uz=-0.7936179830561372
+[02:14:26] --- trial 18/21: commanded_tilt=90 deg az=258 ---
+[02:14:33] start uz=-0.007609492028823883
+[02:17:02] landed=True after 148.9s uz=-0.5187338393415188
+[02:19:02] outcome=failed final_uz=-0.4473328623167987
+[02:19:02] --- trial 19/21: commanded_tilt=72 deg az=88 ---
+[02:19:10] start uz=0.3134521258281292
+[02:20:31] landed=True after 80.7s uz=0.361412004537947
+[02:22:31] outcome=failed final_uz=0.882588331380776
+[02:22:31] --- trial 20/21: commanded_tilt=141 deg az=159 ---
+[02:22:39] start uz=-0.7796435817766212
+[02:25:59] landed=False after 200.0s uz=-0.998326219006568
+[02:25:59] --- trial 21/21: commanded_tilt=92 deg az=165 ---
+[02:26:06] start uz=-0.03399373155615981
+[02:27:46] landed=True after 99.2s uz=-0.25471802111153563
+[02:29:46] outcome=failed final_uz=-0.25471802111153563
+[02:29:46] === batch complete: 1/21 recovered ===
