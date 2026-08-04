@@ -1,0 +1,119 @@
+[INFO] [1785876438.215434245] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1785876438.316967796] [landing_scout_1]: [scout_1] 🛫 Airborne while IDLE (v=0.083 m/s, free-fall accel) → FLIGHT mode armed
+[INFO] [1785876443.262832067] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785876447.071379874] [landing_scout_1]: [scout_1] 🎯 Contact detected! accel=0.5596 m/s² → hands-off settle (no posture commands at contact)
+[INFO] [1785876447.580901192] [landing_scout_1]: [scout_1] ⚠️ Bounce detected (v=0.0409 m/s) → back to FLIGHT
+[INFO] [1785876448.262789462] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785876450.032794877] [landing_scout_1]: [scout_1] 🎯 Contact detected! accel=0.0801 m/s² → hands-off settle (no posture commands at contact)
+[INFO] [1785876450.541801422] [landing_scout_1]: [scout_1] ⚠️ Bounce detected (v=0.0294 m/s) → back to FLIGHT
+[INFO] [1785876452.852871859] [landing_scout_1]: [scout_1] 🎯 Contact detected! accel=0.2017 m/s² → hands-off settle (no posture commands at contact)
+[INFO] [1785876453.264064439] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876454.852008705] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0101 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876456.852085018] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1785876456.863293774] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: rolling about x (+), u_z=-0.21
+[INFO] [1785876458.263634459] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785876463.263758472] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1785876468.263331070] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1785876471.860612541] [landing_scout_1]: [scout_1] Still inverted (u_z=-0.90), retrying with alternate roll axis/sign (attempt 2/5)
+[INFO] [1785876471.871522574] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 2/5: rolling about x (-), u_z=-0.90
+[INFO] [1785876472.763497997] [landing_scout_1]: [scout_1] ✅ Self-righting successful (attempt 2, RW roll about x) — re-confirming contact
+[INFO] [1785876473.263740745] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876474.767067837] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4027 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876476.767508485] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4955 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876478.263082730] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876480.767897119] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4617 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876483.263498779] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876484.770802300] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3980 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876486.772867950] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4946 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876488.263443539] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876490.777974349] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4521 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876493.262787037] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876494.796635771] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3938 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876496.796684512] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4919 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876498.263404641] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876498.796781033] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4140 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876500.796974713] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4424 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876502.818241341] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4770 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876503.263397662] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876504.818655811] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3917 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876508.263333373] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876508.819262672] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4231 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876510.819337447] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4329 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876512.821201968] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4823 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876513.262750600] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876514.822538971] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3916 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876516.822679147] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4823 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876518.263092942] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876518.823982433] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4324 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876520.830404411] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4240 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876522.830473444] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4861 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876523.262809109] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876524.838063501] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3934 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876526.841816444] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4757 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876528.262721163] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876528.842766651] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4416 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876530.844094164] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4159 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876532.844608570] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4883 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876533.262765619] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876536.845754126] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4682 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876538.262785613] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876540.846255632] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4091 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876543.263214037] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876544.846158141] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4022 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876548.262847704] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876548.845506772] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4584 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876550.845604392] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4037 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876552.845786397] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4882 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876553.263228758] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876554.849056049] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4087 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876556.849429940] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4516 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876558.262798089] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876558.849643136] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4656 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876560.853761985] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4000 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876562.856323970] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4859 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876563.262773421] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876564.856678292] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4161 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876566.876758690] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4430 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876568.263389149] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876568.878005429] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4717 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876570.878177993] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3980 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876573.263862963] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876574.880429959] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4241 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876576.881514025] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4345 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876578.262919387] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876580.880450136] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.3978 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876583.263335674] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876584.882740258] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4323 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876586.883306797] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4267 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876588.262986915] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876588.887475592] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4799 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876592.889806778] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4717 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876593.263459323] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876594.892178905] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4404 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876598.263418267] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876598.891607231] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4820 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876600.891882018] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4024 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876603.262788319] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876604.893819086] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4482 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876606.897625695] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4136 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876608.262809411] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876608.899909250] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4826 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876610.900269690] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4070 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876612.901237017] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4578 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876613.263142385] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876614.901621732] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4554 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876618.263309517] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876618.900853411] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4819 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876620.900960419] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4126 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876622.902394539] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4503 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876623.265304627] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876624.905304538] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4618 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876626.906100542] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4057 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876628.263106109] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876628.907493727] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4799 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876632.909113149] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4427 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876633.263472141] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876634.928738844] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4671 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785876636.930436701] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4040 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785876638.263124493] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785876638.953814418] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.4766 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).

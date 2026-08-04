@@ -207,7 +207,7 @@ paper's specific figure.** See
 `docs/paper_assets/calculations/pre_redesign_self_righting_baseline_20260804/README.md`
 for full detail and raw telemetry/console logs.
 
-Ran the actual historical pre-redesign controller (git commit `5c9e278`,
+Ran the actual historical pre-redesign controller (git commit `63f73b8`,
 temporarily swapped in, tested in isolation, then restored to the current
 shipped version and rebuilt) through 21 trials at randomized tilts
 (20-180 deg), matching the paper's own framing that the original baseline
@@ -232,6 +232,30 @@ trials (8, 16) independently reproduced the same uncommanded
 Sample size (n=21) is small and the tilt distribution isn't guaranteed to
 match whatever produced the original figure, so this should be read as a
 real, substantial discrepancy rather than a precise replacement value.
+
+**2026-08-05 follow-up: root cause found for the 7 never-triggered severe
+trials, and a corrected rerun.** Traced the "never even attempted
+righting" pattern to a real bug (documented in
+`docs/paper_assets/calculations/imu_orientation_bug_20260804/README.md`):
+gz-sim's simulated IMU has no configured world-reference frame, so it
+reports orientation relative to wherever the robot was spawned rather
+than true world-up -- a robot teleported directly into a severe tilt that
+settles quickly (as the fast rest-detection path allows) reads as
+"upright" on its own IMU and never trips the tilt check, even though its
+true world-frame orientation is severely inverted. Odometry (used for all
+of this week's own pass/fail measurements) is unaffected.
+
+Reran the 8 severe-tilt (>120 deg) trials from this batch with a spawn
+method that avoids the bug (spawn once, tip in place via continuous
+motion, never respawn the entity) -- see
+`docs/paper_assets/calculations/severe_tilt_no_respawn_rerun_20260805/README.md`.
+**2 of 8 now genuinely triggered a righting attempt**, versus 0 of 8
+here -- confirming the bug was real and consequential, not just a
+theoretical concern. Even so, neither of those 2 attempts (nor any of the
+other 6) reached a stable `landed=True` state within 200s, revealing a
+second, separate limitation: the historical controller's righting logic
+doesn't cleanly resolve within a reasonable window from a suspended
+(never-actually-touched-down) severe tilt, correctly triggered or not.
 
 ## C17, C18 -- post-redesign self-righting statistics
 **2026-08-03: real counter-evidence found, though not from a controlled
