@@ -260,9 +260,29 @@ of 0.128 m/s) kicked it from ~45 deg all the way to a near-total **165 deg
 inversion** -- worse than where it started. Full sequence and raw
 telemetry in the self-righting README above.
 
+## C27 -- sampling cycle: arrival check, drill/dwell/stow, chain to next anomaly
+**2026-08-04 live rerun status: CONFIRMED.** Full 3-agent swarm, live,
+organic anomaly detection (no seeding). See
+`docs/paper_assets/calculations/c27_sampling_cycle_20260804/README.md` for
+full detail and raw console log (`swarm_manager_console_full_run.log`).
+
+8 real arrive -> drill -> stow events captured (arrival distances 0.6-3.7 m,
+all within the 4.0 m arrival radius -- a richer spread than the paper's
+single cited "0.9 m" instance), with multiple real chain-to-next-anomaly
+events and correct carousel-full gating. The complete sequence the paper
+describes executes for real.
+
+As a bonus from the same run: a post-hoc routing analysis comparing the
+swarm's real nearest-neighbor greedy dispatch order against the true
+optimal ordering of the same real visited targets found the greedy
+routing was **18.6% longer** than optimal for that sequence -- a genuine,
+real-data answer (not a synthetic benchmark) to how much the documented
+greedy-routing simplification costs in practice. See
+`routing_analysis.json` in the same directory.
+
 ## Still unconfirmed
 
-**C5, C23 (exact figure), C27** -- no source note or archived log currently backs
+**C5, C23 (exact figure)** -- no source note or archived log currently backs
 these specific figures, and no live-test attempt was made. If asked for backing,
 the honest answer is that none is currently available -- either soften the
 paper's wording or arrange a fresh, logged sim run.
