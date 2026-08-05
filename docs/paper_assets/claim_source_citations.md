@@ -284,6 +284,34 @@ of 0.128 m/s) kicked it from ~45 deg all the way to a near-total **165 deg
 inversion** -- worse than where it started. Full sequence and raw
 telemetry in the self-righting README above.
 
+**2026-08-05: this exact cascade independently reproduced a second time**,
+in a completely different test (a synthetic batch trial, not an organic
+landing) -- see
+`docs/paper_assets/calculations/self_righting_failure_mode_20260805/README.md`.
+Give up after 5 attempts (u_z=0.48, a moderate tilt) -> marked LANDED
+anyway -> uncommanded liftoff 2 seconds later -> the robot then drifts in
+FLIGHT with zero further correction for the rest of the observed window.
+Two independent, real occurrences of "give up -> mark landed ->
+uncommanded liftoff -> no further recovery" is worth stating plainly
+alongside the recovery-rate numbers: a real, low-probability-but-serious
+failure mode exists where the system's own give-up fallback leads to the
+robot silently drifting with no active control, not just "recovery is
+occasionally slow." The same document also identifies a structural gap
+(the 5-attempt safety net resets on every brief, non-lasting success, so
+it cannot catch a robot stuck oscillating between briefly succeeding and
+immediately redrifting -- as seen in several post-redesign trials), and a
+code-substantiated explanation for why corrections often don't hold in
+the first place: the righting logic's own design comment says extending
+the legs gives the body "the stable upright equilibrium (feet down) to
+fall into," but none of this week's self-righting batch tests ever
+involve real ground contact (spawned/held at z=5.2-6.0 m with no
+leg/hop controller running) -- the equilibrium the code counts on
+literally isn't present in these tests, which likely means this week's
+recovery-rate figures understate real-world reliability even as the
+give-up/liftoff cascade above remains a real, independently-confirmed
+risk on its own (first caught during an organic, real-landing test, not
+a synthetic one).
+
 **2026-08-05: real controlled batch result, same methodology as the
 C15/C16 pre-redesign rerun.** 21 trials, uniform-random tilt 20-180 deg,
 against the current shipped controller. See
