@@ -1,5 +1,5 @@
 
-#################### OLD (pre-Phase-2, original): /home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase3_derived_physics/../phase2_physical_model_rebuild/model_OLD_pre_phase2_reference.sdf ####################
+#################### OLD (pre-Phase-2, original) [retracted/landed-standing]: /home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase3_derived_physics/../phase2_physical_model_rebuild/model_OLD_pre_phase2_reference.sdf ####################
 Posture: retracted/landed-standing (hip=+0.00, knee=+0.00)
 Total mass: 2.5000 kg
 CG relative to base_link origin: (-0.00000, +0.00000, -0.00944) m
@@ -37,7 +37,7 @@ w = 0.34620 m, tau = 4.9334e-05 N*m, I_pivot = 1.178865e-01 kg*m^2
 
 Spread across the 3 edges: w ranges 0.34620-0.34620 m (0.0% spread).
 
-#################### NEW (Phase 2 corrected): /home/melvin/ryugu_v2_ws/src/ryugu_sim/models/spacehopper/model.sdf ####################
+#################### NEW (Phase 2 corrected) [retracted/landed-standing]: /home/melvin/ryugu_v2_ws/src/ryugu_sim/models/spacehopper/model.sdf ####################
 Posture: retracted/landed-standing (hip=+0.00, knee=+0.00)
 Total mass: 2.3127 kg
 CG relative to base_link origin: (+0.00145, +0.00000, -0.01477) m
@@ -82,3 +82,99 @@ Paper's stated tau ~= 2.9e-05 N*m implies w ~= 0.2035 m
 Old model, governing edge, rigorously computed:  w = 0.3462 m, tau = 4.9334e-05 N*m
 New model, governing edge, rigorously computed:  w = 0.3447 m, tau = 4.5446e-05 N*m
 Leg geometry (hip radius, thigh/calf lengths, HIP_PITCH/KNEE_BEND) was NOT changed by Phase 2, so the old and new w values above differ only by the CG shift (mass redistribution), not by geometry -- and both are far from the paper's implied ~0.204m regardless. This looks like a pre-existing discrepancy in the paper's own w, independent of the mass redesign -- flagged, not resolved, here.
+
+
+======================================================================
+FOLD/TUCK posture (landing_controller.py fold_hip/knee_target, = CROUCH_HIP/KNEE): 0.33 / -2.6
+======================================================================
+
+#################### OLD (pre-Phase-2, original) [fold/tuck (self-righting mid-roll)]: /home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase3_derived_physics/../phase2_physical_model_rebuild/model_OLD_pre_phase2_reference.sdf ####################
+Posture: fold/tuck (self-righting mid-roll) (hip=+0.33, knee=-2.60)
+Total mass: 2.5000 kg
+CG relative to base_link origin: (-0.00000, +0.00000, -0.01233) m
+
+Foot positions (relative to base_link origin):
+  foot 0: (+0.17987, +0.00000, +0.05068) m
+  foot 1: (-0.08993, +0.15577, +0.05068) m
+  foot 2: (-0.08993, -0.15577, +0.05068) m
+
+=== Per-edge pivot analysis (support triangle) ===
+
+Edge (foot0-foot1):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.17987 m
+  tau = m*g*w/2 = 2.5631e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.992087e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.10981 m
+  I_pivot (about the edge itself)             = 5.006825e-02 kg*m^2
+
+Edge (foot1-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.17987 m
+  tau = m*g*w/2 = 2.5631e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.992087e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.10981 m
+  I_pivot (about the edge itself)             = 5.006825e-02 kg*m^2
+
+Edge (foot0-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.17987 m
+  tau = m*g*w/2 = 2.5631e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.992087e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.10981 m
+  I_pivot (about the edge itself)             = 5.006825e-02 kg*m^2
+
+=== Governing (least-stable) edge: foot0-foot2 ===
+w = 0.17987 m, tau = 2.5631e-05 N*m, I_pivot = 5.006825e-02 kg*m^2
+
+Spread across the 3 edges: w ranges 0.17987-0.17987 m (0.0% spread).
+
+#################### NEW (Phase 2 corrected) [fold/tuck (self-righting mid-roll)]: /home/melvin/ryugu_v2_ws/src/ryugu_sim/models/spacehopper/model.sdf ####################
+Posture: fold/tuck (self-righting mid-roll) (hip=+0.33, knee=-2.60)
+Total mass: 2.3127 kg
+CG relative to base_link origin: (+0.00145, +0.00000, -0.01567) m
+
+Foot positions (relative to base_link origin):
+  foot 0: (+0.17987, +0.00000, +0.05068) m
+  foot 1: (-0.08993, +0.15577, +0.05068) m
+  foot 2: (-0.08993, -0.15577, +0.05068) m
+
+=== Per-edge pivot analysis (support triangle) ===
+
+Edge (foot0-foot1):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.17841 m
+  tau = m*g*w/2 = 2.3519e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.432306e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.11117 m
+  I_pivot (about the edge itself)             = 4.290774e-02 kg*m^2
+
+Edge (foot1-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.18277 m
+  tau = m*g*w/2 = 2.4094e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.445308e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.11293 m
+  I_pivot (about the edge itself)             = 4.394873e-02 kg*m^2
+
+Edge (foot0-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.17841 m
+  tau = m*g*w/2 = 2.3519e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.416718e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.11117 m
+  I_pivot (about the edge itself)             = 4.275186e-02 kg*m^2
+
+=== Governing (least-stable) edge: foot0-foot2 ===
+w = 0.17841 m, tau = 2.3519e-05 N*m, I_pivot = 4.275186e-02 kg*m^2
+
+Spread across the 3 edges: w ranges 0.17841-0.18277 m (2.4% spread).
+
+======================================================================
+CAVEAT on fold/tuck I_pivot's physical meaning
+======================================================================
+During an actual righting roll the body is tipped/inverted, rolling on the tucked-leg/chassis silhouette, not resting on 3 feet on a level surface -- so "moment of inertia about the support-triangle edge" is not really the operative quantity for the ROLLING dynamics of self-righting itself (that's closer to a body-frame roll-axis inertia through the CG, i.e. an I_bot variant, not I_pivot). This computation answers the literal question asked (does the fold/tuck posture change I_pivot vs. retracted, using the same edge-pivot method) -- it is NOT being claimed as the correct physical model for mid-roll self-righting dynamics, which is Phase 5's problem, not this one's.
+
+======================================================================
+2x2 SUMMARY: posture x model, governing edge
+======================================================================
+                retracted/IDLE         fold/tuck
+OLD               1.178865e-01      5.006825e-02
+NEW               1.026733e-01      4.275186e-02
+
+Cited (unverified) figure: 0.0482 kg*m^2
+Closest match: NEW/fold-tuck = 4.275186e-02 (11.3% off) -- far closer than NEW/retracted (113.0% off, the figure originally compared against 0.0482).

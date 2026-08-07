@@ -56,27 +56,15 @@ CALF_LENGTH = 0.15  # m, from generate_detailed_spacehopper.py (unchanged by Pha
 G = 1.14e-4          # m/s^2, Ryugu surface gravity (Research_Paper.md nomenclature)
 
 
-def run(sdf_path, tag):
-    print(f"\n{'#'*20} {tag}: {sdf_path} {'#'*20}")
+def run(sdf_path, tag, hip=0.0, knee=0.0, posture_label="retracted/landed-standing"):
+    print(f"\n{'#'*20} {tag} [{posture_label}]: {sdf_path} {'#'*20}")
     links = load_links(sdf_path)
     base_link_origin = links['base_link']['t'].copy()
-    # POSTURE CHECK (2026-08-07): "splayed (crouch stance)" (hip=0.33,
-    # knee=-2.60) was the first guess, by analogy with compute_moi.py's
-    # label -- but a geometry check showed it puts the foot ABOVE
-    # base_link's origin (z=+0.05m relative), which cannot be a real
-    # standing/ground-contact pose. "Retracted (flight neutral)"
-    # (hip=0, knee=0) puts the foot at z=-0.108m (correctly below the
-    # chassis) AND matches hopper_locomotion.py's own IDLE/landed leg
-    # target (set_joints(0.0, 0.0), the ungated post-righting-abort and
-    # post-crouch-timeout fallback) -- confirmed by both geometry and
-    # code behavior to be the real landed/standing posture. "Crouch" is
-    # the pre-launch wind-up stance, not the resting stance.
-    hip, knee = 0.0, 0.0
     frames = world_frames(links, hip, knee)
     m_tot, com_absolute, I_cg = full_tensor(links, frames)
     com = com_absolute - base_link_origin
 
-    print(f"Posture: retracted/landed-standing (hip={hip:+.2f}, knee={knee:+.2f})")
+    print(f"Posture: {posture_label} (hip={hip:+.2f}, knee={knee:+.2f})")
     print(f"Total mass: {m_tot:.4f} kg")
     print(f"CG relative to base_link origin: "
           f"({com[0]:+.5f}, {com[1]:+.5f}, {com[2]:+.5f}) m")
@@ -181,6 +169,56 @@ def main():
           "far from the paper's implied ~0.204m regardless. This looks like a "
           "pre-existing discrepancy in the paper's own w, independent of the mass "
           "redesign -- flagged, not resolved, here.")
+
+    # --- Follow-up (2026-08-07): fold/tuck posture, requested to check
+    # whether it's a genuinely different posture from retracted/landed and,
+    # if so, how much of a stated ~0.0482 kg*m^2 figure's gap against this
+    # phase's retracted-posture I_pivot is a real posture effect. NOTE: no
+    # citation for "0.0482 kg*m^2" was found anywhere in Research_Paper.md,
+    # the frozen docx, or any other project doc (grepped exhaustively) --
+    # computing this anyway because the underlying posture question is
+    # real and answerable regardless of that citation's status.
+    #
+    # fold_hip_target/fold_knee_target (landing_controller.py:167-168) =
+    # 0.33/-2.6 -- identical to CROUCH_HIP/CROUCH_KNEE
+    # (hopper_locomotion.py) -- IS a real, distinct, code-defined posture,
+    # confirmed genuinely different from retracted (hip=0,knee=0).
+    print(f"\n\n{'='*70}")
+    print("FOLD/TUCK posture (landing_controller.py fold_hip/knee_target, "
+          "= CROUCH_HIP/KNEE): 0.33 / -2.6")
+    print(f"{'='*70}")
+    old_fold = run(OLD_SDF, "OLD (pre-Phase-2, original)", hip=0.33, knee=-2.6,
+                   posture_label="fold/tuck (self-righting mid-roll)")
+    new_fold = run(NEW_SDF, "NEW (Phase 2 corrected)", hip=0.33, knee=-2.6,
+                   posture_label="fold/tuck (self-righting mid-roll)")
+
+    print(f"\n{'='*70}")
+    print("CAVEAT on fold/tuck I_pivot's physical meaning")
+    print(f"{'='*70}")
+    print("During an actual righting roll the body is tipped/inverted, "
+          "rolling on the tucked-leg/chassis silhouette, not resting on 3 "
+          "feet on a level surface -- so \"moment of inertia about the "
+          "support-triangle edge\" is not really the operative quantity "
+          "for the ROLLING dynamics of self-righting itself (that's closer "
+          "to a body-frame roll-axis inertia through the CG, i.e. an I_bot "
+          "variant, not I_pivot). This computation answers the literal "
+          "question asked (does the fold/tuck posture change I_pivot vs. "
+          "retracted, using the same edge-pivot method) -- it is NOT being "
+          "claimed as the correct physical model for mid-roll self-"
+          "righting dynamics, which is Phase 5's problem, not this one's.")
+
+    print(f"\n{'='*70}")
+    print("2x2 SUMMARY: posture x model, governing edge")
+    print(f"{'='*70}")
+    print(f"{'':12}{'retracted/IDLE':>18}{'fold/tuck':>18}")
+    print(f"{'OLD':12}{old['worst']['I_pivot']:>18.6e}{old_fold['worst']['I_pivot']:>18.6e}")
+    print(f"{'NEW':12}{new['worst']['I_pivot']:>18.6e}{new_fold['worst']['I_pivot']:>18.6e}")
+    print(f"\nCited (unverified) figure: 0.0482 kg*m^2")
+    print(f"Closest match: NEW/fold-tuck = {new_fold['worst']['I_pivot']:.6e} "
+          f"({abs(new_fold['worst']['I_pivot']-0.0482)/0.0482*100:.1f}% off) -- "
+          f"far closer than NEW/retracted "
+          f"({abs(new['worst']['I_pivot']-0.0482)/0.0482*100:.1f}% off, the "
+          f"figure originally compared against 0.0482).")
 
 
 if __name__ == '__main__':
