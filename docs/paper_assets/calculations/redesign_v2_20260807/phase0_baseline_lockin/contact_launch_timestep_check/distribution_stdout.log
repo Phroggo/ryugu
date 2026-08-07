@@ -1,0 +1,35 @@
+[02:09:39] === starting 1ms world, 5 repeats ===
+[02:09:50] --- 1ms repeat 1/5 ---
+[02:12:00]   [1ms rep1] ready check done: landed=False, speed=0.014546229000078625
+[02:14:00]   [1ms rep1] TIMEOUT waiting for separation
+[02:14:00] --- 1ms repeat 2/5 ---
+[02:16:10]   [1ms rep2] ready check done: landed=False, speed=0.014551929000017338
+[02:18:07]   [1ms rep2] STABILIZED: delivered=0.00038 ratio=0.009 t=20.1s
+[02:18:07] --- 1ms repeat 3/5 ---
+[02:20:17]   [1ms rep3] ready check done: landed=False, speed=0.01454052904037443
+[02:20:43]   [1ms rep3] STABILIZED: delivered=0.01288 ratio=0.301 t=6.0s
+[02:20:43] --- 1ms repeat 4/5 ---
+[02:22:54]   [1ms rep4] ready check done: landed=False, speed=0.01455762970965466
+[02:24:17]   [1ms rep4] STABILIZED: delivered=0.00054 ratio=0.013 t=48.1s
+[02:24:17] --- 1ms repeat 5/5 ---
+[02:24:36]   [1ms rep5] ready check done: landed=True, speed=0.0019036290000329361
+[02:25:41]   [1ms rep5] STABILIZED: delivered=0.00899 ratio=0.210 t=64.1s
+[02:25:41] === starting 4ms world, 5 repeats ===
+[02:25:51] --- 4ms repeat 1/5 ---
+[02:28:01]   [4ms rep1] ready check done: landed=False, speed=0.014558483999982386
+[02:30:01]   [4ms rep1] TIMEOUT waiting for separation
+[02:30:01] --- 4ms repeat 2/5 ---
+[02:32:12]   [4ms rep2] ready check done: landed=False, speed=0.014564412000028781
+[02:34:12]   [4ms rep2] TIMEOUT waiting for separation
+[02:34:12] --- 4ms repeat 3/5 ---
+[02:36:22]   [4ms rep3] ready check done: landed=False, speed=0.014639045606840703
+[02:36:50]   [4ms rep3] STABILIZED: delivered=0.01386 ratio=0.324 t=6.1s
+[02:36:50] --- 4ms repeat 4/5 ---
+[02:39:01]   [4ms rep4] ready check done: landed=False, speed=0.014558494892462972
+[02:39:31]   [4ms rep4] STABILIZED: delivered=0.01913 ratio=0.447 t=8.0s
+[02:39:31] --- 4ms repeat 5/5 ---
+[02:39:50]   [4ms rep5] ready check done: landed=True, speed=0.001884451841790751
+[02:40:53]   [4ms rep5] STABILIZED: delivered=0.00878 ratio=0.205 t=62.0s
+[02:40:53] === all repeats complete ===
+[02:40:53] 1ms: n=4 ratios=[0.009, 0.301, 0.013, 0.21] mean=0.133 range=0.292 min=0.009 max=0.301
+[02:40:53] 4ms: n=3 ratios=[0.324, 0.447, 0.205] mean=0.325 range=0.242 min=0.205 max=0.447

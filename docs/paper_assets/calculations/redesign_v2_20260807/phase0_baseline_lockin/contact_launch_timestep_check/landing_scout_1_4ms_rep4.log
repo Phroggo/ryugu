@@ -1,0 +1,51 @@
+[INFO] [1785969416.545886393] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1785969421.599325456] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969426.599058708] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969431.598960013] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969436.599279884] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969441.599450316] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969446.598810348] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969451.598966775] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969456.599244040] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969461.599127913] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969466.599137650] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969471.599089363] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969476.599436658] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969481.599199967] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969486.599174411] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969491.599238538] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969496.599320343] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969501.599191380] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969506.598918067] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969511.599100741] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969516.599137248] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969521.599200856] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969526.598972540] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969531.598930839] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969536.599188612] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969541.599119189] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1785969543.594483096] [landing_scout_1]: [scout_1] 🛫 Airborne while IDLE (v=0.024 m/s, free-fall accel) → FLIGHT mode armed
+[INFO] [1785969543.934660743] [landing_scout_1]: [scout_1] 🎯 Contact detected! accel=0.1457 m/s² → hands-off settle (no posture commands at contact)
+[WARN] [1785969544.434808838] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0151 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785969546.531080180] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0152 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785969546.599169402] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785969548.547858572] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0154 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785969551.048029893] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0157 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785969551.599687610] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785969553.548070771] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0160 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785969555.567900001] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0162 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785969556.598886621] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[WARN] [1785969558.067535353] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0165 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[WARN] [1785969560.567637250] [landing_scout_1]: [scout_1] Sustained contact accel but velocity still 0.0168 m/s — not actually landed, resetting settle counter (likely a false accel trigger, e.g. RW/leg motor reaction torque).
+[INFO] [1785969561.599108569] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[INFO] [1785969562.569378445] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1785969563.625083019] [landing_scout_1]: [scout_1] 🚀 Jump detected → FLIGHT mode (contact detection blanked 40 s for launch)
+[INFO] [1785969563.672280814] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=0.0s v=0.59226 m/s (vx=-0.52542 vy=-0.12921 vz=0.24086)
+[INFO] [1785969564.922112588] [landing_scout_1]: [scout_1] 🚀 Jump detected → FLIGHT mode (contact detection blanked 40 s for launch)
+[INFO] [1785969564.957685464] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=0.0s v=0.48869 m/s (vx=-0.21617 vy=0.14034 vz=-0.41521)
+[INFO] [1785969566.599139017] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1785969566.977668264] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=2.1s v=0.01938 m/s (vx=-0.00740 vy=-0.00529 vz=0.01712)
+[INFO] [1785969569.005021934] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=4.1s v=0.01920 m/s (vx=-0.00747 vy=-0.00527 vz=0.01689)
+[INFO] [1785969571.033636915] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=6.1s v=0.01900 m/s (vx=-0.00747 vy=-0.00527 vz=0.01665)
+[INFO] [1785969571.034130052] [landing_scout_1]: [scout_1] 📏 CALIBSTABLE t=6.1s v=0.01900 m/s (vx=-0.00747 vy=-0.00527 vz=0.01665) -- 3 consecutive samples steady
+[INFO] [1785969571.598998844] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT

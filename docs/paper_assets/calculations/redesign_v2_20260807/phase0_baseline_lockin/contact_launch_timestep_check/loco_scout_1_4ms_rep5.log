@@ -1,0 +1,12 @@
+[INFO] [1785969577.528609675] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1785969591.520288512] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1785969591.520963161] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1785969591.714028671] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[INFO] [1785969591.786653138] [loco_scout_1]: 3. Separation — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1785969591.933391119] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1785969593.750772810] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 2.8s (full stroke)
+[INFO] [1785969593.751305196] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1785969593.774470323] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1785969593.839498769] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=2.8s)
+[INFO] [1785969593.865651349] [loco_scout_1]: 3. Separation — holding extension for clearance, then slow retract (FLIGHT)
+[WARN] [1785969593.908595574] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=3)
