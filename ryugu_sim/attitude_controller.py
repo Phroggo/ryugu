@@ -363,6 +363,21 @@ class AttitudeController(Node):
 
         # --- Yaw hold (always active, including grounded, so the robot can
         # orient toward the next target while sitting still) ---
+        # OWNERSHIP CAVEAT (Phase 5, 2026-08-07, landing_controller.py):
+        # x/y tilt authority below IS gated to in_flight-only (grep this
+        # file for "in_flight and really_moving"), cleanly exclusive of
+        # landing_controller's LANDED-state damper. z is NOT gated the same
+        # way -- deliberately, since hopper_locomotion's CROUCH phase needs
+        # this yaw-hold live while grounded to align toward a freshly-
+        # commanded heading before a leaned hop. landing_controller now
+        # also has a z-wheel publisher (rw_pubs['z'], its own LANDED-state
+        # damper) and both nodes can publish to rw_z_joint_cmd_vel during
+        # LANDED -- see that file's OWNERSHIP INVARIANT comment for the
+        # full reasoning on why this is judged acceptable for now (both
+        # terms are dissipative-consistent in the passive case; this
+        # node's torque budget dominates during active alignment) and what
+        # is NOT yet verified (concurrent-writer behavior under active
+        # crouch-phase alignment, no regression suite run for it yet).
         siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
         cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
         yaw = math.atan2(siny_cosp, cosy_cosp)

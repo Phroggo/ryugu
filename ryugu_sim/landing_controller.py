@@ -226,9 +226,13 @@ class LandingController(Node):
         # completely while it is True: both nodes publishing wheel commands
         # is a silent last-write-wins fight, the same failure class as the
         # stand-pose flood that masked liftoff for five sessions.
+        # PHASE 5 (2026-08-07): added 'z' -- see the OWNERSHIP INVARIANT note
+        # at the LANDED-state rate damper below for why, and for the known
+        # last-write-wins caveat this creates with attitude_controller's
+        # grounded yaw-hold.
         self.rw_pubs = {axis: self.create_publisher(
             Float64, f'/{self.robot_name}/rw_{axis}_joint_cmd_vel', 10)
-            for axis in ('x', 'y')}
+            for axis in ('x', 'y', 'z')}
         self.righting_active_pub = self.create_publisher(
             Bool, f'/{self.robot_name}/righting_active', 10)
         # Ground-contact flag (2026-07-17): attitude control must stand
@@ -240,9 +244,25 @@ class LandingController(Node):
             Bool, f'/{self.robot_name}/ground_contact', 10)
         # Wheel speed used for the righting roll. Momentum budget: 150 rad/s
         # x I_w=2.7e-4 = 0.04 N*m*s -> free-body counter-roll ~3 rad/s about
-        # the ~0.012 kg*m^2 roll axis; tipping torque needed against Ryugu
-        # weight is ~2.9e-5 N*m vs the wheel motor's 0.015 N*m -- a ~500x
-        # margin. Kept well under the 982 rad/s clamp so the brake phase is
+        # the roll axis.
+        # PHASE 5 CORRECTION (2026-08-07): the figures this comment
+        # originally cited here (~0.012 kg*m^2 roll-axis inertia, ~2.9e-5
+        # N*m tipping torque, ~500x margin) were never rigorously derived --
+        # see docs/paper_assets/calculations/redesign_v2_20260807/
+        # phase3_derived_physics/I_PIVOT_CLARIFICATION_ADDENDUM.md. Real,
+        # rigorously-computed figures for the fold/tuck posture this
+        # maneuver actually uses (landing_controller's own fold_hip/knee_
+        # target, = CROUCH_HIP/KNEE): I_pivot = 4.275e-02 kg*m^2 (new,
+        # corrected mass model), support-edge half-width w ~= 0.345m,
+        # tau = m*g*w/2 ~= 4.5e-05 N*m, margin = tau_max/tau ~= 330x (not
+        # ~500x -- LARGER w means MORE torque to tip, hence LESS spare
+        # margin, not more). Still an enormous margin either way; this
+        # correction does not change the control law, which was already
+        # sized empirically (peak wheel speed 160 rad/s, tuned against live
+        # telemetry, not against this torque/inertia estimate) -- it only
+        # fixes what this comment claims those numbers are, so it stops
+        # propagating a pre-existing error. Kept well under the 982 rad/s
+        # clamp so the brake phase is
         # quick and returns net momentum to ~zero (no post-righting bleed
         # kick -- the LANDED->liftoff kick lesson from b876c87).
         # Peak-roll wheel speed (2026-07-23, rev 7: 300 -> 160). History: 150
@@ -354,31 +374,70 @@ class LandingController(Node):
         self.I_wheel = 0.00027  # kg m^2, RW spin-axis inertia (model.sdf);
                                  # used below by the LANDED-state rate damper
 
-        # LANDED-STATE RATE DAMPING (2026-08-05). Neither existing mechanism
-        # damps a LANDED body's rotation: attitude_controller intentionally
-        # stands down once landed=True (by design -- see its own
-        # landed_callback, "Once grounded, landing_controller owns
-        # orientation correction"), and the LANDED tilt watchdog above
-        # requires velocity_mag < 0.02 before it trusts a tilt reading,
-        # which sustained rotation itself defeats (observed live: a
-        # give-up leaving residual angular momentum settled into an
-        # undamped, torque-free tumble -- u_z oscillating -0.94..0.99
-        # indefinitely, v pinned 0.08-0.5 m/s, zero decay over 150+s of
-        # observation, even after the ramped-brake-on-timeout fix removed
-        # the wheel's own final kick as a cause). Pure rate damping (tau
-        # opposes omega; P = -tau*omega <= 0 always) can only remove
-        # energy, never add it, so it is safe to run unconditionally
-        # whenever LANDED -- reuses attitude_controller's own proven
-        # ground-contact dissipation-only gains rather than inventing new
-        # ones. As a side effect, killing the rotation should also reduce
-        # velocity_mag (much of the reported 0.1-0.5 m/s during a tumble
-        # is very likely a CoM-offset measurement artifact of the fast
-        # rotation itself), which lets the existing tilt-watchdog gate
-        # above start working again on its own -- no separate fix needed
-        # there.
+        # LANDED-STATE RATE DAMPING (2026-08-05; extended to z in Phase 5,
+        # 2026-08-07). Originally x/y only. Root cause of the z gap this
+        # extension closes: attitude_controller's z authority is NOT gated
+        # off while grounded the way x/y are -- its yaw-hold is "always
+        # active, including grounded" (imu_callback), continuously re-
+        # pinning target_yaw to current heading on every landed=True
+        # message. That pinning happens once per /landed message, not every
+        # IMU tick, so during a fast or sustained rotation the pinned
+        # target can lag the true heading between messages, leaving a real
+        # (if small) position-error term that is NOT purely dissipative --
+        # unlike x/y, whose attitude_controller tilt-PD genuinely stands
+        # down (gated on in_flight) once grounded. This file's old x/y-only
+        # damper couldn't reach z at all (no rw_z publisher existed).
+        # Observed live: a give-up leaving residual angular momentum
+        # settled into an undamped tumble -- u_z oscillating -0.94..0.99
+        # indefinitely (one trial), or a slow non-decaying precession into
+        # DEEPER inversion, u_z 0 -> -0.73 over ~170s (a separate,
+        # extended-attempt-budget trial) -- neither decaying, even after
+        # the ramped-brake-on-timeout fix removed the wheel's own final
+        # kick as a cause. Pure rate damping (tau opposes omega; P =
+        # -tau*omega <= 0 always) can only remove energy, never add it, so
+        # it is safe to run unconditionally whenever LANDED -- reuses
+        # attitude_controller's own proven ground-contact dissipation-only
+        # gains rather than inventing new ones. As a side effect, killing
+        # the rotation should also reduce velocity_mag (much of the
+        # reported 0.1-0.5 m/s during a tumble is very likely a CoM-offset
+        # measurement artifact of the fast rotation itself), which lets the
+        # existing tilt-watchdog gate above start working again on its own.
+        #
+        # OWNERSHIP INVARIANT (Phase 5): full attitude authority (position-
+        # hold + rate damping, all 3 axes) belongs to attitude_controller
+        # only between commanded ignition and first ground contact. From
+        # first contact through SETTLING/LANDED/RIGHTING, this file owns
+        # rate-damping on all 3 axes whenever state==LANDED (this block),
+        # and 100% of RW authority whenever state==RIGHTING
+        # (_run_righting_sequence). x and y are cleanly exclusive:
+        # attitude_controller's tilt-PD is gated to in_flight-only, so it
+        # is silent whenever this damper runs. z is NOT fully exclusive,
+        # and that is a known, deliberate trade-off, not an oversight:
+        # attitude_controller's grounded yaw-hold stays live throughout
+        # LANDED on purpose, because hopper_locomotion's CROUCH phase waits
+        # on it to align toward a freshly-commanded heading before a leaned
+        # hop -- gating it off entirely would break directional hopping.
+        # This means both nodes CAN publish to rw_z_joint_cmd_vel during
+        # LANDED, the same last-write-wins shape flagged for righting_active
+        # above, just not fully closed for this one axis. Judged acceptable
+        # for the failure mode this phase targets (post-give-up precession
+        # with no new target commanded, where attitude_controller's pinned
+        # target tracks current heading and its own output is already near-
+        # pure rate damping, consistent in sign with this damper) because
+        # attitude_controller's torque budget (tau_max=0.015) dominates
+        # this damper's cap (LANDED_DAMP_TAU_CAP below) during any genuinely
+        # active alignment, so a real new-target command should still win
+        # out. NOT verified against the concurrent-writer case under active
+        # crouch-phase alignment with a full regression suite -- flagged
+        # here for a later phase, not silently assumed safe.
         self.LANDED_DAMP_TAU_CAP = 0.006   # N m, matches attitude_controller
-        self.LANDED_DAMP_K_RATE = 0.066    # N m / (rad/s), matches attitude_controller
-        self._landed_damp_cmd_vel = {'x': 0.0, 'y': 0.0}
+        # Phase 5 (2026-08-07): was 0.066, matching attitude_controller's
+        # OLD K_rate. attitude_controller's K_rate is now 0.0456 (Phase 3
+        # re-derivation against the corrected inertia) -- updated here for
+        # the same "matches attitude_controller" reason this was originally
+        # set, not an independent retune of this damper.
+        self.LANDED_DAMP_K_RATE = 0.0456   # N m / (rad/s), matches attitude_controller
+        self._landed_damp_cmd_vel = {'x': 0.0, 'y': 0.0, 'z': 0.0}
         self._landed_damp_last_time = None
         self._hold_ramp_start_speed = 0.0
 
@@ -809,20 +868,21 @@ class LandingController(Node):
             else:
                 self.landed_tilt_ticks = 0
 
-            # LANDED-STATE RATE DAMPING (see the __init__ note for why this
-            # is needed at all): tilt axes only (x/y) -- landing_controller
-            # has no z-wheel publisher, so yaw is untouched and stays
-            # attitude_controller's job, avoiding any fight over that axis.
-            # Pure dissipation (tau opposes omega), safe to run
-            # unconditionally.
-            wx, wy = msg.angular_velocity.x, msg.angular_velocity.y
-            omega_tilt = math.sqrt(wx * wx + wy * wy)
-            if omega_tilt > 0.02:
+            # LANDED-STATE RATE DAMPING (see the __init__ note above this
+            # block for the full ownership invariant and the z-axis
+            # last-write-wins caveat). Phase 5 (2026-08-07): extended from
+            # x/y to all 3 axes -- landing_controller now has a z-wheel
+            # publisher (rw_pubs['z']). Pure dissipation (tau opposes
+            # omega), safe to run unconditionally on any axis.
+            wx, wy, wz = (msg.angular_velocity.x, msg.angular_velocity.y,
+                          msg.angular_velocity.z)
+            omega_total = math.sqrt(wx * wx + wy * wy + wz * wz)
+            if omega_total > 0.02:
                 now_t = self.get_clock().now().nanoseconds / 1e9
                 dt = 0.01 if self._landed_damp_last_time is None else min(max(
                     now_t - self._landed_damp_last_time, 0.0), 0.05)
                 self._landed_damp_last_time = now_t
-                for axis, w in (('x', wx), ('y', wy)):
+                for axis, w in (('x', wx), ('y', wy), ('z', wz)):
                     tau = max(-self.LANDED_DAMP_TAU_CAP, min(
                         self.LANDED_DAMP_TAU_CAP, -self.LANDED_DAMP_K_RATE * w))
                     delta = (-tau / self.I_wheel) * dt
@@ -836,9 +896,9 @@ class LandingController(Node):
                 # used to instantly zero the wheel commands here -- the same
                 # "instant zero-command kick" mistake already fixed twice
                 # elsewhere in this file (righting hold-confirm, righting
-                # timeout brake), just reintroduced. omega_tilt is only the
-                # x/y PROJECTION of rate; during a complex precessing tumble
-                # it can dip through this deadband repeatedly while total
+                # timeout brake), just reintroduced. omega_total (Phase 5:
+                # was omega_tilt, x/y only) can dip through this deadband
+                # repeatedly during a complex precessing tumble while total
                 # rotational energy is still high, and slamming accumulated
                 # wheel speed to 0 on every dip both discards braking
                 # progress AND dumps a fresh reaction-torque kick into the
