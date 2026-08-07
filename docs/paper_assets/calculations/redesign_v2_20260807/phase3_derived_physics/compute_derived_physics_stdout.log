@@ -1,0 +1,46 @@
+=== A. Mass-only-dependent quantities ===
+
+OLD (m=2.5 kg):
+  W = m*g              = 2.8500e-04 N
+  friction cap = mu*m*g = 1.7670e-04 N
+  F (illustrative, E_p/d) = 1.4250e-02 N
+
+NEW (m=2.3127 kg):
+  W = m*g              = 2.6365e-04 N
+  friction cap = mu*m*g = 1.6346e-04 N
+  F (illustrative, E_p/d) = 1.3182e-02 N
+
+All three above scale by exactly the mass ratio: 2.3127/2.5 = 0.9251 (-7.49%). Confirmed linear-in-m, not just assumed -- W, friction capacity, and the illustrative thrust figure all appear as bare m*(...) products in the paper's own formulas (Sec 3.1/3.1.1), no other mass-dependent term anywhere in them.
+
+Escape velocity v_esc = sqrt(2*g*R) = 0.3203 m/s -- CONFIRMED mass-independent (robot mass does not appear in the formula at all; this is a property of Ryugu, not the robot). UNCHANGED by Phase 2: 0.320 m/s both before and after.
+
+Launch velocity law v_req = sqrt(d*g/SIN2TH) (Sec 3.1) also has NO mass term -- confirmed mass-independent too (kinematic, not dynamic). Example, 9m hop: v_req = 0.0428 m/s, unchanged by Phase 2. (V_GAIN itself, hopper_locomotion.py, is a separate empirically-fitted actuator-stroke calibration, not this formula -- already flagged elsewhere as needing re-calibration against real hardware response, independent of this mass-dependence question.)
+
+=== B. K_ang / K_rate re-derivation ===
+
+Original FIRST-PASS design (K_ang=0.02, hand-estimated I~=0.025 kg*m^2): wn = sqrt(K_ang/I) = 0.894 rad/s (matches the attitude_controller.py comment's own ~0.89 rad/s).
+
+The shipped retune (K_ang=0.05, K_rate=0.066) states wn~1.8-2 rad/s as its outcome, which implies an assumed I in [0.0125, 0.0154] kg*m^2 -- close to the OLD model's real retracted-posture I_bot (1.822e-02, see Phase 2's CG_INERTIA_REPORT.md), i.e. the retune was implicitly using the flight/retracted posture, not the crouch posture the original 0.025 hand-estimate mixed in. This phase makes that choice explicit and uses the NEW, rigorously-computed retracted-posture I_bot instead of a hand estimate.
+
+OLD gains against the OLD model's real (Phase-2-computed) retracted-posture I_bot=1.822e-02 kg*m^2:
+  wn = sqrt(K_ang/I) = 1.6566 rad/s
+  zeta = K_rate/(2*sqrt(K_ang*I)) = 1.0933
+
+NEW design: same method (pick target wn, target zeta; solve K_ang=I*wn^2, K_rate=2*zeta*sqrt(K_ang*I)), same target wn (1.9 rad/s, the midpoint of the original retune's own stated 1.8-2.0 rad/s range -- preserving design intent, not re-litigating it) and target zeta (1.1, explicit instruction), against the NEW, corrected retracted-posture I_bot = 1.090813e-02 kg*m^2:
+  K_ang = I*wn^2 = 1.090813e-02 * 1.9^2 = 0.03938 N*m/rad
+  K_rate = 2*zeta*sqrt(K_ang*I) = 0.04560 N*m/(rad/s)
+
+=== C. Resulting zeta/omega_n under the new gains (confirmation) ===
+
+Plugging the new gains back in against I_NEW:
+  wn = sqrt(K_ang/I) = 1.9000 rad/s  (target was 1.9)
+  zeta = K_rate/(2*sqrt(K_ang*I)) = 1.1000  (target was 1.1)
+  Self-consistent: YES
+
+=== Summary table ===
+                                OLD            NEW
+I_bot (retracted)         1.822e-02     1.0908e-02
+K_ang                        0.0500         0.0394
+K_rate                       0.0660         0.0456
+wn (rad/s)                   1.6566         1.9000
+zeta                         1.0933         1.1000

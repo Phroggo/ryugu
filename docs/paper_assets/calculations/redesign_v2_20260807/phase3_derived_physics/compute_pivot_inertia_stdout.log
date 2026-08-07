@@ -1,0 +1,84 @@
+
+#################### OLD (pre-Phase-2, original): /home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase3_derived_physics/../phase2_physical_model_rebuild/model_OLD_pre_phase2_reference.sdf ####################
+Posture: retracted/landed-standing (hip=+0.00, knee=+0.00)
+Total mass: 2.5000 kg
+CG relative to base_link origin: (-0.00000, +0.00000, -0.00944) m
+
+Foot positions (relative to base_link origin):
+  foot 0: (+0.34620, +0.00000, -0.10807) m
+  foot 1: (-0.17310, +0.29982, -0.10807) m
+  foot 2: (-0.17310, -0.29982, -0.10807) m
+
+=== Per-edge pivot analysis (support triangle) ===
+
+Edge (foot0-foot1):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.34620 m
+  tau = m*g*w/2 = 4.9334e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.865777e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.19923 m
+  I_pivot (about the edge itself)             = 1.178865e-01 kg*m^2
+
+Edge (foot1-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.34620 m
+  tau = m*g*w/2 = 4.9334e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.865777e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.19923 m
+  I_pivot (about the edge itself)             = 1.178865e-01 kg*m^2
+
+Edge (foot0-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.34620 m
+  tau = m*g*w/2 = 4.9334e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.865777e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.19923 m
+  I_pivot (about the edge itself)             = 1.178865e-01 kg*m^2
+
+=== Governing (least-stable) edge: foot0-foot2 ===
+w = 0.34620 m, tau = 4.9334e-05 N*m, I_pivot = 1.178865e-01 kg*m^2
+
+Spread across the 3 edges: w ranges 0.34620-0.34620 m (0.0% spread).
+
+#################### NEW (Phase 2 corrected): /home/melvin/ryugu_v2_ws/src/ryugu_sim/models/spacehopper/model.sdf ####################
+Posture: retracted/landed-standing (hip=+0.00, knee=+0.00)
+Total mass: 2.3127 kg
+CG relative to base_link origin: (+0.00145, +0.00000, -0.01477) m
+
+Foot positions (relative to base_link origin):
+  foot 0: (+0.34620, +0.00000, -0.10807) m
+  foot 1: (-0.17310, +0.29982, -0.10807) m
+  foot 2: (-0.17310, -0.29982, -0.10807) m
+
+=== Per-edge pivot analysis (support triangle) ===
+
+Edge (foot0-foot1):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.34475 m
+  tau = m*g*w/2 = 4.5446e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.398243e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.19600 m
+  I_pivot (about the edge itself)             = 1.028292e-01 kg*m^2
+
+Edge (foot1-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.34911 m
+  tau = m*g*w/2 = 4.6021e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.411245e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.19792 m
+  I_pivot (about the edge itself)             = 1.047092e-01 kg*m^2
+
+Edge (foot0-foot2):
+  w (2x perp. dist, CG ground-proj. to edge) = 0.34475 m
+  tau = m*g*w/2 = 4.5446e-05 N*m
+  I_axis (through CG, parallel to edge)      = 1.382654e-02 kg*m^2
+  d_perp (CG to edge line, 3D)                = 0.19600 m
+  I_pivot (about the edge itself)             = 1.026733e-01 kg*m^2
+
+=== Governing (least-stable) edge: foot0-foot2 ===
+w = 0.34475 m, tau = 4.5446e-05 N*m, I_pivot = 1.026733e-01 kg*m^2
+
+Spread across the 3 edges: w ranges 0.34475-0.34911 m (1.3% spread).
+
+======================================================================
+SUMMARY / cross-check against the paper's existing tau~=mgw/2 figure
+======================================================================
+Paper's stated tau ~= 2.9e-05 N*m implies w ~= 0.2035 m
+Old model, governing edge, rigorously computed:  w = 0.3462 m, tau = 4.9334e-05 N*m
+New model, governing edge, rigorously computed:  w = 0.3447 m, tau = 4.5446e-05 N*m
+Leg geometry (hip radius, thigh/calf lengths, HIP_PITCH/KNEE_BEND) was NOT changed by Phase 2, so the old and new w values above differ only by the CG shift (mass redistribution), not by geometry -- and both are far from the paper's implied ~0.204m regardless. This looks like a pre-existing discrepancy in the paper's own w, independent of the mass redesign -- flagged, not resolved, here.
