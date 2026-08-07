@@ -8,19 +8,61 @@ CHASSIS_SIZE = 0.2
 CHASSIS_Z = 0.25
 CHASSIS_HALF = CHASSIS_SIZE / 2  # 0.1
 
+# Phase 2 mass/inertia rebuild (2026-08-07): legs modeled as real CFRP
+# tubes (thin-wall, rho=1600 kg/m^3), not solid rods (the old 0.05kg solid-
+# cylinder figures implied ~470-660 kg/m^3, not a real material either).
+# Outer radii unchanged (existing visual envelope); 1mm wall thickness is
+# an explicit engineering assumption (no CAD source) -- see AUDIT_TABLE.md
+# rows 4/4b.
 THIGH_RADIUS = 0.015
+THIGH_BORE_RADIUS = 0.014   # NEW: 1mm wall
 THIGH_LENGTH = 0.15
 THIGH_HALF = THIGH_LENGTH / 2
+THIGH_MASS = 0.0219         # kg (was 0.05)
 
 CALF_RADIUS = 0.01
+CALF_BORE_RADIUS = 0.009    # NEW: 1mm wall
 CALF_LENGTH = 0.15
 CALF_HALF = CALF_LENGTH / 2
+CALF_MASS = 0.0143          # kg (was 0.05)
 
 HIP_PITCH = 1.2
 KNEE_BEND = 0.8
 
-RW_RADIUS = 0.06
-RW_LENGTH = 0.02
+# Phase 2 mass/inertia rebuild (2026-08-07): base_link's mass, CoM offset,
+# and full inertia tensor, computed by summing every Phase-1-audited
+# component that has no link of its own (chassis structure, RW motors,
+# leg motor+gearhead assemblies, avionics, power, antenna, cameras, MLI)
+# at real physical positions via the parallel-axis theorem -- same method
+# as compute_moi.py's platform-level I_bot, generalized to the full 3x3
+# tensor + CoM offset. Reproducible: docs/paper_assets/calculations/
+# redesign_v2_20260807/phase2_physical_model_rebuild/
+# compute_new_inertial_model.py. Was mass=1.35kg, CoM assumed at (0,0,0),
+# I=diag(9.0e-3,9.0e-3,9.0e-3) -- a round-number placeholder, not computed
+# from any component layout.
+BASE_LINK_MASS = 1.3689
+BASE_LINK_COM = (0.00289, 0.00066, -0.00822)   # m, relative to base_link origin
+BASE_LINK_IXX = 9.612225e-03
+BASE_LINK_IYY = 9.913904e-03
+BASE_LINK_IZZ = 7.528845e-03
+BASE_LINK_IXY = -5.139646e-05
+BASE_LINK_IXZ = -1.927443e-04
+BASE_LINK_IYZ = -1.063964e-04
+
+# Phase 2 mass/inertia rebuild (2026-08-07): was a solid disc (implied
+# density 663 kg/m^3 -- not a real material). Real reaction wheels are
+# rims/annuli for inertia-to-mass efficiency (NASA GSFC CubeSat symposium;
+# ASPINA design note -- see docs/paper_assets/calculations/
+# redesign_v2_20260807/phase1_mass_inertia_audit/AUDIT_TABLE.md row 1).
+# Stainless steel (304, rho=8000 kg/m^3), outer radius kept close to the
+# old visual envelope, bore/length sized for a compact manufacturable rim
+# (explicit engineering assumption, no COTS part exists for this bespoke
+# wheel -- see AUDIT_TABLE.md).
+RW_RADIUS = 0.05          # outer radius, m (was 0.06)
+RW_BORE_RADIUS = 0.042    # inner (bore) radius, m -- NEW, makes this an annulus
+RW_LENGTH = 0.01          # axial length, m (was 0.02)
+RW_MASS = 0.185           # kg (was 0.15; real annulus has 46% MORE spin-axis
+                           # inertia than the old solid disc despite this)
 
 # Raised 0.02 -> 0.025 (2026-07-15): larger foot spheres bridge heightmap
 # crevices instead of sinking into them (part of the wedge-in jam fix, along
@@ -45,6 +87,12 @@ FOOT_RADIUS = 0.025
 FOOT_FRICTION_MU = 0.62
 
 NUM_LEGS = 3
+
+# Phase 2 mass/inertia rebuild (2026-08-07): real GaAs areal mass
+# (~0.47 kg/m^2, mid-range of 0.4-0.54 kg/m^2, EnduroSat panel data /
+# flexible-cell literature) x the panel's existing 0.18x0.18m footprint --
+# see AUDIT_TABLE.md row 9. Was 0.15kg (~10x the geometry-based figure).
+SOLAR_MASS = 0.0152
 
 # ── Material helpers ────────────────────────────────────────────────
 # Realism pass (2026-07-14): the model previously used flat ambient/diffuse/
@@ -82,12 +130,19 @@ def mat_emissive(color, emissive):
         </material>"""
 
 # ── Inertia helpers ─────────────────────────────────────────────────
-def inertia_block(m, ixx, iyy, izz):
-    return f"""      <inertial>
+def inertia_block(m, ixx, iyy, izz, ixy=0.0, ixz=0.0, iyz=0.0, com_pose=None):
+    """com_pose, if given (e.g. "0.00289 0.00066 -0.00822 0 0 0"), offsets
+    the center-of-mass frame from the link origin -- needed for base_link
+    post-Phase-2, whose lumped components no longer sum to a CoM at the
+    geometric center. ixy/ixz/iyz default to 0 (unchanged behavior for
+    every pre-existing call site, all of which are symmetric about their
+    own link origin)."""
+    pose_xml = f"\n        <pose>{com_pose}</pose>" if com_pose else ""
+    return f"""      <inertial>{pose_xml}
         <mass>{m}</mass>
         <inertia>
-          <ixx>{ixx:.6f}</ixx><ixy>0</ixy><ixz>0</ixz>
-          <iyy>{iyy:.6f}</iyy><iyz>0</iyz>
+          <ixx>{ixx:.6f}</ixx><ixy>{ixy:.6f}</ixy><ixz>{ixz:.6f}</ixz>
+          <iyy>{iyy:.6f}</iyy><iyz>{iyz:.6f}</iyz>
           <izz>{izz:.6f}</izz>
         </inertia>
       </inertial>"""
@@ -98,6 +153,15 @@ def box_inertia(m, sx, sy, sz):
 def cyl_inertia(m, r, l):
     ixx = m/12*(3*r**2 + l**2)
     return inertia_block(m, ixx, ixx, m/2*r**2)
+
+def hollow_cyl_inertia(m, r_outer, r_inner, l):
+    """Thin/thick-wall tube or annulus about its own center, axis along
+    local z (matches this file's <cylinder> convention). Phase 2
+    (2026-08-07): replaces cyl_inertia (solid) for the reaction wheels and
+    leg segments, which are real hollow tubes/rims, not solid stock."""
+    izz = m/2*(r_outer**2 + r_inner**2)
+    ixx = m/12*(3*(r_outer**2 + r_inner**2) + l**2)
+    return inertia_block(m, ixx, ixx, izz)
 
 # ── Detail visual generators (visual-only, no collision/inertia) ───
 
@@ -515,7 +579,9 @@ sdf = f"""<?xml version="1.0" ?>
     <!-- ══════════ BASE CHASSIS ══════════ -->
     <link name="base_link">
       <pose>0 0 {CHASSIS_Z} 0 0 0</pose>
-{box_inertia(1.35, CHASSIS_SIZE, CHASSIS_SIZE, CHASSIS_SIZE)}
+{inertia_block(BASE_LINK_MASS, BASE_LINK_IXX, BASE_LINK_IYY, BASE_LINK_IZZ,
+                ixy=BASE_LINK_IXY, ixz=BASE_LINK_IXZ, iyz=BASE_LINK_IYZ,
+                com_pose=f"{BASE_LINK_COM[0]} {BASE_LINK_COM[1]} {BASE_LINK_COM[2]} 0 0 0")}
 
       <!-- Main hull - brushed aluminum structural panel -->
       <visual name="hull_visual">
@@ -615,7 +681,7 @@ sdf = f"""<?xml version="1.0" ?>
     <!-- ══════════ SOLAR PANEL ARRAY (fixed to chassis top) ══════════ -->
     <link name="solar_panel">
       <pose>{0} {0} {CHASSIS_Z + CHASSIS_HALF + 0.005} 0 0 0</pose>
-{box_inertia(0.15, 0.18, 0.18, 0.005)}
+{box_inertia(SOLAR_MASS, 0.18, 0.18, 0.005)}
       <visual name="panel_surface">
         <geometry><box><size>0.18 0.18 0.005</size></box></geometry>
 {mat_pbr("0.03 0.05 0.22 1", metalness=0.7, roughness=0.15)}
@@ -655,7 +721,7 @@ sdf = f"""<?xml version="1.0" ?>
     <!-- ══════════ REACTION WHEELS (inside chassis) ══════════ -->
     <link name="rw_x">
       <pose>{0} {0} {CHASSIS_Z} 0 {math.pi/2} 0</pose>
-{cyl_inertia(0.15, RW_RADIUS, RW_LENGTH)}
+{hollow_cyl_inertia(RW_MASS, RW_RADIUS, RW_BORE_RADIUS, RW_LENGTH)}
       <visual name="visual">
         <geometry><cylinder><radius>{RW_RADIUS}</radius><length>{RW_LENGTH}</length></cylinder></geometry>
 {mat("0.35 0.1 0.1 1")}
@@ -670,7 +736,7 @@ sdf = f"""<?xml version="1.0" ?>
 
     <link name="rw_y">
       <pose>{0} {0} {CHASSIS_Z} {math.pi/2} 0 0</pose>
-{cyl_inertia(0.15, RW_RADIUS, RW_LENGTH)}
+{hollow_cyl_inertia(RW_MASS, RW_RADIUS, RW_BORE_RADIUS, RW_LENGTH)}
       <visual name="visual">
         <geometry><cylinder><radius>{RW_RADIUS}</radius><length>{RW_LENGTH}</length></cylinder></geometry>
 {mat("0.1 0.35 0.1 1")}
@@ -685,7 +751,7 @@ sdf = f"""<?xml version="1.0" ?>
 
     <link name="rw_z">
       <pose>{0} {0} {CHASSIS_Z} 0 0 0</pose>
-{cyl_inertia(0.15, RW_RADIUS, RW_LENGTH)}
+{hollow_cyl_inertia(RW_MASS, RW_RADIUS, RW_BORE_RADIUS, RW_LENGTH)}
       <visual name="visual">
         <geometry><cylinder><radius>{RW_RADIUS}</radius><length>{RW_LENGTH}</length></cylinder></geometry>
 {mat("0.1 0.1 0.35 1")}
@@ -761,7 +827,7 @@ for i in range(NUM_LEGS):
     <!-- ── LEG {i} ── -->
     <link name="{thigh}">
       <pose>{hip_x} {hip_y} {hip_z} 0 {HIP_PITCH} {angle}</pose>
-{cyl_inertia(0.05, THIGH_RADIUS, THIGH_LENGTH)}
+{hollow_cyl_inertia(THIGH_MASS, THIGH_RADIUS, THIGH_BORE_RADIUS, THIGH_LENGTH)}
       <visual name="visual">
         <pose>0 0 {THIGH_HALF} 0 0 0</pose>
         <geometry><cylinder><radius>{THIGH_RADIUS}</radius><length>{THIGH_LENGTH}</length></cylinder></geometry>
@@ -829,7 +895,7 @@ for i in range(NUM_LEGS):
 
     <link name="{calf}">
       <pose relative_to="{thigh}">0 0 {THIGH_LENGTH} 0 {KNEE_BEND} 0</pose>
-{cyl_inertia(0.05, CALF_RADIUS, CALF_LENGTH)}
+{hollow_cyl_inertia(CALF_MASS, CALF_RADIUS, CALF_BORE_RADIUS, CALF_LENGTH)}
       <visual name="visual">
         <pose>0 0 {CALF_HALF} 0 0 0</pose>
         <geometry><cylinder><radius>{CALF_RADIUS}</radius><length>{CALF_LENGTH}</length></cylinder></geometry>

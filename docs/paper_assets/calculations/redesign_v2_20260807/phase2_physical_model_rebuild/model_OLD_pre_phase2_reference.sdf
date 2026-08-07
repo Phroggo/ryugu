@@ -10,12 +10,11 @@
     <link name="base_link">
       <pose>0 0 0.25 0 0 0</pose>
       <inertial>
-        <pose>0.00289 0.00066 -0.00822 0 0 0</pose>
-        <mass>1.3689</mass>
+        <mass>1.35</mass>
         <inertia>
-          <ixx>0.009612</ixx><ixy>-0.000051</ixy><ixz>-0.000193</ixz>
-          <iyy>0.009914</iyy><iyz>-0.000106</iyz>
-          <izz>0.007529</izz>
+          <ixx>0.009000</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.009000</iyy><iyz>0</iyz>
+          <izz>0.009000</izz>
         </inertia>
       </inertial>
 
@@ -1109,11 +1108,11 @@
     <link name="solar_panel">
       <pose>0 0 0.355 0 0 0</pose>
       <inertial>
-        <mass>0.0152</mass>
+        <mass>0.15</mass>
         <inertia>
-          <ixx>0.000041</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000041</iyy><iyz>0.000000</iyz>
-          <izz>0.000082</izz>
+          <ixx>0.000405</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000405</iyy><iyz>0</iyz>
+          <izz>0.000810</izz>
         </inertia>
       </inertial>
       <visual name="panel_surface">
@@ -1216,15 +1215,15 @@
     <link name="rw_x">
       <pose>0 0 0.25 0 1.5707963267948966 0</pose>
       <inertial>
-        <mass>0.185</mass>
+        <mass>0.15</mass>
         <inertia>
-          <ixx>0.000199</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000199</iyy><iyz>0.000000</iyz>
-          <izz>0.000394</izz>
+          <ixx>0.000140</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000140</iyy><iyz>0</iyz>
+          <izz>0.000270</izz>
         </inertia>
       </inertial>
       <visual name="visual">
-        <geometry><cylinder><radius>0.05</radius><length>0.01</length></cylinder></geometry>
+        <geometry><cylinder><radius>0.06</radius><length>0.02</length></cylinder></geometry>
         <material>
           <ambient>0.35 0.1 0.1 1</ambient>
           <diffuse>0.35 0.1 0.1 1</diffuse>
@@ -1248,15 +1247,15 @@
     <link name="rw_y">
       <pose>0 0 0.25 1.5707963267948966 0 0</pose>
       <inertial>
-        <mass>0.185</mass>
+        <mass>0.15</mass>
         <inertia>
-          <ixx>0.000199</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000199</iyy><iyz>0.000000</iyz>
-          <izz>0.000394</izz>
+          <ixx>0.000140</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000140</iyy><iyz>0</iyz>
+          <izz>0.000270</izz>
         </inertia>
       </inertial>
       <visual name="visual">
-        <geometry><cylinder><radius>0.05</radius><length>0.01</length></cylinder></geometry>
+        <geometry><cylinder><radius>0.06</radius><length>0.02</length></cylinder></geometry>
         <material>
           <ambient>0.1 0.35 0.1 1</ambient>
           <diffuse>0.1 0.35 0.1 1</diffuse>
@@ -1280,15 +1279,15 @@
     <link name="rw_z">
       <pose>0 0 0.25 0 0 0</pose>
       <inertial>
-        <mass>0.185</mass>
+        <mass>0.15</mass>
         <inertia>
-          <ixx>0.000199</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000199</iyy><iyz>0.000000</iyz>
-          <izz>0.000394</izz>
+          <ixx>0.000140</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000140</iyy><iyz>0</iyz>
+          <izz>0.000270</izz>
         </inertia>
       </inertial>
       <visual name="visual">
-        <geometry><cylinder><radius>0.05</radius><length>0.01</length></cylinder></geometry>
+        <geometry><cylinder><radius>0.06</radius><length>0.02</length></cylinder></geometry>
         <material>
           <ambient>0.1 0.1 0.35 1</ambient>
           <diffuse>0.1 0.1 0.35 1</diffuse>
@@ -1320,8 +1319,8 @@
       <inertial>
         <mass>0.25</mass>
         <inertia>
-          <ixx>0.000222</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000222</iyy><iyz>0.000000</iyz>
+          <ixx>0.000222</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000222</iyy><iyz>0</iyz>
           <izz>0.000028</izz>
         </inertia>
       </inertial>
@@ -1395,11 +1394,11 @@
     <link name="thigh_0">
       <pose>0.07 0.0 0.15 0 1.2 0.0</pose>
       <inertial>
-        <mass>0.0219</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0.000043</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000043</iyy><iyz>0.000000</iyz>
-          <izz>0.000005</izz>
+          <ixx>0.000097</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000097</iyy><iyz>0</iyz>
+          <izz>0.000006</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -1524,11 +1523,11 @@
     <link name="calf_0">
       <pose relative_to="thigh_0">0 0 0.15 0 0.8 0</pose>
       <inertial>
-        <mass>0.0143</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0.000027</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000027</iyy><iyz>0.000000</iyz>
-          <izz>0.000001</izz>
+          <ixx>0.000095</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000095</iyy><iyz>0</iyz>
+          <izz>0.000003</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -1669,11 +1668,11 @@
     <link name="thigh_1">
       <pose>-0.03499999999999999 0.06062177826491071 0.15 0 1.2 2.0943951023931953</pose>
       <inertial>
-        <mass>0.0219</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0.000043</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000043</iyy><iyz>0.000000</iyz>
-          <izz>0.000005</izz>
+          <ixx>0.000097</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000097</iyy><iyz>0</iyz>
+          <izz>0.000006</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -1798,11 +1797,11 @@
     <link name="calf_1">
       <pose relative_to="thigh_1">0 0 0.15 0 0.8 0</pose>
       <inertial>
-        <mass>0.0143</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0.000027</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000027</iyy><iyz>0.000000</iyz>
-          <izz>0.000001</izz>
+          <ixx>0.000095</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000095</iyy><iyz>0</iyz>
+          <izz>0.000003</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -1943,11 +1942,11 @@
     <link name="thigh_2">
       <pose>-0.03500000000000003 -0.06062177826491069 0.15 0 1.2 4.1887902047863905</pose>
       <inertial>
-        <mass>0.0219</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0.000043</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000043</iyy><iyz>0.000000</iyz>
-          <izz>0.000005</izz>
+          <ixx>0.000097</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000097</iyy><iyz>0</iyz>
+          <izz>0.000006</izz>
         </inertia>
       </inertial>
       <visual name="visual">
@@ -2072,11 +2071,11 @@
     <link name="calf_2">
       <pose relative_to="thigh_2">0 0 0.15 0 0.8 0</pose>
       <inertial>
-        <mass>0.0143</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0.000027</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
-          <iyy>0.000027</iyy><iyz>0.000000</iyz>
-          <izz>0.000001</izz>
+          <ixx>0.000095</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.000095</iyy><iyz>0</iyz>
+          <izz>0.000003</izz>
         </inertia>
       </inertial>
       <visual name="visual">

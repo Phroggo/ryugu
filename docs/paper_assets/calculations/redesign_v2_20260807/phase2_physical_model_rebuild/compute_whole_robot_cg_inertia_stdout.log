@@ -1,0 +1,58 @@
+
+############ OLD (pre-Phase-2): /home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase2_physical_model_rebuild/model_OLD_pre_phase2_reference.sdf ############
+
+=== retracted (flight neutral) (hip=+0.00, knee=+0.00) ===
+total mass: 2.5000 kg
+CG (x,y,z) relative to base_link origin: (-0.00000, +0.00000, -0.00944) m
+full inertia tensor about CG (kg*m^2):
+  [ 1.865777e-02  -1.301043e-18  -8.131516e-20]
+  [-1.301043e-18   1.865777e-02   2.168404e-19]
+  [-8.131516e-20   2.168404e-19   1.821813e-02]
+I_zz (for direct comparison to compute_moi.py's existing figure): 1.821813e-02
+
+=== splayed (crouch stance) (hip=+0.33, knee=-2.60) ===
+total mass: 2.5000 kg
+CG (x,y,z) relative to base_link origin: (-0.00000, +0.00000, -0.01233) m
+full inertia tensor about CG (kg*m^2):
+  [ 1.992087e-02  -1.084202e-18  -3.252607e-19]
+  [-1.084202e-18   1.992087e-02   5.421011e-19]
+  [-3.252607e-19   5.421011e-19   1.869395e-02]
+I_zz (for direct comparison to compute_moi.py's existing figure): 1.869395e-02
+
+=== extended (launch release) (hip=-0.42, knee=-1.10) ===
+total mass: 2.5000 kg
+CG (x,y,z) relative to base_link origin: (-0.00000, +0.00000, -0.00630) m
+full inertia tensor about CG (kg*m^2):
+  [ 1.761944e-02  -7.589415e-19   2.710505e-20]
+  [-7.589415e-19   1.761944e-02   2.710505e-20]
+  [ 1.355253e-20   0.000000e+00   1.596349e-02]
+I_zz (for direct comparison to compute_moi.py's existing figure): 1.596349e-02
+
+############ NEW (post-Phase-2): /home/melvin/ryugu_v2_ws/src/ryugu_sim/models/spacehopper/model.sdf ############
+
+=== retracted (flight neutral) (hip=+0.00, knee=+0.00) ===
+total mass: 2.2977 kg
+CG (x,y,z) relative to base_link origin: (+0.00172, +0.00039, -0.01553) m
+full inertia tensor about CG (kg*m^2):
+  [ 1.357790e-02  -5.205546e-05  -2.219215e-04]
+  [-5.205546e-05   1.388428e-02  -1.126049e-04]
+  [-2.219215e-04  -1.126049e-04   1.082771e-02]
+I_zz (for direct comparison to compute_moi.py's existing figure): 1.082771e-02
+
+=== splayed (crouch stance) (hip=+0.33, knee=-2.60) ===
+total mass: 2.2977 kg
+CG (x,y,z) relative to base_link origin: (+0.00172, +0.00039, -0.01643) m
+full inertia tensor about CG (kg*m^2):
+  [ 1.391538e-02  -5.205546e-05  -2.254844e-04]
+  [-5.205546e-05   1.422176e-02  -1.134186e-04]
+  [-2.254844e-04  -1.134186e-04   1.096916e-02]
+I_zz (for direct comparison to compute_moi.py's existing figure): 1.096916e-02
+
+=== extended (launch release) (hip=-0.42, knee=-1.10) ===
+total mass: 2.2977 kg
+CG (x,y,z) relative to base_link origin: (+0.00172, +0.00039, -0.01455) m
+full inertia tensor about CG (kg*m^2):
+  [ 1.331954e-02  -5.205546e-05  -2.180596e-04]
+  [-5.205546e-05   1.362592e-02  -1.117230e-04]
+  [-2.180596e-04  -1.117230e-04   1.017002e-02]
+I_zz (for direct comparison to compute_moi.py's existing figure): 1.017002e-02

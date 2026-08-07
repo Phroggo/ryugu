@@ -1,0 +1,17 @@
+[chassis sub-assembly] mass=0.4919 kg, own CoM=[0.0, 0.0, 0.0] (should be ~0,0,0 by symmetry)
+
+=== New base_link (lumped, computed from Phase 1 components) ===
+Total mass: 1.3689 kg
+CoM relative to base_link origin: x=0.00289  y=0.00066  z=-0.00822  (m)
+Full inertia tensor about the CoM (kg*m^2):
+  [ 9.612225e-03  -5.139646e-05  -1.927443e-04]
+  [-5.139646e-05   9.913904e-03  -1.063964e-04]
+  [-1.927443e-04  -1.063964e-04   7.528845e-03]
+
+Same tensor translated to base_link's ORIGIN (for old-vs-new diagonal comparison):
+  [ 9.705272e-03  -5.400000e-05  -1.602000e-04]
+  [-5.400000e-05   1.001781e-02  -9.900000e-05]
+  [-1.602000e-04  -9.900000e-05   7.540892e-03]
+
+=== OLD lumped base_link (for comparison) ===
+mass=1.350 kg, CoM=(0,0,0) [assumed], I=diag(9.000e-03, 9.000e-03, 9.000e-03)
