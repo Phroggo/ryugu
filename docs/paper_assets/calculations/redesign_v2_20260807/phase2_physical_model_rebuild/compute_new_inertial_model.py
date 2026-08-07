@@ -148,7 +148,12 @@ components = [
     ("leg motor+gearhead (leg2: hip+knee)", 2 * 0.040, (-0.035, -0.0606, -0.10), point_tensor()),
     ("battery+BMS", 4 * 0.0475 + 0.020, (0, 0, 0.05), point_tensor()),
     ("avionics (computer+sensing+comms)", 0.094 + 0.030 + 0.094, (0, 0, 0), point_tensor()),
-    ("antenna", 0.015, (0.06, 0.06, 0.11), point_tensor()),
+    ("antenna (UHF whip)", 0.015, (0.06, 0.06, 0.11), point_tensor()),
+    # NEW (Phase 2 closeout, 2026-08-07): S-Band patch antenna, previously
+    # silently 0 kg. Position from the antenna_patch visual in
+    # antenna_mast() (real existing visual layout). See AUDIT_TABLE.md
+    # row 10b.
+    ("antenna (S-Band patch)", 0.015, (-0.04, -0.06, 0.101), point_tensor()),
     ("cameras x3", 3 * 0.010, (0.102, 0.0, 0.02), point_tensor()),  # mean of the 3 real positions
     ("MLI", 0.098, (0, 0, 0), point_tensor()),
 ]

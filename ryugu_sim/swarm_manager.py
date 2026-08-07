@@ -111,7 +111,7 @@ class SwarmManager(Node):
         self.state = {
             agent: {
                 "role": "Unassigned",
-                "battery": random.uniform(85.0, 100.0), # Ni-MH charge
+                "battery": random.uniform(85.0, 100.0), # Li-ion 18650 charge (%)
                 "target_x": 0.0,
                 "target_y": 0.0,
                 "has_sample": False,
@@ -357,7 +357,16 @@ class SwarmManager(Node):
     def swarm_tick(self):
         self.tick_count += 1
         self._check_liveness()
-        # 1. Ni-MH Battery Simulation & Safety Overrides
+        # 1. Li-ion 18650 Battery Simulation & Safety Overrides
+        # CORRECTED (2026-08-07, Phase 2 mass-model closeout): this section
+        # and the BMS alert message below previously said "Ni-MH" -- stale
+        # from an early placeholder that was never updated when the design
+        # settled on 4x Panasonic NCR18650B Li-ion cells (Table I; sourced
+        # datasheet in docs/paper_assets/calculations/redesign_v2_20260807/
+        # phase1_mass_inertia_audit/AUDIT_TABLE.md row 7a). The underlying
+        # simulation here is a chemistry-agnostic 0-100% abstraction (no
+        # voltage/capacity curve is modeled either way), so this is a label
+        # fix only -- no behavior change.
         # Drain now depends on what the agent is actually doing, instead of a
         # flat random drain applied to every agent regardless of role. RECHARGE
         # previously didn't actually charge anything -- it kept draining at the
@@ -382,7 +391,7 @@ class SwarmManager(Node):
                 self.state[agent]["power_rate"] = -drain
 
             if self.state[agent]["battery"] < 15.0 and role != "RECHARGE":
-                self.get_logger().warn(f"🔋 {agent} BMS Alert! Ni-MH cells critical ({self.state[agent]['battery']:.1f}%). Fleeing to sunlight.")
+                self.get_logger().warn(f"🔋 {agent} BMS Alert! Li-ion cells critical ({self.state[agent]['battery']:.1f}%). Fleeing to sunlight.")
                 # A SAMPLER abandoning mid-task must give its target back to
                 # the queue -- previously the anomaly was silently lost when
                 # the battery override stole the agent.

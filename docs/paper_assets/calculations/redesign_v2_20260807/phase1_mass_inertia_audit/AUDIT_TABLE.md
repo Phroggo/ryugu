@@ -23,23 +23,25 @@ later phase to apply.
 | 6a | **Flight computer** | 1 | **0.094 kg** | **vendor-typical**: ISIS iOBC, real cubesat on-board computer [7] | — | Lumped into base_link |
 | 6b | **Attitude-sensing suite** (IMU + sun/star sensing) | 1 | **≈0.030 kg** | **ESTIMATE** — order-of-magnitude only. Real miniaturized cubesat star trackers run "dozens of grams" [8] and MEMS IMU boards a few grams each; no single named part matches the paper's generic "onboard attitude-sensing suite" description. **Needs a specific part chosen before this stops being an estimate.** | — | Lumped into base_link |
 | 6c | **Comms** | 1 | **0.094 kg** | **datasheet/vendor**: EnduroSat UHF Transceiver II, dry mass 0.094 kg [9]. **Flag: Table I currently says "S-Band comms"; this sourced part and the platform's own comms-model finding (round-2 sim-chat, §10) both describe UHF. This mismatch needs resolving, not silently picking one.** | — | Lumped into base_link |
-| 7a | **Battery cells** (18650) | 4 | **0.0475 kg** | **datasheet**: Panasonic NCR18650B, max weight 47.5g [10] | 3400 mAh, 3.7V nominal | Not modeled as a separate link |
+| 7a | **Battery cells** (18650) | 4 | **0.0475 kg** | **datasheet**: Panasonic NCR18650B, max weight 47.5g [10] | 3400 mAh, 3.7V nominal | Not modeled as a separate link. **RESOLVED (Phase 2 closeout, 2026-08-07):** this row was already correct — the inconsistency was in `swarm_manager.py`'s comments/log strings and the generator's battery visual, both of which said "Ni-MH" (12 cells). Confirmed 4× Li-ion 18650 is the intended design (real, sourced, form-factor-specific part vs. an unspecified generic chemistry label; Li-ion is the realistic modern choice for a mass-constrained platform) and corrected the code/visual to match. Zero mass impact — this row's number was never wrong. |
 | 7b | **BMS** | 1 | **≈0.020 kg** | **ESTIMATE**. Cubesat BMS mass budgets typically run under 100g for a full multi-string pack [11]; 20g is a reasoned fraction for a single 4-cell string, not a specific named part. | — | Not modeled as a separate link |
 | 8 | **Payload** (rotary-percussive micro-corer + carousel) | 1 | **0.25 kg** | **ESTIMATE, unresolved**. No comparable real hardware mass was found this research pass (searches returned drilling *principles* for asteroid/planetary corers — SD2, ExoMars drill — not mass figures). Kept at the current model.sdf value as a placeholder. **This is the weakest-sourced row in the table and should be revisited before Table I is rebuilt.** | — | Solid cylinder, m=0.25kg |
 | 9 | **Solar panel** | 1 | **0.0152 kg** | computed-from-geometry: GaAs triple-junction areal mass ≈0.47 kg/m² (mid-range of 0.4–0.54 kg/m² from EnduroSat panel data and flexible-ELO-cell literature [12]); panel area 0.18×0.18m = 0.0324 m² (from model.sdf) | — | Flat box, m=0.15kg — ~10× the geometry-based figure |
-| 10 | **Antenna** | 1 | **≈0.015 kg** | **ESTIMATE, weakly bounded**. Real comparable products found (EnduroSat 2U deployable UHF antenna 210g [13]; a dual-band UHF patch design at 250g) are cubesat-bus-scale deployable systems, almost certainly oversized for this platform's fixed/simple antenna. 15g is a rough scale-down, not a matched part. **Needs a specific small-antenna comparable.** | — | Visual only, 0 kg |
+| 10a | **Antenna — UHF whip** | 1 | **≈0.015 kg** | **ESTIMATE, weakly bounded**. Real comparable products found (EnduroSat 2U deployable UHF antenna 210g [13]; a dual-band UHF patch design at 250g) are cubesat-bus-scale deployable systems, almost certainly oversized for this platform's fixed/simple antenna. 15g is a rough scale-down, not a matched part. **Needs a specific small-antenna comparable.** | — | Visual only, 0 kg |
+| 10b | **Antenna — S-Band patch** | 1 | **≈0.015 kg** | **NEW (Phase 2 closeout, 2026-08-07). ESTIMATE, weakly bounded.** Was silently 0 kg — the visual model has always had a separate S-Band patch element (`antenna_patch`, a 30×30×3mm plate) alongside the UHF whip, never costed. Real reference: Cubecom SANT S-band patch antenna, 139g [16] — but that's a full cubesat-bus-scale unit (typically ~80–100mm patches); area-scaling down to this platform's 30×30mm patch footprint (~0.11× the reference area) suggests roughly 15g, plus this platform's patch is tiny enough that connector/feed hardware (which doesn't scale down proportionally) likely dominates. 15g used as a round, conservative estimate — **also needs a specific small-patch comparable before this is more than an estimate.** This addition also directly informs the open "Table I says S-Band, sourced comms part is UHF" question from row 6c: the visual model modeling *both* antennas suggests a genuine two-band system (UHF for the mesh, S-Band for higher-rate downlink) rather than a contradiction — still not confirmed, but now at least both bands have a cost line instead of one being invisible. | — | Visual only, 0 kg |
 | 11 | **Cameras** (stereo hazcams ×2 + navcam ×1) | 3 | **0.010 kg** | **vendor-typical**: OV5640-class miniature board camera module, ≈10g [14] | — | Visual only, 0 kg |
 | 12 | **Thermal MLI** | 1 (blanket) | **≈0.098 kg** | computed-from-geometry: JPL standard 15-layer MLI areal mass 0.6–0.7 kg/m² [15]; coverage area 0.15 m² — **ASSUMPTION** (≈70% of the chassis's 0.24 m² outer surface, not a wrap pattern that's been designed) | — | Visual only, 0 kg |
 
 ## Bottom-line sanity check (not a rebuilt Table I — that's later-phase work)
 
-Summing every row × quantity gives **≈2.30 kg**, against the paper's current
-2.50 kg total. This is a rough cross-check, not a validated mass budget: two
-rows (payload, antenna) are explicitly unresolved estimates, the chassis
-figure depends on assumed panel/frame cross-sections, and nothing here has
-been reconciled against the platform's actual required strength/stiffness or
-power budget. Treat "≈2.30 kg is in the right ballpark" as mildly reassuring,
-not as validation.
+Summing every row × quantity (now including the S-Band patch antenna, row
+10b) gives **≈2.315 kg**, against the paper's current 2.50 kg total. This is
+a rough cross-check, not a validated mass budget: three rows (payload,
+both antennas) are explicitly unresolved estimates, the chassis figure
+depends on assumed panel/frame cross-sections, and nothing here has been
+reconciled against the platform's actual required strength/stiffness or
+power budget. Treat "≈2.3 kg is in the right ballpark" as mildly
+reassuring, not as validation.
 
 ## Sources
 
@@ -58,6 +60,7 @@ not as validation.
 13. EnduroSat, UHF Antenna 2U product page.
 14. OV5640-class USB/board camera module commercial listings.
 15. JPL standard 15-layer MLI blanket areal-mass reference (science.gov / general spacecraft thermal literature).
+16. Cubecom (satsearch.co listing), SANT S-band Patch Antenna product mass (139g, full-size cubesat-bus reference, scaled down for this platform's much smaller patch footprint).
 
 ## Tooling note
 

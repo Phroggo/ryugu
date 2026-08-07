@@ -40,14 +40,20 @@ KNEE_BEND = 0.8
 # compute_new_inertial_model.py. Was mass=1.35kg, CoM assumed at (0,0,0),
 # I=diag(9.0e-3,9.0e-3,9.0e-3) -- a round-number placeholder, not computed
 # from any component layout.
-BASE_LINK_MASS = 1.3689
-BASE_LINK_COM = (0.00289, 0.00066, -0.00822)   # m, relative to base_link origin
-BASE_LINK_IXX = 9.612225e-03
-BASE_LINK_IYY = 9.913904e-03
-BASE_LINK_IZZ = 7.528845e-03
-BASE_LINK_IXY = -5.139646e-05
-BASE_LINK_IXZ = -1.927443e-04
-BASE_LINK_IYZ = -1.063964e-04
+# UPDATED (2026-08-07, Phase 2 mass-model closeout): adds the previously-
+# silently-zero S-Band patch antenna (+15g, AUDIT_TABLE.md row 10b) and
+# corrects the battery position derivation to the real 4x18650 layout
+# (battery MASS was already correct; only its visual/label was wrong --
+# see battery_visuals() and swarm_manager.py). Was mass=1.3689kg (first
+# Phase 2 rebuild, antenna omitted).
+BASE_LINK_MASS = 1.3839
+BASE_LINK_COM = (0.00243, 0.00000, -0.00703)   # m, relative to base_link origin
+BASE_LINK_IXX = 9.843807e-03
+BASE_LINK_IYY = 1.011819e-02
+BASE_LINK_IZZ = 7.610734e-03
+BASE_LINK_IXY = -9.000000e-05
+BASE_LINK_IXZ = -1.232357e-04
+BASE_LINK_IYZ = -8.100000e-06
 
 # Phase 2 mass/inertia rebuild (2026-08-07): was a solid disc (implied
 # density 663 kg/m^3 -- not a real material). Real reaction wheels are
@@ -459,17 +465,29 @@ def status_led():
     return out
 
 def battery_visuals():
-    """12 Ni-MH cell visuals."""
+    """4x real 18650 Li-ion cell visuals (18mm dia x 65mm), 2x2 grid.
+    CORRECTED (2026-08-07, Phase 2 mass-model closeout): was 12 placeholder
+    cells labeled "Ni-MH" -- a stale early-design visual that disagreed
+    with Table I's 4x Li-ion 18650 (the sourced, datasheet-backed figure --
+    see AUDIT_TABLE.md row 7a). Real 18650 form factor, not a round-number
+    placeholder.
+
+    NOT CALLED anywhere in this file (confirmed by grep -- dead code, both
+    before and after this fix). Left defined-but-unwired deliberately: the
+    cells sit at z~0.05, inside the solid opaque hull_visual box, so they'd
+    never actually render -- the same "Internal visuals removed to prevent
+    clipping" reasoning already applied elsewhere in this file (see the
+    comment near rw_housing()/drill_housing() below). Fixing the content
+    (chemistry/count/geometry) still matters for internal consistency and
+    for whenever a future cutaway/x-ray view gets added; wiring it into the
+    visible geometry would not, since it wouldn't be visible either way."""
     out = ""
-    x0, y0 = -0.04, -0.06
-    for i in range(3):
-        for j in range(4):
-            x = x0 + i * 0.04
-            y = y0 + j * 0.04
-            out += f"""
-      <visual name="battery_{i}_{j}">
+    positions = [(-0.012, -0.012), (-0.012, 0.012), (0.012, -0.012), (0.012, 0.012)]
+    for idx, (x, y) in enumerate(positions):
+        out += f"""
+      <visual name="battery_{idx}">
         <pose>{x} {y} 0.05 0 0 0</pose>
-        <geometry><cylinder><radius>0.015</radius><length>0.06</length></cylinder></geometry>
+        <geometry><cylinder><radius>0.009</radius><length>0.065</length></cylinder></geometry>
 {mat("0.8 0.4 0.1 1")}
       </visual>"""
     return out

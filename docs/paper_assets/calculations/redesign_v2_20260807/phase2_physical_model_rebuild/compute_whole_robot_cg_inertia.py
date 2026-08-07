@@ -21,6 +21,9 @@ import numpy as np
 REPO_ROOT = "/home/melvin/ryugu_v2_ws/src/ryugu_sim"
 NEW_SDF = os.path.join(REPO_ROOT, "models/spacehopper/model.sdf")
 OLD_SDF = os.path.join(os.path.dirname(__file__), "model_OLD_pre_phase2_reference.sdf")
+# Added for the battery/antenna correction pass (2026-08-07): the first
+# Phase 2 rebuild (pre-correction), for a 3-way comparison.
+V1_SDF = os.path.join(os.path.dirname(__file__), "model_PHASE2_v1_reference.sdf")
 
 POSTURES = {
     'retracted (flight neutral)': dict(hip=0.00, knee=0.00),
@@ -131,7 +134,9 @@ def full_tensor(links, frames):
 
 
 def main():
-    for label_file, path in [("OLD (pre-Phase-2)", OLD_SDF), ("NEW (post-Phase-2)", NEW_SDF)]:
+    for label_file, path in [("OLD (pre-Phase-2, original)", OLD_SDF),
+                              ("PHASE2-v1 (first rebuild, battery/antenna bugs)", V1_SDF),
+                              ("PHASE2-CORRECTED (battery+S-Band-antenna fix)", NEW_SDF)]:
         print(f"\n############ {label_file}: {path} ############")
         links = load_links(path)
         # base_link is the root link (no relative_to) -- its own <pose> IS
