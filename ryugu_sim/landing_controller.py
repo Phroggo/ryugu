@@ -266,6 +266,16 @@ class LandingController(Node):
         # at a commanded speed of only ~29 rad/s (out of a 160 ceiling,
         # purely from the taper formula, damping already off). Testing
         # whether more momentum transfer in the final approach clears it.
+        # PHASE 1 MASS/CONSTANT AUDIT (2026-08-07): confirmed DEAD/UNUSED --
+        # grep of this file shows this value is read nowhere; the rev-2
+        # acceleration-integrated taper (RIGHTING_ACCEL_TAPER,
+        # RIGHTING_RATE_DAMP_SCALE/FLOOR below) superseded the old
+        # proportional speed-lookup this constant used to feed. Left at its
+        # diagnostic value (20.0, not reverted to 8.0) with zero behavioral
+        # effect either way. Not touched further here -- see
+        # docs/paper_assets/calculations/redesign_v2_20260807/phase1_mass_inertia_audit/
+        # for the full audit; a future cleanup pass should delete this
+        # constant rather than "re-tune" a value nothing reads.
         self.GENTLE_RIGHTING_SPEED = 20.0
         self.RIGHTING_TIMEOUT_TICKS = 1500  # 15 s per attempt at ~100 Hz
         # DIAGNOSTIC FINDING (2026-08-06, not applied as a fix): temporarily

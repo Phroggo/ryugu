@@ -1,0 +1,17 @@
+=== Reaction wheel (annulus, stainless steel) ===
+  r_outer=50.0mm  r_inner=42.0mm  length=10.0mm  density=8000 kg/m^3
+  mass = 0.1850 kg (185.0 g)
+  I_zz (spin axis)  = 3.943709e-04 kg*m^2
+  I_xx (transverse) = 1.987269e-04 kg*m^2
+  [current model.sdf: solid disc, m=0.15kg, I_zz=2.70e-4 kg*m^2, implied density=663 kg/m^3 -- not a real material]
+
+=== Chassis (CFRP skin + 7075-T6 edge frame) ===
+  CFRP panels: 0.2400 m^2 x 1.0mm x 1600 kg/m^3 = 0.3840 kg
+  Al 7075-T6 frame: 2.400 m of 4x4mm edge x 2810 kg/m^3 = 0.1079 kg
+  TOTAL chassis mass = 0.4919 kg  (Table I currently claims 0.70 kg)
+
+=== Legs (CFRP tube, per segment) ===
+  thigh: r_outer=15.0mm r_inner=14.0mm L=150mm -> 0.0219 kg (21.9 g)
+  calf:  r_outer=10.0mm r_inner=9.0mm L=150mm -> 0.0143 kg (14.3 g)
+  [current model.sdf: both segments hardcoded to 0.05 kg each, solid-cylinder geometry]
+  6-segment (3x thigh + 3x calf) total: 0.1086 kg  (current model.sdf total: 0.300 kg)
