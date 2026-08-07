@@ -1,0 +1,12 @@
+=== 1ms (/home/melvin/ryugu_v2_ws/src/ryugu_sim/worlds/ryugu.sdf) ===
+  commanded target_yaw=107.0 deg
+  converged (<1 deg error) at t=8.482503652572632, final_yaw=106.0783159479943
+=== 4ms (/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase4_attitude_revalidation/ryugu_4ms.sdf) ===
+  commanded target_yaw=107.0 deg
+  converged (<1 deg error) at t=8.235439538955688, final_yaw=106.10760756390513
+
+=== SUMMARY ===
+1ms: converged_t=8.482503652572632, final_yaw=106.0783159479943
+4ms: converged_t=8.235439538955688, final_yaw=106.10760756390513
+
+=== Comparison against the ORIGINAL C13 result (106.03 deg, <1 deg by t+9.3s) and the OLD-model timestep check (1ms: 106.06deg/9.61s, 4ms: 106.15deg/8.70s) ===

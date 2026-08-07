@@ -175,8 +175,28 @@ class AttitudeController(Node):
         # inertia). Torque still clips at the same 15 mNm motor budget, so
         # large errors remain bang-bang at unchanged authority -- only the
         # small-error creep gets faster.
-        self.K_ang = 0.05    # N m / rad      (attitude stiffness)
-        self.K_rate = 0.066  # N m / (rad/s)  (rate damping)
+        # PHASE 4 RE-DERIVATION (2026-08-07): the "~0.025 kg m^2" I used
+        # above was always a hand estimate; Phase 2's mass-model rebuild
+        # replaced it with a rigorously-computed retracted-posture I_bot
+        # (1.090813e-02 kg*m^2 -- ~40% lower, see docs/paper_assets/
+        # calculations/redesign_v2_20260807/phase2_physical_model_rebuild/
+        # CG_INERTIA_REPORT.md), and Phase 3 re-derived these gains against
+        # it using the SAME method and the SAME target design intent
+        # (wn=1.9 rad/s -- the midpoint of this comment's own stated
+        # "1.8-2 rad/s" -- and zeta=1.1, both preserved, not re-picked; see
+        # phase3_derived_physics/PHASE3_CHECKPOINT_COMPARISON.md for the
+        # full derivation and a sanity check that the old gains against
+        # the old model's REAL I_bot reproduce this comment's claimed
+        # ~1.1 zeta / ~1.8-2 rad/s wn before trusting the new numbers).
+        # Was K_ang=0.05, K_rate=0.066.
+        self.K_ang = 0.0394   # N m / rad      (attitude stiffness)
+        self.K_rate = 0.0456  # N m / (rad/s)  (rate damping)
+        # NOT updated this phase, deliberately: I_wheel below is also
+        # stale against Phase 1/2's real RW annulus (3.944e-4 kg*m^2 spin-
+        # axis, vs. the 2.7e-4 here from the old solid-disc model) -- left
+        # untouched so Phase 4 stays a single-variable test (gains only,
+        # per explicit instruction), not a second simultaneous change.
+        # Flagged for a later phase, not silently left inconsistent.
         self.I_wheel = 0.00027  # kg m^2, RW spin-axis inertia (model.sdf)
         self.tau_max = 0.015    # N m, RW motor torque budget (SS3.2)
 
