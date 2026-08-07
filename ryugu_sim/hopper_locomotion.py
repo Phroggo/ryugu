@@ -148,6 +148,33 @@ class HopperLocomotion(Node):
         # Subscriber for Landed Status (From Landing Controller)
         self.sub_landed = self.create_subscription(Bool, f'/{self.robot_name}/landed', self.landed_callback, 10)
 
+        # Righting-active safeguard (2026-08-05, outside-review catch).
+        # Not the cause of this week's measured failures (traced: hopper
+        # publishes no leg commands for minutes before a real landing even
+        # occurs, and no test harness this week issued overlapping jump
+        # commands), but a genuine architectural gap for a real multi-agent
+        # mission where swarm_manager could legitimately send a new jump
+        # command while landing_controller is mid-righting -- last-write-
+        # wins on the shared leg joint topics would let hopper's crouch/
+        # launch targets fight the righting sequence's fold/deploy targets.
+        # Abort cleanly to IDLE and refuse new jumps for the duration.
+        self.righting_active = False
+        self.create_subscription(
+            Bool, f'/{self.robot_name}/righting_active',
+            self._righting_active_callback, 10)
+
+    def _righting_active_callback(self, msg):
+        was_active = self.righting_active
+        self.righting_active = msg.data
+        if msg.data and not was_active and self.state not in (self.IDLE, self.FLIGHT):
+            self.get_logger().warn(
+                f"[{self.robot_name}] Righting active — aborting leg motion "
+                f"(was state={self.state}).")
+            self.set_joints(0.0, 0.0)
+            self.state = self.IDLE
+            self.state_timer = 0
+            self.idle_ticks = 0
+
         # Attitude error (rad) from attitude_controller: while grounded it
         # reports the YAW error to the commanded heading -- exactly what
         # the crouch must wait on before firing a leaned (directional)
@@ -170,6 +197,9 @@ class HopperLocomotion(Node):
             self.idle_ticks = 0
 
     def jump_target_callback(self, msg):
+        if self.righting_active:
+            self.get_logger().warn(f"[{self.robot_name}] Ignoring jump command — righting in progress.")
+            return
         if self.state != self.IDLE:
             self.get_logger().warn(f"[{self.robot_name}] Ignoring jump command, currently not IDLE (state={self.state})")
             return
@@ -342,7 +372,7 @@ class HopperLocomotion(Node):
 
     def tick(self):
         if self.state == self.IDLE:
-            if not self.landed:
+            if not self.landed or self.righting_active:
                 return
             self.idle_ticks += 1
             if self.idle_ticks >= self.IDLE_RECOVERY_TICKS:
@@ -404,7 +434,16 @@ class HopperLocomotion(Node):
             # Keep-awake: re-nudge every 2 s through the crouch — a slow
             # crouch can cross DART's quiescence window mid-stroke and the
             # model sleeps through its own IGNITION (2026-07-16).
-            if self.state_timer % 20 == 0:
+            # BUG FIX (2026-08-05, outside-review catch): this fired
+            # unconditionally, unlike the LAUNCH state's identical wake call,
+            # which was deliberately gated on genuine quiescence
+            # (last_speed < 0.001) after the V_GAIN investigation found the
+            # ungated version destroys real velocity being built by the
+            # ramp -- _wake_model()'s set_pose zeroes body velocity as a
+            # side effect. CROUCH builds real velocity too (the ~0.03 m/s
+            # stand-up rise), so it was exposed to the same failure mode,
+            # just never diagnosed here. Same gate applied for consistency.
+            if self.state_timer % 20 == 0 and getattr(self, 'last_speed', 0.0) < 0.001:
                 self._wake_model()
             # 10 s crouch (was 2 s): standing the 2.5 kg body up from belly-
             # rest onto planted feet at the leg PIDs' soft forces (~0.2 N

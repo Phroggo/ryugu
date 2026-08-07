@@ -287,7 +287,20 @@ class AttitudeController(Node):
         just means a little extra stabilization during touchdown, which is
         harmless (the 1-deg deadband bounds any windup to a few tens of
         rad/s over a settle window)."""
-        if msg.data and self.in_flight:
+        if msg.data:
+            # UNCONDITIONAL bootstrap (2026-08-05): was gated on
+            # self.in_flight, which is only ever armed by jump_callback --
+            # any landed=True reached WITHOUT a preceding legitimate jump
+            # (this controller started already grounded, a teleport-based
+            # test, or any other path that never fires jump_callback) left
+            # target_yaw at its stale init value forever, since this whole
+            # branch would just never run. A position-PD yaw-hold fighting
+            # a stale, essentially-arbitrary error is not dissipative (it
+            # can inject energy), and was found live coupling into a
+            # persistent post-give-up tilt tumble that pure rate damping on
+            # x/y alone couldn't overcome. Bootstrapping on every landed=True
+            # is strictly safer than the gated version: it can only pin the
+            # target closer to reality, never further from it.
             self.in_flight = False
             self.commanded_flight = False
             # Adopt the CURRENT heading as the yaw target (2026-07-18): the
