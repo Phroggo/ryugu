@@ -122,24 +122,22 @@ def kill_scout1_nodes():
 
 
 def launch_scout1_nodes(trial_idx, label):
-    # REVERTED (2026-08-08): adding attitude_controller (previous attempt)
-    # prevented landing_controller from ever leaving IDLE at all in 2/2
-    # trials (likely attitude_controller's IDLE_ROTOR_SPEED sleep-defeat
-    # rotor keeping velocity/accel just above the very tight
-    # REST_VEL_MAX=0.005 m/s rest-detection threshold) -- meaning THAT
-    # config never even reached state==LANDED, the exact code path this
-    # fix changes, making it a worse test than this single-node config
-    # despite being architecturally more complete. landing_controller
-    # alone reliably reaches genuine landed=True (confirmed: 2/2 clean
-    # trials at this exact config previously) at the cost of not
-    # exercising the multi-node interaction -- an explicit, documented
-    # trade-off, not an oversight (see PHASE5_CHANGE_REPORT.md sec 5).
+    # RE-ADDED (2026-08-08, multi-node follow-up): the previous attempt to
+    # launch attitude_controller alongside landing_controller broke settle
+    # detection entirely (root cause found and fixed: attitude_controller's
+    # sleep-defeat idle-rotor floor had no hysteresis and fought
+    # landing_controller's new z-damper in a dueling-integrator runaway --
+    # see diagnose_settle_failure.py and PHASE5_FOLLOWUP_CHANGE_REPORT.md).
+    # With that fixed, this now runs the real deployed multi-node
+    # configuration.
     specs = [
         ('bridge_scout_1', ['ros2', 'run', 'ros_gz_bridge', 'parameter_bridge',
          '--ros-args', '-r', '__node:=bridge_scout_1', '--params-file', '/dev/null',
          '-p', f'config_file:={BRIDGE_YAML}']),
         ('landing_scout_1', ['ros2', 'run', 'ryugu_sim', 'landing_controller', 'scout_1',
          '--ros-args', '-r', '__node:=landing_scout_1']),
+        ('attitude_scout_1', ['ros2', 'run', 'ryugu_sim', 'attitude_controller', 'scout_1',
+         '--ros-args', '-r', '__node:=attitude_scout_1']),
     ]
     for name, cmd in specs:
         logf = open(f"{LOG_DIR}/{name}_{label}_trial{trial_idx}.log", 'w')

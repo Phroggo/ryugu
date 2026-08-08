@@ -209,6 +209,7 @@ class AttitudeController(Node):
         # momentum of ~0.0084 N m s from Research_Paper.md SS3.2.)
         self.max_rw_speed = 982.0 # rad/s
         self.in_flight = False
+        self.landed = False  # Phase 5 follow-up: see landed_callback
         self.last_imu_time = None
 
         # Wheel acceleration ceiling, conservative vs the physical
@@ -336,6 +337,11 @@ class AttitudeController(Node):
         elif not msg.data and not self.in_flight:
             self.in_flight = True
             self.get_logger().info(f'[{self.robot_name}] Airborne (landed=False) — tilt correction armed.')
+        # Phase 5 follow-up (2026-08-08): raw landed state, tracked
+        # separately from in_flight -- needed to gate the sleep-defeat
+        # rotor below (see imu_callback), which must NOT engage once
+        # landing_controller's own LANDED-state z-damper is live.
+        self.landed = msg.data
 
     def target_yaw_callback(self, msg):
         self.target_yaw = msg.data
@@ -544,8 +550,35 @@ class AttitudeController(Node):
         # visibly (~0.04 rad/s, below the tilt gate) with the wheel floor
         # blocking the yaw-hold from absorbing it. On the ground, contact
         # friction resists the reaction and the rotor does its real job.
+        #
+        # NOT ONCE LANDED (Phase 5 follow-up, 2026-08-08): this floor has
+        # no hysteresis around zero -- if self.cmd_vel['z'] hovers near
+        # zero with real sign noise (from this loop's own PD reacting to
+        # genuine tiny yaw error/rate), the PUBLISHED z_cmd flips between
+        # +/-IDLE_ROTOR_SPEED on essentially every tick once landed. Each
+        # flip is a real wheel-direction-reversal reaction-torque kick,
+        # not the "constant speed = zero torque" case this was designed
+        # for. Confirmed live (docs/paper_assets/calculations/
+        # redesign_v2_20260807/phase5_self_righting_fix/
+        # diagnose_settle_failure_stdout.log): the instant landed=True
+        # fires, this floor engages and both this loop's own cmd_vel['z']
+        # integrator AND landing_controller's independent LANDED-state
+        # z-damper integrator start reacting to each other's writes with
+        # neither aware the other exists -- a genuine dueling-integrator
+        # runaway, not mere redundant damping (measured: >11000 sign
+        # flips and a commanded speed growing past +/-20 rad/s within 75s
+        # of landing, in a scenario that should have been quiescent).
+        # Gated off once landed: landing_controller's own z-damper
+        # (active whenever LANDED, see its OWNERSHIP INVARIANT comment)
+        # now provides equivalent anti-sleep coverage for this joint
+        # whenever there's real motion to damp, and the "ANY moving
+        # joint" logic above already covers the fully-quiescent case via
+        # x/y and the legs -- this floor's original justification is
+        # partially redundant post-Phase-5 specifically for z. The main
+        # yaw-hold above (crouch-phase pre-hop alignment) is NOT gated by
+        # self.landed and still runs -- only this floor is.
         z_cmd = self.cmd_vel['z']
-        if (not self.in_flight) and abs(z_cmd) < self.IDLE_ROTOR_SPEED:
+        if (not self.in_flight) and (not self.landed) and abs(z_cmd) < self.IDLE_ROTOR_SPEED:
             z_cmd = self.IDLE_ROTOR_SPEED if z_cmd >= 0.0 else -self.IDLE_ROTOR_SPEED
 
         self.pubs['x'].publish(Float64(data=self.cmd_vel['x']))

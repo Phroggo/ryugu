@@ -1,0 +1,65 @@
+Preserved manually (2026-08-08) -- diagnose_settle_failure.py writes to a
+fixed filename that got overwritten by the post-fix rerun. This is the
+exact captured output from the run BEFORE the attitude_controller
+idle-rotor-floor fix (self.landed gate), demonstrating the dueling-
+integrator runaway. Both nodes live (landing_controller + attitude_controller),
+Phase 5's z-damper already applied to landing_controller.py at this point;
+this run predates only the follow-up fix to attitude_controller.py.
+
+[12:41:05] t=5.0s velocity_mag=0.0012424289999479754 z_cmd=1.5487158093289935e-18 flip_count_so_far=0 landed=False
+[12:41:10] t=10.0s velocity_mag=0.0018124290000365306 z_cmd=2.296013735547135e-18 flip_count_so_far=0 landed=False
+[12:41:15] t=15.0s velocity_mag=0.002382429000036268 z_cmd=3.0453040922463022e-18 flip_count_so_far=0 landed=False
+[12:41:20] t=20.0s velocity_mag=0.0029524290000360054 z_cmd=3.863159664662123e-18 flip_count_so_far=0 landed=False
+[12:41:25] t=25.0s velocity_mag=0.003516729000008212 z_cmd=4.649279297601361e-18 flip_count_so_far=0 landed=False
+[12:41:30] t=30.0s velocity_mag=0.004086729000007949 z_cmd=5.41127484507077e-18 flip_count_so_far=0 landed=False
+[12:41:35] t=35.0s velocity_mag=0.004656729000007687 z_cmd=6.184357404654425e-18 flip_count_so_far=0 landed=False
+[12:41:40] t=40.0s velocity_mag=0.005226729000007424 z_cmd=6.98634416462152e-18 flip_count_so_far=0 landed=False
+[12:41:45] t=45.0s velocity_mag=0.005796729000007161 z_cmd=7.813350158375114e-18 flip_count_so_far=0 landed=False
+[12:41:50] t=50.0s velocity_mag=0.006366729000006899 z_cmd=8.616482282371721e-18 flip_count_so_far=0 landed=False
+[12:41:55] t=55.0s velocity_mag=0.006936729000006636 z_cmd=9.452815696322007e-18 flip_count_so_far=0 landed=False
+[12:42:00] t=60.1s velocity_mag=0.007506728999917556 z_cmd=1.0248397429302169e-17 flip_count_so_far=0 landed=False
+[12:42:05] t=65.1s velocity_mag=0.008076729000006111 z_cmd=1.182892578254822e-17 flip_count_so_far=0 landed=False
+[12:42:10] t=70.1s velocity_mag=0.008646729000005848 z_cmd=1.2784218524638306e-17 flip_count_so_far=0 landed=False
+[12:42:15] t=75.1s velocity_mag=0.009216729000005586 z_cmd=1.3642879029852419e-17 flip_count_so_far=0 landed=False
+[12:42:20] t=80.1s velocity_mag=0.0014511840819661592 z_cmd=0.06350106099729837 flip_count_so_far=0 landed=False
+[12:42:25] t=85.1s velocity_mag=0.0015255220847288117 z_cmd=-0.20150504518451817 flip_count_so_far=1 landed=False
+[12:42:30] t=90.1s velocity_mag=0.002679491006096611 z_cmd=0.3982704413107357 flip_count_so_far=2 landed=False
+[12:42:35] t=95.1s velocity_mag=0.004582382999436824 z_cmd=0.9465496871807549 flip_count_so_far=2 landed=False
+[12:42:40] t=100.1s velocity_mag=0.0015066934961248763 z_cmd=0.9758646078741237 flip_count_so_far=2 landed=False
+[12:42:45] t=105.1s velocity_mag=0.0009740776959181259 z_cmd=1.0800212200435748 flip_count_so_far=2 landed=False
+[12:42:50] t=110.1s velocity_mag=0.000576919359710089 z_cmd=1.1214379269689332 flip_count_so_far=2 landed=False
+[12:42:55] t=115.1s velocity_mag=0.0004270866946544861 z_cmd=1.1495646715032566 flip_count_so_far=2 landed=False
+[12:43:00] t=120.1s velocity_mag=0.000852332541062899 z_cmd=1.1668496928225105 flip_count_so_far=2 landed=False
+[12:43:05] t=125.1s velocity_mag=0.0011435323981326434 z_cmd=1.1765585268655576 flip_count_so_far=2 landed=False
+[12:43:10] t=130.1s velocity_mag=0.0016124112496186203 z_cmd=1.1729112994297048 flip_count_so_far=2 landed=False
+[12:43:15] t=135.1s velocity_mag=0.0020889114246263538 z_cmd=1.1577875638555992 flip_count_so_far=2 landed=False
+[12:43:20] t=140.1s velocity_mag=0.002568864176867366 z_cmd=1.1328527203232448 flip_count_so_far=2 landed=False
+[12:43:25] t=145.1s velocity_mag=0.0030332750555663863 z_cmd=1.1002381027503847 flip_count_so_far=2 landed=False
+[12:43:30] t=150.1s velocity_mag=0.003466168148193233 z_cmd=1.062748042539381 flip_count_so_far=2 landed=False
+[12:43:35] t=155.1s velocity_mag=0.0007113328234029476 z_cmd=1.108288819437343 flip_count_so_far=2 landed=False
+[12:43:40] t=160.1s velocity_mag=0.00011768298569258509 z_cmd=1.1082838487924611 flip_count_so_far=2 landed=False
+[12:43:45] t=165.1s velocity_mag=0.0005122442367082101 z_cmd=1.108279600359544 flip_count_so_far=2 landed=False
+[12:43:50] t=170.1s velocity_mag=0.0009955448830496034 z_cmd=1.1082762031222604 flip_count_so_far=2 landed=False
+[12:43:55] t=175.1s velocity_mag=0.00011703846123713357 z_cmd=1.1169691164930364 flip_count_so_far=2 landed=False
+[12:44:00] t=180.2s velocity_mag=0.00023958429979302614 z_cmd=1.1231377694726725 flip_count_so_far=2 landed=False
+[12:44:05] t=185.2s velocity_mag=0.0 z_cmd=1.1270726304186005 flip_count_so_far=2 landed=False
+[12:44:10] t=190.2s velocity_mag=0.0 z_cmd=1.1271214711343076 flip_count_so_far=2 landed=False
+[12:44:15] t=195.2s velocity_mag=0.0 z_cmd=1.1271214616835254 flip_count_so_far=2 landed=False
+[12:44:20] t=200.2s velocity_mag=0.0 z_cmd=1.1271214522919335 flip_count_so_far=2 landed=False
+[12:44:25] t=205.2s velocity_mag=0.0002462900380227962 z_cmd=2.0 flip_count_so_far=208 landed=True
+[12:44:30] t=210.2s velocity_mag=0.0005007390386417909 z_cmd=-0.17956075470192584 flip_count_so_far=617 landed=True
+[12:44:35] t=215.2s velocity_mag=0.0007277018630940333 z_cmd=2.0 flip_count_so_far=1324 landed=True
+[12:44:40] t=220.2s velocity_mag=0.000951803902356025 z_cmd=-0.7802195278846065 flip_count_so_far=1853 landed=True
+[12:44:45] t=225.2s velocity_mag=0.0009893802945367444 z_cmd=2.116968022676376 flip_count_so_far=2648 landed=True
+[12:44:50] t=230.2s velocity_mag=0.0011544641918875551 z_cmd=-0.966210033654573 flip_count_so_far=3451 landed=True
+[12:44:55] t=235.2s velocity_mag=0.0012995498378201224 z_cmd=2.0 flip_count_so_far=4264 landed=True
+[12:45:00] t=240.2s velocity_mag=0.0014739657928848203 z_cmd=2.0 flip_count_so_far=5062 landed=True
+[12:45:05] t=245.2s velocity_mag=0.0017957187746341474 z_cmd=-1.8097351845832157 flip_count_so_far=5879 landed=True
+[12:45:10] t=250.2s velocity_mag=0.0022166362034794916 z_cmd=3.432739520527034 flip_count_so_far=6666 landed=True
+[12:45:15] t=255.2s velocity_mag=0.002460318168583128 z_cmd=2.5646460393197716 flip_count_so_far=7474 landed=True
+[12:45:20] t=260.2s velocity_mag=0.003089194186807381 z_cmd=3.099891296474646 flip_count_so_far=8284 landed=True
+[12:45:25] t=265.2s velocity_mag=0.0017566465281292419 z_cmd=-3.655844040086766 flip_count_so_far=9083 landed=True
+[12:45:30] t=270.2s velocity_mag=0.003300258234275256 z_cmd=-20.873446599641518 flip_count_so_far=9887 landed=True
+[12:45:35] t=275.2s velocity_mag=0.0025753329568640035 z_cmd=-3.316723838071491 flip_count_so_far=10711 landed=True
+
+=== DONE: total sign flips on rw_z_joint_cmd_vel over 280.0s = 11477 ===

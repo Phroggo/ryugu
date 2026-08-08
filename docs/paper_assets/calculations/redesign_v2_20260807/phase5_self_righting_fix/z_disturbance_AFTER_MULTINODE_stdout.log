@@ -1,0 +1,14 @@
+[12:54:57] --- trial 1/2 [AFTER_MULTINODE] ---
+[12:58:25]   [AFTER_MULTINODE trial1] landed confirmed at t=200.0s, uz=0.9993680035950037, landed=False
+[12:58:25]   [AFTER_MULTINODE trial1] WARNING: never confirmed landed within 200s, injecting anyway
+[12:58:26]   [AFTER_MULTINODE trial1] injection done, peak |wz| during inject = 1.1401803496244916
+[12:59:56]   [AFTER_MULTINODE trial1] DONE: wz at obs start=-1.017004149692672, wz at obs end=-0.08275206209714929, decayed>50%=True, final_uz=0.9986987605863362
+[12:59:56] --- trial 2/2 [AFTER_MULTINODE] ---
+[13:03:24]   [AFTER_MULTINODE trial2] landed confirmed at t=200.0s, uz=0.9993679193764428, landed=False
+[13:03:24]   [AFTER_MULTINODE trial2] WARNING: never confirmed landed within 200s, injecting anyway
+[13:03:25]   [AFTER_MULTINODE trial2] injection done, peak |wz| during inject = 1.3570123445989692
+[13:04:55]   [AFTER_MULTINODE trial2] DONE: wz at obs start=-1.0637289363108091, wz at obs end=0.0, decayed>50%=True, final_uz=0.9993655933296436
+[13:04:55] 
+=== SUMMARY [AFTER_MULTINODE] ===
+[13:04:55] trial 1: wz_start=-1.017004149692672, wz_end=-0.08275206209714929, decayed>50%=True, final_uz=0.9986987605863362
+[13:04:55] trial 2: wz_start=-1.0637289363108091, wz_end=0.0, decayed>50%=True, final_uz=0.9993655933296436
