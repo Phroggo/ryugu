@@ -15,9 +15,19 @@ block Phase 6.
 - `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diagnose_settle_failure.py` (new)
 - `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diagnose_settle_failure_BEFORE_FIX_stdout.log` (new — manually preserved, see §4)
 - `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diagnose_settle_failure_stdout.log` (new — post-fix rerun output)
-- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diag_attitude_scout_1.log`, `diag_bridge_scout_1.log`, `diag_landing_scout_1.log`, `gz_diag.log` (new — node console logs from the post-fix diagnostic run; see §4 for a caveat on the pre-fix run's node logs)
-- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/z_disturbance_results_AFTER_MULTINODE.json`, `z_disturbance_AFTER_MULTINODE_stdout.log` (new — multi-node injection test results, 2 trials)
-- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/attitude_scout_1_AFTER_MULTINODE_trial{0,1}.log`, `bridge_scout_1_AFTER_MULTINODE_trial{0,1}.log`, `landing_scout_1_AFTER_MULTINODE_trial{0,1}.log`, `gz_AFTER_MULTINODE_inject.log` (new — per-node console logs for the two injection trials)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diag_attitude_scout_1.log` (new — node console log, post-fix diagnostic run; see §4 for a caveat on the pre-fix run's node logs)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diag_bridge_scout_1.log` (new — node console log, post-fix diagnostic run)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/diag_landing_scout_1.log` (new — node console log, post-fix diagnostic run)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/gz_diag.log` (new — Gazebo console log, post-fix diagnostic run)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/z_disturbance_results_AFTER_MULTINODE.json` (new — multi-node injection test results, 2 trials)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/z_disturbance_AFTER_MULTINODE_stdout.log` (new — multi-node injection test stdout summary)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/attitude_scout_1_AFTER_MULTINODE_trial0.log` (new — per-node console log, injection trial 0)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/attitude_scout_1_AFTER_MULTINODE_trial1.log` (new — per-node console log, injection trial 1)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/bridge_scout_1_AFTER_MULTINODE_trial0.log` (new — per-node console log, injection trial 0)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/bridge_scout_1_AFTER_MULTINODE_trial1.log` (new — per-node console log, injection trial 1)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/landing_scout_1_AFTER_MULTINODE_trial0.log` (new — per-node console log, injection trial 0)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/landing_scout_1_AFTER_MULTINODE_trial1.log` (new — per-node console log, injection trial 1)
+- `/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase5_self_righting_fix/gz_AFTER_MULTINODE_inject.log` (new — Gazebo console log for both injection trials)
 
 ## 2. What changed
 
