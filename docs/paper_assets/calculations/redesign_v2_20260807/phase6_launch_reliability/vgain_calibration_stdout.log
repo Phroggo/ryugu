@@ -1,0 +1,24 @@
+[13:25:18] === distance 1.0m (1/5) ===
+[13:26:29]   [d=1.0m] ready check done: landed=False, speed=0.007723328999986734
+[13:26:43]   [d=1.0m] STABILIZED: delivered=0.00910 ratio=0.638 ramp_t=8.41s t=14.0s
+[13:26:43] === distance 3.0m (2/5) ===
+[13:27:53]   [d=3.0m] ready check done: landed=False, speed=0.00771192900002049
+[13:28:08]   [d=3.0m] STABILIZED: delivered=0.00911 ratio=0.369 ramp_t=4.86s t=14.0s
+[13:28:08] === distance 9.0m (3/5) ===
+[13:29:18]   [d=9.0m] ready check done: landed=False, speed=0.007717628999959202
+[13:29:31]   [d=9.0m] STABILIZED: delivered=0.00899 ratio=0.210 ramp_t=2.80s t=12.1s
+[13:29:31] === distance 20.0m (4/5) ===
+[13:30:42]   [d=20.0m] ready check done: landed=False, speed=0.007711929000020491
+[13:31:05]   [d=20.0m] STABILIZED: delivered=0.01011 ratio=0.158 ramp_t=1.88s t=6.0s
+[13:31:05] === distance 40.0m (5/5) ===
+[13:31:24]   [d=40.0m] ready check done: landed=True, speed=0.0018694289999565696
+[13:34:44]   [d=40.0m] TIMEOUT waiting for confirmed separation (200.0s)
+[13:34:44] === sweep complete ===
+[13:34:44] stabilized: 4/5
+[13:34:44]   d=1.0m status=stabilized ramp_t=8.41s delivered=0.009100791415848563 ratio=0.6378532145743198
+[13:34:44]   d=3.0m status=stabilized ramp_t=4.86s delivered=0.009108170595736794 ratio=0.36856332462552477
+[13:34:44]   d=9.0m status=stabilized ramp_t=2.80s delivered=0.008993822836452845 ratio=0.21011867889324937
+[13:34:44]   d=20.0m status=stabilized ramp_t=1.88s delivered=0.010105093764965012 ratio=0.15836781969667552
+[13:34:44]   d=40.0m status=no_separation ramp_t=1.33s delivered=None ratio=None
+[13:34:44] per-sample V_GAIN fits: [0.07654, 0.04423, 0.02521, 0.019]
+[13:34:44] NEW V_GAIN (mean) = 0.04125 m  (old = 0.12)

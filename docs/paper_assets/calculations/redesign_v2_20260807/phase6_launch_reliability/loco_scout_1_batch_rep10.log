@@ -1,0 +1,11 @@
+[37;1m2026-08-08 13:58:21.551 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7411: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:21.552 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7417: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:21.552 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7427: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:22.035 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7429: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[INFO] [1786183106.136739760] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786183169.120762577] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786183169.121180021] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786183169.133420975] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786183179.423653066] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786183195.905971222] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[INFO] [1786183235.378358224] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)

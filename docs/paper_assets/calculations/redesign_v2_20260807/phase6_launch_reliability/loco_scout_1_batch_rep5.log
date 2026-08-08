@@ -1,0 +1,16 @@
+[INFO] [1786182281.600247061] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786182295.108033211] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786182295.108680635] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182295.276383448] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786182295.940618842] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (still dragging/in contact). Retracting to IDLE for retry.
+[INFO] [1786182297.326894785] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786182297.327477117] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786182297.348766886] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182297.408754164] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[WARN] [1786182297.447144792] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=2)
+[WARN] [1786182297.782765759] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (still dragging/in contact). Retracting to IDLE for retry.
+[INFO] [1786182426.450191408] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786182426.451067704] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182426.735333199] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[INFO] [1786182426.941963405] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1786182427.371846481] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.

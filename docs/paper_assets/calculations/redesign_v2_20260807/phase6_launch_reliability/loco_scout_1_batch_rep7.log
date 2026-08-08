@@ -1,0 +1,20 @@
+[INFO] [1786182635.324302896] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786182648.741265289] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786182648.742250332] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182648.945183833] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786182649.645619566] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (still dragging/in contact). Retracting to IDLE for retry.
+[INFO] [1786182651.004583649] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786182651.005149644] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786182651.026339723] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182651.112634455] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[WARN] [1786182651.163600492] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=2)
+[WARN] [1786182651.599753385] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (still dragging/in contact). Retracting to IDLE for retry.
+[INFO] [1786182780.200862359] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786182780.201511676] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182780.445813117] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[INFO] [1786182780.642054877] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1786182780.786449173] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786182781.294525825] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786182781.295354215] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786182781.412146383] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[INFO] [1786182781.478052384] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)

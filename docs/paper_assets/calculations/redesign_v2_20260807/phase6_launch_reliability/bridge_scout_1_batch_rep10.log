@@ -1,0 +1,15 @@
+[37;1m2026-08-08 13:58:21.333 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7411: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:21.333 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7417: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:21.334 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7427: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[INFO] [1786183103.077801264] [bridge_scout_1]: Creating GZ->ROS Bridge: [/world/ryugu_world/model/scout_1/link/base_link/sensor/imu_sensor/imu (gz.msgs.IMU) -> /scout_1/imu (sensor_msgs/msg/Imu)] (Lazy 0)
+[INFO] [1786183104.095335386] [bridge_scout_1]: Creating GZ->ROS Bridge: [/model/scout_1/odometry (gz.msgs.Odometry) -> /scout_1/odometry (nav_msgs/msg/Odometry)] (Lazy 0)
+[INFO] [1786183104.101008908] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/rw_x_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_1/joint/rw_x_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183106.105876495] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/rw_y_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_1/joint/rw_y_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183106.119729041] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/rw_z_joint_cmd_vel (std_msgs/msg/Float64) -> /model/scout_1/joint/rw_z_joint/cmd_vel (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183106.126775722] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_hip_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/hip_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183108.135004959] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_knee_joint_0_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/knee_joint_0/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183108.145706247] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_hip_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/hip_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183108.149360436] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_knee_joint_1_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/knee_joint_1/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183108.155433103] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_hip_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/hip_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183108.160042587] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/joint_knee_joint_2_cmd_pos (std_msgs/msg/Float64) -> /model/scout_1/joint/knee_joint_2/0/cmd_pos (gz.msgs.Double)] (Lazy 0)
+[INFO] [1786183108.164702357] [bridge_scout_1]: Creating ROS->GZ Bridge: [/scout_1/cmd_drill (std_msgs/msg/Float64) -> /model/scout_1/joint/drill_joint/0/cmd_pos (gz.msgs.Double)] (Lazy 0)

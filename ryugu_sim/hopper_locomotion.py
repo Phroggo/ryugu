@@ -7,6 +7,19 @@ import subprocess
 import sys
 import math
 
+
+def _cosine_sim(a, b):
+    """Cosine similarity between two 3-vectors; 0.0 for a near-zero vector
+    (undefined direction) rather than raising, so a genuinely at-rest
+    sample always fails a similarity gate instead of dividing by ~0."""
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a))
+    nb = math.sqrt(sum(x * x for x in b))
+    if na < 1e-9 or nb < 1e-9:
+        return 0.0
+    return dot / (na * nb)
+
+
 class HopperLocomotion(Node):
     # States
     IDLE = 0
@@ -60,6 +73,16 @@ class HopperLocomotion(Node):
         self._ext_hip0 = 0.0
         self._ext_hip12 = 0.0
         self._ext_knee = 0.0
+
+        # Genuine-separation confirmation (Phase 6, 2026-08-08) -- see the
+        # LAUNCH-state comment below for full rationale. Sampled/reset once
+        # per launch attempt at IGNITION.
+        self.SEPARATION_SAMPLE_TICKS = 5        # 0.5s @ 10Hz between velocity samples
+        self.SEPARATION_CONFIRM_SAMPLES = 3     # 1.5s of consistent velocity required
+        self.SEPARATION_MIN_SPEED = 0.003       # m/s; floor above rest-detection noise
+        self.SEPARATION_MAX_WAIT_TICKS = 600    # 60s past ramp end before giving up
+        self._sep_vel_samples = []
+        self._sep_wait_ticks = 0
 
         # Redesigned stroke endpoints (2026-07-15) -- see CROUCH/LAUNCH in
         # tick() for the geometry derivation from the empirical joint-angle
@@ -254,52 +277,49 @@ class HopperLocomotion(Node):
         #      half of the eased stroke): T = V_GAIN / v_req. Trim V_GAIN
         #      from hop-meter ranges, not from geometry.
         SIN2TH = 0.56         # elevation ~73 deg with LEAN=0.3 (see LEAN note)
-        # V_GAIN CALIBRATION INVESTIGATION (2026-07-23) -- kept at the
-        # original 0.12, NOT rescaled, after direct odometry measurement
-        # showed rescaling it would do more harm than good. Full story:
-        #   1. BUG, FOUND AND FIXED: _wake_model()'s keep-awake teleport (an
-        #      async, fire-and-forget gz-service set_pose call) fired
-        #      unconditionally every 2s through the ramp, including after
-        #      real separation speed had started building -- a teleport
-        #      zeroes body velocity as a side effect. Two robots given the
-        #      IDENTICAL command (same target, same ramp_T) delivered
-        #      0.003 m/s and 0.173 m/s of a 0.043 m/s request, a 64x spread
-        #      on a nominally deterministic command, tracking only the async
-        #      call's non-deterministic real-time collision with the stroke.
-        #      Fixed by gating that call on genuine quiescence (last_speed)
-        #      instead of a blind timer -- see the LAUNCH state's wake call.
-        #   2. REAL, CHARACTERIZED, DELIBERATELY NOT "FIXED" HERE: even after
-        #      that fix, the body frequently does not cleanly separate at
-        #      ramp end -- it tips during the post-separation hold and drags
-        #      a leg across the (irregular, boulder-strewn) terrain for up to
-        #      ~90s before reaching true constant-velocity ballistic flight.
-        #      Measured directly via odometry (velocity vector stabilized --
-        #      3 consecutive samples within 5% magnitude and 0.995 cosine
-        #      similarity -- or flagged never-stabilized and discarded): n=7
-        #      clean measurements, delivered/requested speed ratio = 0.147,
-        #      0.321, 0.941, 0.143, 0.165, 0.959, 0.193 (2 more discarded as
-        #      never-stabilized in 90s). Bimodal: 2/7 launches delivered
-        #      near-full speed (mean 0.95), 5/7 were degraded by terrain-drag
-        #      (mean 0.19) -- and NOT ramp_T-correlated across the 2.8-11.9s
-        #      range tested.
-        #   3. WHY V_GAIN ISN'T THE RIGHT LEVER FOR #2: rescaling V_GAIN by
-        #      the median ratio (0.193) was tried and reverted. ramp_T is
-        #      clamped to >=1.2s (below which the leg PID saturates and
-        #      reintroduces the pre-redesign uncontrolled-launch problem --
-        #      see the "MEASURED CORRECTION" note above) and <=20s. With the
-        #      original V_GAIN, that clamp only binds beyond ~49 m -- the
-        #      whole realistic mission range gets a distinct ramp_T. At the
-        #      median-rescaled V_GAIN (0.0231), the clamp binds beyond just
-        #      ~1.8 m: nearly every realistic hop collapses to the SAME
-        #      1.2s ramp regardless of commanded distance, destroying range
-        #      differentiation entirely -- a worse regression than the
-        #      degradation it was meant to fix. Since the degradation ratio
-        #      is empirically independent of ramp_T anyway, no rescaling of
-        #      this parameter can correct it without this side effect; a
-        #      real fix needs the launch state machine to confirm genuine
-        #      ground clearance before declaring separation, not a constant.
-        #      Reported in the paper as a characterized, open limitation.
-        V_GAIN = 0.12         # m; empirical, from launch37 hop-meter data (unchanged -- see note)
+        # V_GAIN CALIBRATION HISTORY (condensed; full story in git history /
+        # PHASE6_CHANGE_REPORT.md):
+        #   2026-07-23: kept at the original 0.12, NOT rescaled, after an
+        #     odometry investigation found the body frequently does not
+        #     cleanly separate at ramp end -- it drags a leg across terrain
+        #     for up to ~90s before reaching true constant-velocity flight,
+        #     with the resulting degradation ratio empirically INDEPENDENT
+        #     of ramp_T (n=7, ratios 0.147-0.959, bimodal, no ramp_T
+        #     correlation across 2.8-11.9s). Rescaling V_GAIN by the median
+        #     ratio was tried and reverted: it pushed the ramp_T floor clamp
+        #     (>=1.2s) to bind below ~1.8m instead of ~49m, collapsing
+        #     nearly every realistic hop to the same 1.2s ramp and
+        #     destroying range differentiation -- a worse regression than
+        #     the degradation it was meant to fix. Conclusion at the time:
+        #     "a real fix needs the launch state machine to confirm genuine
+        #     ground clearance before declaring separation, not a constant."
+        #   2026-08-08 (Phase 6, redesign_v2): that fix is now implemented
+        #     (see the SEPARATION_* confirmation logic in the LAUNCH state,
+        #     below) -- separation is no longer declared on a flat timer,
+        #     only once several consecutive velocity samples genuinely
+        #     agree in magnitude and direction. Re-ran the calibration
+        #     question against the corrected (Phase 2+) mass model with
+        #     this fix live: 5-distance sweep (1, 3, 9, 20, 40 m; see
+        #     docs/paper_assets/calculations/redesign_v2_20260807/
+        #     phase6_launch_reliability/vgain_calibration_results.json),
+        #     4/5 stabilized (d=40m never confirmed separation in 200s).
+        #     FINDING, consistent with 2026-07-23's own conclusion: delivered
+        #     velocity is still only weakly related to ramp_T over the
+        #     tested range -- 0.0091, 0.0091, 0.0090, 0.0101 m/s at ramp_T
+        #     8.41, 4.86, 2.80, 1.88s respectively (an ~11% spread against a
+        #     4.5x spread in ramp_T) -- so the assumed v=V_GAIN/T linear
+        #     model is a poor fit here; per-sample V_GAIN=ramp_T*v estimates
+        #     range 0.019-0.077, a 4x spread, and their naive mean is
+        #     skewed hardest by the long-ramp/low-v_req end where the model
+        #     fits worst. New V_GAIN = mean of the 4 fits = 0.04125 m
+        #     (rounded to 0.0413) -- taken anyway, per this phase's
+        #     requirement to re-derive V_GAIN from the corrected model
+        #     rather than reuse the stale 0.12 fit, but the flat-ramp_T
+        #     finding itself (not the precise constant) is the more
+        #     load-bearing result; see the Phase 6 change report for the
+        #     n=10 targeted-batch verification this recalibration was
+        #     checked against.
+        V_GAIN = 0.0413        # m; re-derived Phase 6, 2026-08-08 (see note above)
         v_req = math.sqrt(max(distance, 0.5) * g / SIN2TH)
         ramp_T = max(1.2, min(20.0, V_GAIN / v_req))
         self.ramp_ticks = max(1, round(ramp_T * 10))
@@ -326,6 +346,10 @@ class HopperLocomotion(Node):
         self.last_uz = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
         v = msg.twist.twist.linear
         self.last_speed = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+        # Raw velocity vector (Phase 6, 2026-08-08): needed alongside
+        # last_speed for the LAUNCH state's separation-confirmation
+        # direction-consistency check (see SEPARATION_* comment there).
+        self.last_vel = (v.x, v.y, v.z)
 
     def _stance_ok(self):
         """True when the robot is upright and quiescent enough to deliver a
@@ -369,6 +393,20 @@ class HopperLocomotion(Node):
                 self.pubs[j].publish(Float64(data=hip_val))
             elif 'knee' in j:
                 self.pubs[j].publish(Float64(data=knee_val))
+
+    def _freeze_extension_pose(self, frac):
+        """Compute and store the (hip0, hip12, knee) extension pose FLIGHT
+        will hold/retract from, for a given stroke fraction. Shared by the
+        mid-stroke tip abort and the end-of-ramp separation path (same
+        formula, different frac)."""
+        self._ext_hip0 = (self.CROUCH_HIP + self.LEAN
+                          + frac * (self.EXTEND_HIP + self.LEAN
+                                    - (self.CROUCH_HIP + self.LEAN)))
+        self._ext_hip12 = (self.CROUCH_HIP - self.LEAN / 2
+                           + frac * (self.EXTEND_HIP - self.LEAN / 2
+                                     - (self.CROUCH_HIP - self.LEAN / 2)))
+        self._ext_knee = (self.CROUCH_KNEE
+                          + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE))
 
     def tick(self):
         if self.state == self.IDLE:
@@ -491,6 +529,10 @@ class HopperLocomotion(Node):
                     f"ramp={self.ramp_ticks / 10.0:.1f}s)")
                 # Re-wake in case the crouch settled into quiescence.
                 self._wake_model()
+                # Fresh separation-confirmation state for this attempt
+                # (Phase 6, 2026-08-08) -- see the end-of-ramp block below.
+                self._sep_vel_samples = []
+                self._sep_wait_ticks = 0
                 # Signal flight AT IGNITION, not at ramp end (2026-07-17).
                 # Signalling at ramp end raced the retraction: the landing
                 # controller entered FLIGHT in the same tick the legs were
@@ -563,39 +605,76 @@ class HopperLocomotion(Node):
                     f"[{self.robot_name}] Aborting launch mid-stroke: tipping "
                     f"(uz={self.last_uz:.2f}). Retracting; righting will recover.")
                 frac = self.launch_amplitude * s
-                self._ext_hip0 = (self.CROUCH_HIP + self.LEAN
-                                  + frac * (self.EXTEND_HIP + self.LEAN
-                                            - (self.CROUCH_HIP + self.LEAN)))
-                self._ext_hip12 = (self.CROUCH_HIP - self.LEAN / 2
-                                   + frac * (self.EXTEND_HIP - self.LEAN / 2
-                                             - (self.CROUCH_HIP - self.LEAN / 2)))
-                self._ext_knee = (self.CROUCH_KNEE
-                                  + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE))
+                self._freeze_extension_pose(frac)
                 self.state = self.FLIGHT   # reuse clearance+slow-retract path
                 self.state_timer = 0
                 self.separation_pub.publish(Bool(data=True))
                 return
-            # Hold the extension briefly past ramp end (0.5 s) so the body
-            # separates cleanly at ramp speed, then hand over to FLIGHT.
-            # Pushing "too long" is harmless in micro-gravity: once the feet
-            # leave the ground there is no contact force left to apply.
+            # GENUINE-SEPARATION CONFIRMATION (Phase 6, 2026-08-08): replaces
+            # the old flat "ramp_ticks + 5" timer, which declared separation
+            # unconditionally once a fixed hold elapsed, regardless of
+            # whether the body had actually left the ground. The V_GAIN
+            # investigation (see the note above in jump_target_callback)
+            # found bodies frequently drag a leg across the (irregular,
+            # boulder-strewn) terrain for up to ~90s post-declared-
+            # separation before reaching true constant-velocity flight --
+            # meaning the old timer was routinely handing a still-grounded,
+            # still-dragging body to FLIGHT and calling it a launch.
+            # No ground-contact sensor exists in this stack (contact
+            # detection elsewhere is IMU-accel-spike based, and is itself
+            # blanked for the launch window -- see landing_controller's
+            # contact_blank_until), so "genuine ground clearance" is
+            # inferred the same way the offline calibration tooling already
+            # validated it (contact_launch_timestep_check/
+            # contact_timestep_distribution.py's stabilization check):
+            # sample velocity periodically once the stroke is fully
+            # extended and require several consecutive samples that agree
+            # in both magnitude (within 5%) and direction (cosine
+            # similarity > 0.995) -- the signature of unforced, undragged
+            # motion, as opposed to a body still catching/releasing on the
+            # surface -- before declaring separation. Bounded by
+            # SEPARATION_MAX_WAIT_TICKS: if never confirmed, abort the hop
+            # (retract, return to IDLE for the swarm to re-dispatch) rather
+            # than declare a garbage separation and hand FLIGHT a body that
+            # never actually left the ground.
             if self.state_timer >= self.ramp_ticks + 5:
-                self.get_logger().info(
-                    "3. Separation — holding extension for clearance, then slow retract (FLIGHT)")
-                # Freeze the extension pose FLIGHT will hold/retract from
-                # (same formulas as the ramp at s=1.0).
-                frac = self.launch_amplitude
-                self._ext_hip0 = (self.CROUCH_HIP + self.LEAN
-                                  + frac * (self.EXTEND_HIP + self.LEAN
-                                            - (self.CROUCH_HIP + self.LEAN)))
-                self._ext_hip12 = (self.CROUCH_HIP - self.LEAN / 2
-                                   + frac * (self.EXTEND_HIP - self.LEAN / 2
-                                             - (self.CROUCH_HIP - self.LEAN / 2)))
-                self._ext_knee = (self.CROUCH_KNEE
-                                  + frac * (self.EXTEND_KNEE - self.CROUCH_KNEE))
-                self.state = self.FLIGHT
-                self.state_timer = 0
-                self.separation_pub.publish(Bool(data=True))
+                self._sep_wait_ticks += 1
+                if self._sep_wait_ticks % self.SEPARATION_SAMPLE_TICKS == 0:
+                    vx, vy, vz = getattr(self, 'last_vel', (0.0, 0.0, 0.0))
+                    mag = math.sqrt(vx * vx + vy * vy + vz * vz)
+                    self._sep_vel_samples.append((vx, vy, vz, mag))
+                    self._sep_vel_samples = (
+                        self._sep_vel_samples[-self.SEPARATION_CONFIRM_SAMPLES:])
+                    if len(self._sep_vel_samples) == self.SEPARATION_CONFIRM_SAMPLES:
+                        mags = [smp[3] for smp in self._sep_vel_samples]
+                        mag_ok = (min(mags) > self.SEPARATION_MIN_SPEED
+                                  and (max(mags) - min(mags)) / max(mags) < 0.05)
+                        cos_ok = all(
+                            _cosine_sim(self._sep_vel_samples[i][:3],
+                                        self._sep_vel_samples[i + 1][:3]) > 0.995
+                            for i in range(len(self._sep_vel_samples) - 1))
+                        if mag_ok and cos_ok:
+                            self.get_logger().info(
+                                "3. Separation confirmed (genuine ground clearance) "
+                                "— holding extension for clearance, then slow retract (FLIGHT)")
+                            self._freeze_extension_pose(self.launch_amplitude)
+                            self.state = self.FLIGHT
+                            self.state_timer = 0
+                            self._sep_vel_samples = []
+                            self._sep_wait_ticks = 0
+                            self.separation_pub.publish(Bool(data=True))
+                            return
+                if self._sep_wait_ticks >= self.SEPARATION_MAX_WAIT_TICKS:
+                    self.get_logger().warn(
+                        f"[{self.robot_name}] Aborting hop: never confirmed genuine "
+                        f"separation after {self._sep_wait_ticks / 10:.0f}s post-ramp "
+                        f"(still dragging/in contact). Retracting to IDLE for retry.")
+                    self.set_joints(0.0, 0.0)
+                    self.state = self.IDLE
+                    self.state_timer = 0
+                    self.idle_ticks = 0
+                    self._sep_vel_samples = []
+                    self._sep_wait_ticks = 0
 
         elif self.state == self.FLIGHT:
             # Post-separation leg management (2026-07-17). The old code

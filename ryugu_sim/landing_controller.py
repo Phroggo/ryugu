@@ -658,18 +658,25 @@ class LandingController(Node):
             self.rest_z_ticks = 0
             self.contact_via_rest = False
             # Blank contact-spike detection through the whole launch
-            # choreography: ramp (<= 20 s) + 0.5 s hold + 8 s clearance +
-            # 4 s slow retract, with margin. Every genuine flight lasts
-            # >= ~180 s at Ryugu gravity (shortest commanded hop, 0.5 m),
-            # so a 40 s blank can never mask a real landing; it only masks
-            # the launch stroke's own actuation transients, which used to
-            # score every ramped hop as landed-in-place (launch34).
-            self.contact_blank_until = self.get_clock().now().nanoseconds / 1e9 + 40.0
+            # choreography: ramp (<= 20 s) + up to 60 s genuine-separation-
+            # confirmation wait (Phase 6, 2026-08-08 -- hopper_locomotion's
+            # LAUNCH state no longer declares separation on a flat timer;
+            # see SEPARATION_MAX_WAIT_TICKS there) + 8 s clearance + 4 s
+            # slow retract, with margin. Was 40 s (ramp + a flat 0.5 s hold
+            # + clearance/retract) before that fix made the hold itself
+            # open-ended; a 40 s blank window now risks expiring mid-
+            # separation-confirmation on a draggy launch and reading the
+            # launch stroke's own actuation transients as a landing
+            # (exactly the launch34 failure mode this blank exists to
+            # prevent). Every genuine flight lasts >= ~180 s at Ryugu
+            # gravity (shortest commanded hop, 0.5 m), so a 100 s blank
+            # still can never mask a real landing.
+            self.contact_blank_until = self.get_clock().now().nanoseconds / 1e9 + 100.0
             self.launch_v_deadline = self.get_clock().now().nanoseconds / 1e9 + self.LAUNCH_V_WINDOW
             self._launch_v_last_log = -999
             self._launch_v_hist = []
             self.get_logger().info(f'[{self.robot_name}] 🚀 Jump detected → FLIGHT mode '
-                                   f'(contact detection blanked 40 s for launch)')
+                                   f'(contact detection blanked 100 s for launch)')
 
     def imu_callback(self, msg):
         # Compute linear acceleration magnitude (excluding gravity component)

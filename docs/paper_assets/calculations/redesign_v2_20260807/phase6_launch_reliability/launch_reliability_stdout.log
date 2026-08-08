@@ -1,0 +1,37 @@
+[13:37:49] --- repeat 1/10 ---
+[13:38:59]   [rep1] ready check done: landed=False, speed=0.007740428999980509
+[13:39:13]   [rep1] STABILIZED: delivered=0.00912 ratio=0.213 t=14.0s
+[13:39:13] --- repeat 2/10 ---
+[13:40:24]   [rep2] ready check done: landed=False, speed=0.007711929000020488
+[13:40:36]   [rep2] STABILIZED: delivered=0.00886 ratio=0.207 t=12.0s
+[13:40:36] --- repeat 3/10 ---
+[13:41:46]   [rep3] ready check done: landed=False, speed=0.00770622899999296
+[13:41:59]   [rep3] STABILIZED: delivered=0.00888 ratio=0.207 t=12.0s
+[13:41:59] --- repeat 4/10 ---
+[13:42:20]   [rep4] ready check done: landed=True, speed=0.002182928999960865
+[13:44:35]   [rep4] STABILIZED: delivered=0.01473 ratio=0.344 t=6.0s
+[13:44:35] --- repeat 5/10 ---
+[13:44:54]   [rep5] ready check done: landed=True, speed=0.0018295453024891081
+[13:47:12]   [rep5] STABILIZED: delivered=0.01482 ratio=0.346 t=6.0s
+[13:47:12] --- repeat 6/10 ---
+[13:47:31]   [rep6] ready check done: landed=True, speed=0.0018067334197942166
+[13:50:29]   [rep6] separated but never stabilized within 30.0s
+[13:50:29] --- repeat 7/10 ---
+[13:50:47]   [rep7] ready check done: landed=True, speed=0.0018181292987605189
+[13:53:06]   [rep7] STABILIZED: delivered=0.01327 ratio=0.310 t=6.0s
+[13:53:06] --- repeat 8/10 ---
+[13:54:17]   [rep8] ready check done: landed=False, speed=0.007620752968801399
+[13:54:58]   [rep8] separated but never stabilized within 30.0s
+[13:54:58] --- repeat 9/10 ---
+[37;1m2026-08-08 13:55:10.619 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7429: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[13:56:11]   [rep9] ready check done: landed=False, speed=0.007084928812961575
+[13:58:15]   [rep9] separated but never stabilized within 30.0s
+[13:58:15] --- repeat 10/10 ---
+[37;1m2026-08-08 13:58:26.133 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7411: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:26.134 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7417: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[37;1m2026-08-08 13:58:26.134 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7427: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[13:59:28]   [rep10] ready check done: landed=False, speed=0.00677612148628401
+[14:02:48]   [rep10] TIMEOUT waiting for confirmed separation (200.0s)
+[14:02:48] === batch complete ===
+[14:02:48] n=10 no_separation=1 (10%) stabilized=6 separated_never_stabilized=3
+[14:02:48] ratios=[0.213, 0.207, 0.207, 0.344, 0.346, 0.31] mean=0.271 min=0.207 max=0.346 range=0.139
