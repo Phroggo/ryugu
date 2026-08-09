@@ -1,0 +1,7 @@
+[INFO] [1786267997.194644225] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786268061.697927771] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786268061.698541527] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786268061.794265126] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786268061.915280550] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[INFO] [1786268061.930702824] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[WARN] [1786268062.029953079] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=3)

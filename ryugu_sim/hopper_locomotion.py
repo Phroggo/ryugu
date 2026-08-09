@@ -6,6 +6,7 @@ from nav_msgs.msg import Odometry
 import subprocess
 import sys
 import math
+import time
 
 
 def _cosine_sim(a, b):
@@ -533,6 +534,15 @@ class HopperLocomotion(Node):
                 # (Phase 6, 2026-08-08) -- see the end-of-ramp block below.
                 self._sep_vel_samples = []
                 self._sep_wait_ticks = 0
+                # Phase 7 (2026-08-08): real wall-clock IGNITION timestamp,
+                # so the abort-warning below can report actual elapsed time
+                # alongside the tick-count-derived figure -- Phase 6 saw one
+                # batch repeat where "60s post-ramp" fired after <1 real
+                # second, consistent with a burst of queued tick() callbacks
+                # counted as if 0.1s of real time had elapsed each. This
+                # makes that discrepancy directly visible in the log instead
+                # of requiring after-the-fact timestamp archaeology.
+                self._ignition_wall_t = time.time()
                 # Signal flight AT IGNITION, not at ramp end (2026-07-17).
                 # Signalling at ramp end raced the retraction: the landing
                 # controller entered FLIGHT in the same tick the legs were
@@ -665,10 +675,19 @@ class HopperLocomotion(Node):
                             self.separation_pub.publish(Bool(data=True))
                             return
                 if self._sep_wait_ticks >= self.SEPARATION_MAX_WAIT_TICKS:
+                    wall_elapsed = time.time() - getattr(self, '_ignition_wall_t', time.time())
                     self.get_logger().warn(
                         f"[{self.robot_name}] Aborting hop: never confirmed genuine "
                         f"separation after {self._sep_wait_ticks / 10:.0f}s post-ramp "
+                        f"(tick-derived; real wall-clock since IGNITION={wall_elapsed:.1f}s) "
                         f"(still dragging/in contact). Retracting to IDLE for retry.")
+                    if wall_elapsed < self._sep_wait_ticks / 10.0 * 0.5:
+                        self.get_logger().warn(
+                            f"[{self.robot_name}] TICK/WALL-TIME MISMATCH: tick count implies "
+                            f"{self._sep_wait_ticks / 10:.0f}s but only {wall_elapsed:.1f}s of "
+                            f"real time elapsed -- likely a burst of queued tick() callbacks "
+                            f"after executor starvation, not a genuine {self._sep_wait_ticks / 10:.0f}s "
+                            f"stall. See Phase 7 change report.")
                     self.set_joints(0.0, 0.0)
                     self.state = self.IDLE
                     self.state_timer = 0

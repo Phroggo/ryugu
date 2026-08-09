@@ -858,7 +858,10 @@ class LandingController(Node):
             # every hop forever. Require the tilt to be sustained (~3 s)
             # and the body quiescent so a transient rock or an active
             # crouch wobble cannot trip it.
-            uz = 1.0 - 2.0 * (msg.orientation.x ** 2 + msg.orientation.y ** 2)
+            # Phase 7 fix (2026-08-09): odometry, not IMU orientation --
+            # see the _is_badly_tilted BUG FIX comment for why.
+            uz = (1.0 - 2.0 * (self.last_pose[3] ** 2 + self.last_pose[4] ** 2)
+                  if self.last_pose is not None else 1.0)
             if uz < 0.85 and self.velocity_mag < 0.02:
                 self.landed_tilt_ticks = getattr(self, 'landed_tilt_ticks', 0) + 1
                 if self.landed_tilt_ticks >= 300:
@@ -930,22 +933,44 @@ class LandingController(Node):
         righting check yet aborted EVERY crouch on the stance gate --
         launch35 logged 149 aborted crouches, most stranded in exactly
         that dead band. The righting success threshold (u_z > 0.9) sits
-        safely above the trigger, so no oscillation."""
-        qx = msg.orientation.x
-        qy = msg.orientation.y
+        safely above the trigger, so no oscillation.
+
+        BUG FIX (Phase 7, 2026-08-09): previously read orientation from
+        `msg` (the IMU message), not odometry. Confirmed live
+        (imu_vs_odom_orientation_check.py) that gz-sim's simulated IMU
+        orientation output stays frozen at identity for a body with near-
+        zero angular velocity -- a robot spawned tilted 175 deg with no
+        further rotation read imu-derived u_z=1.0 (looks perfectly
+        upright) for 55+ seconds while odometry correctly read u_z=-0.996
+        the whole time. This made the badly-tilted trigger structurally
+        blind to any static/severe tilt with little further tumbling --
+        confirmed as the root cause of a 20/20 miss rate in the
+        full_inversion bucket of the Phase 7 self-righting batch (see
+        docs/paper_assets/calculations/redesign_v2_20260807/
+        phase7_full_revalidation/PHASE7_CHANGE_REPORT.md). Now reads
+        `self.last_pose` (populated by odom_callback from
+        /scout_1/odometry), the same reliable source every other
+        controller in this codebase already uses for orientation."""
+        if self.last_pose is None:
+            return False
+        qx, qy = self.last_pose[3], self.last_pose[4]
         return (1.0 - 2.0 * (qx * qx + qy * qy)) < 0.85
 
     def _is_inverted(self, msg):
         """True if the chassis +Z axis is currently pointing mostly downward
-        (upside-down landing), derived from IMU orientation quaternion.
-        Standard quaternion-rotation formula: rotating the local +Z axis
-        (0,0,1) by orientation q=(x,y,z,w) gives a world-frame Z component
-        of 1 - 2*(qx^2 + qy^2). Positive = chassis-up (normal); negative =
+        (upside-down landing), derived from the odometry orientation
+        quaternion (see the _is_badly_tilted BUG FIX note -- the IMU
+        message's orientation field is not reliable for this). Standard
+        quaternion-rotation formula: rotating the local +Z axis (0,0,1) by
+        orientation q=(x,y,z,w) gives a world-frame Z component of
+        1 - 2*(qx^2 + qy^2). Positive = chassis-up (normal); negative =
         chassis-down (inverted). Independent of qz/qw (yaw has no bearing
-        on whether the robot is right-side-up).
+        on whether the robot is right-side-up). Currently unused (dead
+        code) but fixed for consistency rather than left as a landmine.
         """
-        qx = msg.orientation.x
-        qy = msg.orientation.y
+        if self.last_pose is None:
+            return False
+        qx, qy = self.last_pose[3], self.last_pose[4]
         world_up_z = 1.0 - 2.0 * (qx * qx + qy * qy)
         return world_up_z < 0.0
 
@@ -1024,7 +1049,13 @@ class LandingController(Node):
         """
         self.righting_ticks += 1
 
-        qx, qy = msg.orientation.x, msg.orientation.y
+        # Phase 7 fix (2026-08-09): use ODOMETRY orientation, not the IMU
+        # message's -- see the _is_badly_tilted docstring/comment for the
+        # full story (gz-sim's simulated IMU orientation is effectively
+        # frozen at identity for a body with little angular velocity,
+        # confirmed live: imu-derived u_z stayed at 1.0 for 55+s over a
+        # body odometry independently confirmed was at u_z=-0.996).
+        qx, qy = self.last_pose[3], self.last_pose[4]
         u_z = 1.0 - 2.0 * (qx * qx + qy * qy)
 
         # DART-SLEEP WAKE (2026-08-05, gated -- see _wake_model docstring
@@ -1060,7 +1091,7 @@ class LandingController(Node):
         # reliably; a body forced to a perfect full inversion and wedged
         # against terrain is the residual hard case (see SS3.3 in the paper).
         if self.righting_ticks == 1 or self.righting_ticks % 50 == 0:
-            qz, qw = msg.orientation.z, msg.orientation.w
+            qz, qw = self.last_pose[5], self.last_pose[6]
             up_x = 2.0 * (qx * qz + qw * qy)
             up_y = 2.0 * (qy * qz - qw * qx)
             n = math.hypot(up_x, up_y)

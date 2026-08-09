@@ -1,0 +1,35 @@
+[19:01:48] === timestep 1ms, 5 repeats ===
+[19:02:06]   [1ms rep1] az=61 start_uz=0.49999999999999956
+[19:05:22]     landed=True after 196.6s uz=0.99941264818377
+[19:05:22]     outcome=recovered final_uz=0.99941264818377 recover_time_s=0.008216381072998047
+[19:05:40]   [1ms rep2] az=122 start_uz=0.49999999999999967
+[19:09:10]     landed=True after 210.2s uz=0.9994308740289019
+[19:09:10]     outcome=recovered final_uz=0.9994308740289019 recover_time_s=0.009476900100708008
+[19:09:27]   [1ms rep3] az=183 start_uz=0.49999999999999956
+[19:12:23]     landed=True after 175.2s uz=0.9994231440248799
+[19:12:23]     outcome=recovered final_uz=0.9994231440248799 recover_time_s=0.009348392486572266
+[19:12:40]   [1ms rep4] az=244 start_uz=0.49999999999999967
+[19:15:35]     landed=True after 174.9s uz=0.9992344155136801
+[19:15:35]     outcome=recovered final_uz=0.9992344155136801 recover_time_s=0.00726318359375
+[19:15:52]   [1ms rep5] az=305 start_uz=0.5000000000000007
+[19:18:47]     landed=True after 174.6s uz=0.9993840513569262
+[19:18:47]     outcome=recovered final_uz=0.9993840513569262 recover_time_s=0.0010688304901123047
+[19:18:47] === timestep 4ms, 5 repeats ===
+[19:19:04]   [4ms rep1] az=61 start_uz=0.49999999999999956
+[19:22:16]     landed=True after 191.4s uz=0.9994118005499557
+[19:22:16]     outcome=recovered final_uz=0.9994118005499557 recover_time_s=0.01118326187133789
+[19:22:33]   [4ms rep2] az=122 start_uz=0.49999999999999967
+[19:25:23]     landed=True after 169.9s uz=0.9994327135092683
+[19:25:23]     outcome=recovered final_uz=0.9994327135092683 recover_time_s=0.011883258819580078
+[19:25:40]   [4ms rep3] az=183 start_uz=0.49999999999999956
+[19:28:37]     landed=True after 177.0s uz=0.9994262790979039
+[19:28:37]     outcome=recovered final_uz=0.9994262790979039 recover_time_s=0.011078357696533203
+[19:28:55]   [4ms rep4] az=244 start_uz=0.49999999999999967
+[19:31:49]     landed=True after 174.5s uz=0.9992452482456807
+[19:31:49]     outcome=recovered final_uz=0.9992452482456807 recover_time_s=0.011220932006835938
+[19:32:07]   [4ms rep5] az=305 start_uz=0.5000000000000007
+[19:35:34]     landed=True after 207.4s uz=0.9993545991662585
+[19:35:34]     outcome=recovered final_uz=0.9993545991662585 recover_time_s=0.006861448287963867
+[19:35:34] === all repeats complete ===
+[19:35:34] 1ms: 5/5 recovered recover_times=[0.0, 0.0, 0.0, 0.0, 0.0]
+[19:35:34] 4ms: 5/5 recovered recover_times=[0.0, 0.0, 0.0, 0.0, 0.0]

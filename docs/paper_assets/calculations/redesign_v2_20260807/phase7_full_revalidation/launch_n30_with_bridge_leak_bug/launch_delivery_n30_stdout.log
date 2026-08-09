@@ -1,0 +1,68 @@
+[13:11:05]   (re)starting gz sim daemon...
+[13:11:13] --- repeat 1/30 ---
+[13:12:24]   [rep1] ready check done: landed=False, speed=0.007729029000014265
+[13:12:38]   [rep1] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[13:12:38] --- repeat 2/30 ---
+[13:13:48]   [rep2] ready check done: landed=False, speed=0.00771192900002049
+[13:14:03]   [rep2] STABILIZED: delivered=0.00910 ratio=0.213 t=14.0s
+[13:14:03] --- repeat 3/30 ---
+[13:15:13]   [rep3] ready check done: landed=False, speed=0.00771192900002049
+[13:15:26]   [rep3] STABILIZED: delivered=0.00898 ratio=0.210 t=12.1s
+[13:15:26] --- repeat 4/30 ---
+[13:15:48]   [rep4] ready check done: landed=True, speed=0.002200028999954639
+[13:18:04]   [rep4] STABILIZED: delivered=0.01363 ratio=0.318 t=6.1s
+[13:18:04] --- repeat 5/30 ---
+[13:18:23]   [rep5] ready check done: landed=True, speed=0.001863743414718154
+[13:20:47]   [rep5] STABILIZED: delivered=0.01277 ratio=0.298 t=10.0s
+[13:20:47]   --- periodic full daemon restart before rep 6 ---
+[13:20:49]   (re)starting gz sim daemon...
+[13:20:57] --- repeat 6/30 ---
+[13:22:08]   [rep6] ready check done: landed=False, speed=0.007717628999959204
+[13:22:22]   [rep6] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[13:22:22] --- repeat 7/30 ---
+[13:23:32]   [rep7] ready check done: landed=False, speed=0.007717628999959202
+[13:23:45]   [rep7] STABILIZED: delivered=0.00890 ratio=0.208 t=12.0s
+[13:23:45] --- repeat 8/30 ---
+[13:24:55]   [rep8] ready check done: landed=False, speed=0.007706228999992959
+[13:25:09]   [rep8] STABILIZED: delivered=0.00897 ratio=0.210 t=12.1s
+[13:25:09] --- repeat 9/30 ---
+[13:26:19]   [rep9] ready check done: landed=False, speed=0.007706229000081794
+[13:26:32]   [rep9] STABILIZED: delivered=0.00898 ratio=0.210 t=12.0s
+[13:26:32] --- repeat 10/30 ---
+[13:26:51]   [rep10] ready check done: landed=True, speed=0.0018352289999690186
+[13:30:11]   [rep10] TIMEOUT waiting for confirmed separation (200.0s)
+[13:30:11]   --- periodic full daemon restart before rep 11 ---
+[13:30:13]   (re)starting gz sim daemon...
+[13:30:21] --- repeat 11/30 ---
+[13:31:32]   [rep11] ready check done: landed=False, speed=0.00771192900002049
+[13:31:46]   [rep11] STABILIZED: delivered=0.00909 ratio=0.212 t=14.0s
+[13:31:46] --- repeat 12/30 ---
+[13:32:56]   [rep12] ready check done: landed=False, speed=0.007711929000020488
+[13:33:11]   [rep12] STABILIZED: delivered=0.00910 ratio=0.213 t=14.0s
+[13:33:11] --- repeat 13/30 ---
+[13:34:21]   [rep13] ready check done: landed=False, speed=0.007700528999965429
+[13:34:33]   [rep13] STABILIZED: delivered=0.00886 ratio=0.207 t=12.0s
+[13:34:33] --- repeat 14/30 ---
+[13:35:44]   [rep14] ready check done: landed=False, speed=0.007706228999992958
+[13:35:57]   [rep14] STABILIZED: delivered=0.00897 ratio=0.210 t=12.0s
+[13:35:57] --- repeat 15/30 ---
+[13:36:16]   [rep15] ready check done: landed=True, speed=0.0018466290000240806
+[13:39:36]   [rep15] TIMEOUT waiting for confirmed separation (200.0s)
+[13:39:36]   --- periodic full daemon restart before rep 16 ---
+[13:39:38]   (re)starting gz sim daemon...
+[13:39:46] --- repeat 16/30 ---
+[13:40:57]   [rep16] ready check done: landed=False, speed=0.007717628999959203
+[13:41:09]   [rep16] STABILIZED: delivered=0.00887 ratio=0.207 t=12.0s
+[13:41:09] --- repeat 17/30 ---
+[13:42:19]   [rep17] ready check done: landed=False, speed=0.007723328999986733
+[13:42:34]   [rep17] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[13:42:34] --- repeat 18/30 ---
+[13:43:44]   [rep18] ready check done: landed=False, speed=0.007711929000020489
+[13:43:57]   [rep18] STABILIZED: delivered=0.00896 ratio=0.209 t=12.0s
+[13:43:57] --- repeat 19/30 ---
+[37;1m2026-08-09 13:44:09.104 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7419: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[13:45:09]   [rep19] ready check done: landed=False, speed=0.0076834289999716575
+[13:48:32]   [rep19] TIMEOUT waiting for confirmed separation (200.0s)
+[13:48:35] --- repeat 20/30 ---
+[37;1m2026-08-09 13:48:46.270 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed init_port fastrtps_port7411: open_and_lock_file failed[34;1m -> Function [36mopen_port_internal[m
+[13:49:52]   [rep20] ready check done: landed=None, speed=0.005203657500964805

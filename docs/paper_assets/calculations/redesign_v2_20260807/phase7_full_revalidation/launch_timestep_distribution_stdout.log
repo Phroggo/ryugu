@@ -1,0 +1,35 @@
+[18:46:09] === starting 1ms world, 5 repeats ===
+[18:46:19] --- 1ms repeat 1/5 ---
+[18:47:30]   [1ms rep1] ready check done: landed=False, speed=0.007740428999980509
+[18:47:44]   [1ms rep1] STABILIZED: delivered=0.00912 ratio=0.213 t=14.0s
+[18:47:44] --- 1ms repeat 2/5 ---
+[18:48:55]   [1ms rep2] ready check done: landed=False, speed=0.007711929000109307
+[18:49:09]   [1ms rep2] STABILIZED: delivered=0.00909 ratio=0.212 t=14.0s
+[18:49:09] --- 1ms repeat 3/5 ---
+[18:50:19]   [1ms rep3] ready check done: landed=False, speed=0.007717628999959205
+[18:50:34]   [1ms rep3] STABILIZED: delivered=0.00910 ratio=0.213 t=14.0s
+[18:50:34] --- 1ms repeat 4/5 ---
+[18:51:44]   [1ms rep4] ready check done: landed=False, speed=0.007711929000020487
+[18:51:56]   [1ms rep4] STABILIZED: delivered=0.00887 ratio=0.207 t=12.0s
+[18:51:56] --- 1ms repeat 5/5 ---
+[18:53:07]   [1ms rep5] ready check done: landed=False, speed=0.007723328999986734
+[18:53:21]   [1ms rep5] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[18:53:21] === starting 4ms world, 5 repeats ===
+[18:53:31] --- 4ms repeat 1/5 ---
+[18:54:41]   [4ms rep1] ready check done: landed=False, speed=0.007723500000000882
+[18:54:56]   [4ms rep1] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[18:54:56] --- 4ms repeat 2/5 ---
+[18:56:06]   [4ms rep2] ready check done: landed=False, speed=0.00772942800000287
+[18:56:21]   [4ms rep2] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[18:56:21] --- 4ms repeat 3/5 ---
+[18:57:31]   [4ms rep3] ready check done: landed=False, speed=0.0077294280000028675
+[18:57:45]   [4ms rep3] STABILIZED: delivered=0.00911 ratio=0.213 t=14.0s
+[18:57:45] --- 4ms repeat 4/5 ---
+[18:58:55]   [4ms rep4] ready check done: landed=False, speed=0.007735356000004855
+[18:59:10]   [4ms rep4] STABILIZED: delivered=0.00911 ratio=0.213 t=14.1s
+[18:59:10] --- 4ms repeat 5/5 ---
+[19:00:20]   [4ms rep5] ready check done: landed=False, speed=0.007729428000002871
+[19:00:34]   [4ms rep5] STABILIZED: delivered=0.00912 ratio=0.213 t=14.0s
+[19:00:34] === all repeats complete ===
+[19:00:34] 1ms: n=5 stabilized (of 5, 0 no_separation) ratios=[0.213, 0.212, 0.213, 0.207, 0.213] mean=0.212 range=0.006 min=0.207 max=0.213
+[19:00:34] 4ms: n=5 stabilized (of 5, 0 no_separation) ratios=[0.213, 0.213, 0.213, 0.213, 0.213] mean=0.213 range=0.000 min=0.213 max=0.213

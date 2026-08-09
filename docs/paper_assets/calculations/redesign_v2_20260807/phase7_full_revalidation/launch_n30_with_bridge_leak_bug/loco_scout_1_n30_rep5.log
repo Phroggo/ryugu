@@ -1,0 +1,18 @@
+[INFO] [1786267090.363749852] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786267103.356558523] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786267103.357229563] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786267103.405007963] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786267103.542272376] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[WARN] [1786267104.122387683] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=0.6s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786267104.123231511] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 0.6s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786267106.330489632] [loco_scout_1]: [scout_1] Target distance: 9.00m. Required Delta-V: 0.0428 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786267106.331285688] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786267106.357039977] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786267106.436219092] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[WARN] [1786267106.892390897] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=0.5s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786267106.893204763] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 0.5s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786267237.286382633] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786267237.287142022] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786267237.506617940] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[INFO] [1786267237.626439296] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1786267237.904332292] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.

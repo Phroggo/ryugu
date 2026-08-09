@@ -1,0 +1,36 @@
+[08:55:58] spawning at tilt=175.0 az=40.0
+[08:56:02] start uz=-0.9961946800098032
+[08:59:02] done. final uz=-0.9994279449801087 landed=False
+[08:59:02] === RESULT: badly-tilted trigger fired = True ===
+[08:59:02]   [WARN] [1786251482.089431638] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[08:59:02]   [INFO] [1786251482.099347016] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: proportional roll, u_z=-1.00
+[08:59:02]   [INFO] [1786251484.112929051] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=101 omega=0.001 omega_roll=0.000 dir=(-0.93,0.36)
+[08:59:02]   [INFO] [1786251486.216247325] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9995 w=160 omega=0.001 omega_roll=0.000 dir=(-0.92,0.39)
+[08:59:02]   [INFO] [1786251488.312748723] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9995 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.91,0.42)
+[08:59:02]   [INFO] [1786251490.313705114] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.000 dir=(-0.94,0.33)
+[08:59:02]   [INFO] [1786251492.315888360] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.000 dir=(-0.93,0.37)
+[08:59:02]   [INFO] [1786251494.434509180] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.93,0.38)
+[08:59:02]   [INFO] [1786251496.536115023] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.92,0.39)
+[08:59:02]   [INFO] [1786251498.143504281] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 2/5: proportional roll, u_z=-1.00
+[08:59:02]   [INFO] [1786251500.138762033] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=100 omega=0.001 omega_roll=-0.001 dir=(-0.95,0.31)
+[08:59:02]   [INFO] [1786251502.234792099] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.96,0.28)
+[08:59:02]   [INFO] [1786251504.357538443] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.97,0.25)
+[08:59:02]   [INFO] [1786251506.455615733] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.002 dir=(-0.97,0.24)
+[08:59:02]   [INFO] [1786251508.459881516] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.001 dir=(-0.94,0.35)
+[08:59:02]   [INFO] [1786251510.559950435] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.001 dir=(-0.93,0.38)
+[08:59:02]   [INFO] [1786251512.661695227] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.001 dir=(-0.91,0.40)
+[08:59:02]   [INFO] [1786251514.275712962] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 3/5: proportional roll, u_z=-1.00
+[08:59:02]   [INFO] [1786251516.268280053] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=100 omega=0.002 omega_roll=-0.002 dir=(-0.94,0.34)
+[08:59:02]   [INFO] [1786251518.270506614] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.000 dir=(-0.96,0.29)
+[08:59:02]   [INFO] [1786251520.371638728] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.000 dir=(-0.97,0.26)
+[08:59:02]   [INFO] [1786251522.471192668] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.001 dir=(-0.97,0.23)
+[08:59:02]   [INFO] [1786251524.475008908] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.002 dir=(-0.95,0.33)
+[08:59:02]   [INFO] [1786251526.479602845] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.93,0.36)
+[08:59:02]   [INFO] [1786251528.582099186] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.93,0.36)
+[08:59:02]   [INFO] [1786251530.187440207] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 4/5: proportional roll, u_z=-1.00
+[08:59:02]   [INFO] [1786251532.181074920] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=100 omega=0.001 omega_roll=-0.001 dir=(-0.95,0.32)
+[08:59:02]   [INFO] [1786251534.284792654] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.96,0.30)
+[08:59:02]   [INFO] [1786251536.385864960] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.96,0.27)
+[08:59:02]   [INFO] [1786251538.486428174] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.002 dir=(-0.97,0.26)
+[08:59:02]   [INFO] [1786251540.490575772] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.000 dir=(-0.94,0.35)
+[08:59:02]   [INFO] [1786251542.593378639] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.000 dir=(-0.93,0.38)

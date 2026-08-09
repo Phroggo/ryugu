@@ -1,0 +1,93 @@
+[INFO] [1786251358.986214043] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1786251364.023940038] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251369.023692999] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251374.023608098] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251379.024185273] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251384.024744952] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251389.023748846] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251394.023892960] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251399.023726170] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251404.024158179] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251409.024724741] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251414.023593740] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251419.024101149] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251424.024383981] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251429.023616764] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251434.024445563] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251439.029306987] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251444.024704255] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251449.023823418] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251454.023681836] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251459.023804789] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251464.024048190] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251469.023656341] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251474.023728848] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251479.024467905] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786251480.084032874] [landing_scout_1]: [scout_1] 🎯 Resting while IDLE (altitude static) — confirming ground contact
+[WARN] [1786251482.089431638] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1786251482.099347016] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: proportional roll, u_z=-1.00
+[INFO] [1786251484.024024495] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251484.111200091] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00039, omega=0.00089) -- possible DART sleep, waking in place.
+[INFO] [1786251484.112929051] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=101 omega=0.001 omega_roll=0.000 dir=(-0.93,0.36)
+[WARN] [1786251486.213761269] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00032, omega=0.00089) -- possible DART sleep, waking in place.
+[INFO] [1786251486.216247325] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9995 w=160 omega=0.001 omega_roll=0.000 dir=(-0.92,0.39)
+[INFO] [1786251488.312748723] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9995 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.91,0.42)
+[INFO] [1786251489.023688753] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786251490.313705114] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.000 dir=(-0.94,0.33)
+[WARN] [1786251492.313518941] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00027, omega=0.00075) -- possible DART sleep, waking in place.
+[INFO] [1786251492.315888360] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.000 dir=(-0.93,0.37)
+[INFO] [1786251494.023509222] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251494.432415152] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00028, omega=0.00034) -- possible DART sleep, waking in place.
+[INFO] [1786251494.434509180] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.93,0.38)
+[WARN] [1786251496.533828927] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00037, omega=0.00034) -- possible DART sleep, waking in place.
+[INFO] [1786251496.536115023] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.92,0.39)
+[WARN] [1786251498.133485326] [landing_scout_1]: [scout_1] Still inverted (u_z=-1.00), retrying with alternate roll axis/sign (attempt 2/5)
+[INFO] [1786251498.143504281] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 2/5: proportional roll, u_z=-1.00
+[INFO] [1786251499.024688315] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251500.135733508] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00036, omega=0.00089) -- possible DART sleep, waking in place.
+[INFO] [1786251500.138762033] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=100 omega=0.001 omega_roll=-0.001 dir=(-0.95,0.31)
+[WARN] [1786251502.233588079] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00035, omega=0.00083) -- possible DART sleep, waking in place.
+[INFO] [1786251502.234792099] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.96,0.28)
+[INFO] [1786251504.023590365] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251504.354975141] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00039, omega=0.00083) -- possible DART sleep, waking in place.
+[INFO] [1786251504.357538443] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.97,0.25)
+[INFO] [1786251506.455615733] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.002 dir=(-0.97,0.24)
+[WARN] [1786251508.457880100] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00021, omega=0.00072) -- possible DART sleep, waking in place.
+[INFO] [1786251508.459881516] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.001 dir=(-0.94,0.35)
+[INFO] [1786251509.024190126] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251510.558012575] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00027, omega=0.00063) -- possible DART sleep, waking in place.
+[INFO] [1786251510.559950435] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.001 dir=(-0.93,0.38)
+[WARN] [1786251512.659530030] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00052, omega=0.00063) -- possible DART sleep, waking in place.
+[INFO] [1786251512.661695227] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.001 dir=(-0.91,0.40)
+[INFO] [1786251514.023584583] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251514.265617668] [landing_scout_1]: [scout_1] Still inverted (u_z=-1.00), retrying with alternate roll axis/sign (attempt 3/5)
+[INFO] [1786251514.275712962] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 3/5: proportional roll, u_z=-1.00
+[INFO] [1786251516.268280053] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=100 omega=0.002 omega_roll=-0.002 dir=(-0.94,0.34)
+[WARN] [1786251518.268292945] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00019, omega=0.00068) -- possible DART sleep, waking in place.
+[INFO] [1786251518.270506614] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.000 dir=(-0.96,0.29)
+[INFO] [1786251519.023912322] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251520.369860180] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00024, omega=0.00067) -- possible DART sleep, waking in place.
+[INFO] [1786251520.371638728] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.000 dir=(-0.97,0.26)
+[INFO] [1786251522.471192668] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.001 dir=(-0.97,0.23)
+[INFO] [1786251524.024146375] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786251524.475008908] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.002 dir=(-0.95,0.33)
+[WARN] [1786251526.477798455] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00016, omega=0.00038) -- possible DART sleep, waking in place.
+[INFO] [1786251526.479602845] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.93,0.36)
+[WARN] [1786251528.578701788] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00021, omega=0.00025) -- possible DART sleep, waking in place.
+[INFO] [1786251528.582099186] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.9994 w=160 omega=0.000 omega_roll=0.000 dir=(-0.93,0.36)
+[INFO] [1786251529.023752164] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251530.177766976] [landing_scout_1]: [scout_1] Still inverted (u_z=-1.00), retrying with alternate roll axis/sign (attempt 4/5)
+[INFO] [1786251530.187440207] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 4/5: proportional roll, u_z=-1.00
+[WARN] [1786251532.179986079] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00032, omega=0.00069) -- possible DART sleep, waking in place.
+[INFO] [1786251532.181074920] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=100 omega=0.001 omega_roll=-0.001 dir=(-0.95,0.32)
+[INFO] [1786251534.024345866] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251534.282765402] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00026, omega=0.00060) -- possible DART sleep, waking in place.
+[INFO] [1786251534.284792654] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.96,0.30)
+[WARN] [1786251536.384234177] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00050, omega=0.00060) -- possible DART sleep, waking in place.
+[INFO] [1786251536.385864960] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=-0.001 dir=(-0.96,0.27)
+[INFO] [1786251538.486428174] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.002 omega_roll=0.002 dir=(-0.97,0.26)
+[INFO] [1786251539.023840951] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786251540.489097234] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00024, omega=0.00069) -- possible DART sleep, waking in place.
+[INFO] [1786251540.490575772] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.000 dir=(-0.94,0.35)
+[WARN] [1786251542.591869163] [landing_scout_1]: [scout_1] Body quiescent mid-righting (v=0.00030, omega=0.00058) -- possible DART sleep, waking in place.
+[INFO] [1786251542.593378639] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.9994 w=160 omega=0.001 omega_roll=0.000 dir=(-0.93,0.38)
