@@ -19,6 +19,7 @@ from nav_msgs.msg import Odometry
 import sys
 import math
 import subprocess
+import threading
 
 class LandingController(Node):
     # ── States ──
@@ -1004,11 +1005,23 @@ class LandingController(Node):
         req = (f'name: "{self.robot_name}", '
                f'position: {{x: {x}, y: {y}, z: {z + 0.0005}}}, '
                f'orientation: {{x: {qx}, y: {qy}, z: {qz}, w: {qw}}}')
-        subprocess.Popen(
-            ['gz', 'service', '-s', '/world/ryugu_world/set_pose',
-             '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
-             '--timeout', '1000', '--req', req],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # NARROW FIX (2026-08-10, tick/wall-time mismatch investigation --
+        # see hopper_locomotion.py's identical fix and __init__-level
+        # WALL-CLOCK TIMING note there for the full incident). Popen()'s
+        # underlying fork()+exec() can stall the calling thread under
+        # system load despite being nominally non-blocking; this is the
+        # only such call on this node's single-threaded executor, which
+        # also runs every timing-critical callback here (righting_ticks,
+        # RIGHTING_TIMEOUT_TICKS, etc.). Spawn it on a throwaway daemon
+        # thread so a slow fork() can never stall callback processing.
+        threading.Thread(
+            target=subprocess.Popen,
+            args=(['gz', 'service', '-s', '/world/ryugu_world/set_pose',
+                   '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
+                   '--timeout', '1000', '--req', req],),
+            kwargs={'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL},
+            daemon=True,
+        ).start()
 
     def _righting_torque_step(self, error, omega_roll, dt):
         """Acceleration-integrated version of the old proportional-taper

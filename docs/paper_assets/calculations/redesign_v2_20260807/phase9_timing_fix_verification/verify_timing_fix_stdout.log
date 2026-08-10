@@ -1,0 +1,39 @@
+[10:17:42]   (re)starting gz sim daemon...
+[10:17:50] === distance=9.0m, n=5 ===
+[10:19:00]   [d=9.0 rep1] ready check done: landed=False, speed=0.007740428999980509
+[10:19:16]   [d=9.0 rep1] STABILIZED: delivered=0.00936 ratio=0.219
+[10:20:26]   [d=9.0 rep2] ready check done: landed=False, speed=0.00771016815493496
+[10:20:42]   [d=9.0 rep2] STABILIZED: delivered=0.00933 ratio=0.218
+[10:21:53]   [d=9.0 rep3] ready check done: landed=False, speed=0.007721549199577329
+[10:22:09]   [d=9.0 rep3] STABILIZED: delivered=0.00936 ratio=0.219
+[10:23:19]   [d=9.0 rep4] ready check done: landed=False, speed=0.007710147802101985
+[10:23:35]   [d=9.0 rep4] STABILIZED: delivered=0.00931 ratio=0.218
+[10:24:45]   [d=9.0 rep5] ready check done: landed=False, speed=0.0077158940806598434
+[10:25:01]   [d=9.0 rep5] STABILIZED: delivered=0.00935 ratio=0.218
+[10:25:01] === distance=5.0m, n=5 ===
+[10:26:11]   [d=5.0 rep1] ready check done: landed=False, speed=0.0077329736205911945
+[10:26:27]   [d=5.0 rep1] STABILIZED: delivered=0.00932 ratio=0.292
+[10:27:38]   [d=5.0 rep2] ready check done: landed=False, speed=0.007715855671758357
+[10:27:54]   [d=5.0 rep2] STABILIZED: delivered=0.00938 ratio=0.294
+[10:29:04]   [d=5.0 rep3] ready check done: landed=False, speed=0.007704448233171851
+[10:29:20]   [d=5.0 rep3] STABILIZED: delivered=0.00936 ratio=0.293
+[10:30:30]   [d=5.0 rep4] ready check done: landed=False, speed=0.007715853435630451
+[10:30:46]   [d=5.0 rep4] STABILIZED: delivered=0.00937 ratio=0.294
+[10:31:57]   [d=5.0 rep5] ready check done: landed=False, speed=0.007715941288406776
+[10:32:13]   [d=5.0 rep5] STABILIZED: delivered=0.00933 ratio=0.292
+[10:32:13] === verification batch complete ===
+[10:32:13] d=9.0: n=5 stabilized=5 no_separation=0 mean_ratio=0.218 ratios=[0.219, 0.218, 0.219, 0.218, 0.218]
+[10:32:13] d=5.0: n=5 stabilized=5 no_separation=0 mean_ratio=0.293 ratios=[0.292, 0.294, 0.293, 0.294, 0.292]
+[10:32:13] --- scanning loco logs for Crouching->IGNITION timing ---
+[10:32:13]   loco_scout_1_d5_rep1.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d5_rep2.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d5_rep3.log: Crouching->IGNITION = 10.01s [OK]
+[10:32:13]   loco_scout_1_d5_rep4.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d5_rep5.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d9_rep1.log: Crouching->IGNITION = 10.08s [OK]
+[10:32:13]   loco_scout_1_d9_rep2.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d9_rep3.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d9_rep4.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   loco_scout_1_d9_rep5.log: Crouching->IGNITION = 10.00s [OK]
+[10:32:13]   all Crouching->IGNITION gaps >= 9s -- CROUCH gate holding correctly
+[10:32:13] === CROUCH GATE INTEGRITY: PASS ===

@@ -7,6 +7,7 @@ import subprocess
 import sys
 import math
 import time
+import threading
 
 
 def _cosine_sim(a, b):
@@ -62,15 +63,54 @@ class HopperLocomotion(Node):
         # Per-jump launch ramp duration in 10 Hz ticks; set by
         # jump_target_callback, consumed by the LAUNCH state.
         self.ramp_ticks = 40
+        # WALL-CLOCK TIMING (2026-08-10, tick/wall-time mismatch
+        # investigation -- see the Phase 8 overnight report and PHASE9-ish
+        # follow-up commit for the full incident writeup). ramp_ticks
+        # above is kept for logging/legacy reference, but the LAUNCH
+        # state's actual ramp-progress fraction and post-ramp wait gating
+        # now key off ramp_T (seconds) and real time.time() deltas, not
+        # tick counts -- see the state-entry timestamps below and the
+        # CROUCH/LAUNCH/FLIGHT blocks in tick(). Root cause of the
+        # incident: a single-threaded rclpy executor can fall behind its
+        # nominal 10Hz timer under real system load (confirmed candidate
+        # trigger: _wake_model()'s subprocess.Popen(), whose underlying
+        # fork()+exec() can stall the calling thread under load despite
+        # Popen() itself being nominally non-blocking -- see _wake_model),
+        # then fire the resulting backlog of missed callbacks in a rapid
+        # burst once unblocked. Each burst-fired tick() call still only
+        # increments its counter by 1, but hundreds can fire within
+        # milliseconds of real time -- corrupting any threshold or
+        # interpolation-fraction logic that assumed 1 tick ~= 0.1s of real
+        # time. Confirmed live: CROUCH's 10s dwell gate satisfied in 34ms
+        # of real time; SEPARATION_MAX_WAIT_TICKS's 60s deadline satisfied
+        # in ~1.0s of real time (both from the same Phase 8 P4 batch).
+        # Narrow fix applied in _wake_model() (moves the Popen() call off
+        # the executor thread) closes the specific trigger found; this
+        # wall-clock conversion closes the underlying structural fragility
+        # for the counters proven to matter for launch-stance integrity
+        # (state_timer's CROUCH/LAUNCH roles, SEPARATION_MAX_WAIT_TICKS,
+        # CLEARANCE_TICKS, RETRACT_RAMP_TICKS). state_timer itself is kept
+        # as a plain incrementing counter and an `== 0` first-tick-of-
+        # state flag (both uses are immune to burst timing -- identity
+        # and increment-by-1 don't care how fast successive calls
+        # happen), just no longer read for any elapsed-time threshold or
+        # interpolation fraction. landing_controller.py's REST_Z_TICKS/
+        # REST_VEL_TICKS were deliberately NOT converted -- no evidence of
+        # corruption there, and that logic underpins an already-published
+        # dwell-time figure; left as a separate, deliberate task.
+        self.ramp_T = 4.0                 # seconds; overwritten by jump_target_callback
+        self._crouch_entered_at = None    # set on CROUCH's first tick
+        self._flight_entered_at = None    # set on every transition into FLIGHT
+        self._last_wake_nudge_at = None   # set on CROUCH/LAUNCH entry, reset per nudge
         # FLIGHT leg choreography (2026-07-17): hold the launch extension
-        # for CLEARANCE_TICKS after separation (~8 s -> ~0.4 m of ground
+        # for CLEARANCE_SECONDS after separation (~8 s -> ~0.4 m of ground
         # clearance at ramp speeds), then retract to neutral over
-        # RETRACT_RAMP_TICKS (~4 s -> foot speed ~0.03 m/s relative to the
-        # body, IMU signature negligible). The old instant retraction at
-        # FLIGHT entry jerked the IMU at 0.27-0.57 m/s^2 and was read by
-        # the landing controller as a landing impact 2 cm off the ground.
-        self.CLEARANCE_TICKS = 80
-        self.RETRACT_RAMP_TICKS = 40
+        # RETRACT_RAMP_SECONDS (~4 s -> foot speed ~0.03 m/s relative to
+        # the body, IMU signature negligible). The old instant retraction
+        # at FLIGHT entry jerked the IMU at 0.27-0.57 m/s^2 and was read
+        # by the landing controller as a landing impact 2 cm off the ground.
+        self.CLEARANCE_SECONDS = 8.0
+        self.RETRACT_RAMP_SECONDS = 4.0
         self._ext_hip0 = 0.0
         self._ext_hip12 = 0.0
         self._ext_knee = 0.0
@@ -81,7 +121,7 @@ class HopperLocomotion(Node):
         self.SEPARATION_SAMPLE_TICKS = 5        # 0.5s @ 10Hz between velocity samples
         self.SEPARATION_CONFIRM_SAMPLES = 3     # 1.5s of consistent velocity required
         self.SEPARATION_MIN_SPEED = 0.003       # m/s; floor above rest-detection noise
-        self.SEPARATION_MAX_WAIT_TICKS = 600    # 60s past ramp end before giving up
+        self.SEPARATION_MAX_WAIT_SECONDS = 60.0 # wall-clock seconds past ramp end before giving up
         self._sep_vel_samples = []
         self._sep_wait_ticks = 0
 
@@ -323,7 +363,8 @@ class HopperLocomotion(Node):
         V_GAIN = 0.0413        # m; re-derived Phase 6, 2026-08-08 (see note above)
         v_req = math.sqrt(max(distance, 0.5) * g / SIN2TH)
         ramp_T = max(1.2, min(20.0, V_GAIN / v_req))
-        self.ramp_ticks = max(1, round(ramp_T * 10))
+        self.ramp_ticks = max(1, round(ramp_T * 10))  # kept for logging only, see WALL-CLOCK TIMING note
+        self.ramp_T = ramp_T  # seconds; authoritative value, LAUNCH state uses this directly
         self.launch_amplitude = 0.9
 
         self.recovery_hop = False
@@ -382,11 +423,25 @@ class HopperLocomotion(Node):
         req = (f'name: "{self.robot_name}", '
                f'position: {{x: {x}, y: {y}, z: {z + 0.0005}}}, '
                f'orientation: {{x: {qx}, y: {qy}, z: {qz}, w: {qw}}}')
-        subprocess.Popen(
-            ['gz', 'service', '-s', '/world/ryugu_world/set_pose',
-             '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
-             '--timeout', '1000', '--req', req],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # NARROW FIX (2026-08-10, tick/wall-time mismatch investigation):
+        # subprocess.Popen() is nominally non-blocking, but the fork()+exec()
+        # underneath it is a real synchronous syscall that can stall for a
+        # non-trivial duration under system load -- and this is the only
+        # call of its kind on this node's single-threaded rclpy executor,
+        # which also runs the 10Hz tick() timer. A stall here lets a
+        # backlog of missed timer periods build up, which then fires in a
+        # rapid burst once unblocked (see the WALL-CLOCK TIMING note in
+        # __init__ for the full incident). Spawning the Popen() call itself
+        # on a throwaway daemon thread means a slow fork() can never again
+        # stall tick() processing, regardless of system load.
+        threading.Thread(
+            target=subprocess.Popen,
+            args=(['gz', 'service', '-s', '/world/ryugu_world/set_pose',
+                   '--reqtype', 'gz.msgs.Pose', '--reptype', 'gz.msgs.Boolean',
+                   '--timeout', '1000', '--req', req],),
+            kwargs={'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL},
+            daemon=True,
+        ).start()
 
     def set_joints(self, hip_val, knee_val):
         for j in self.joints:
@@ -419,7 +474,8 @@ class HopperLocomotion(Node):
                     f"[{self.robot_name}] 🦵 Idle {self.idle_ticks/10:.0f}s with no jump command "
                     f"-- self-initiating recovery hop (legs).")
                 self.launch_amplitude = 0.9
-                self.ramp_ticks = self.RECOVERY_RAMP_TICKS
+                self.ramp_ticks = self.RECOVERY_RAMP_TICKS  # legacy/logging only
+                self.ramp_T = self.RECOVERY_RAMP_TICKS / 10.0  # seconds; ~4s, see RECOVERY_RAMP_TICKS comment
                 # Recovery hops BYPASS the stance gate: they are the only
                 # unstick mechanism for a bot stranded inverted after a
                 # failed RW righting (marked landed anyway), and a kick from
@@ -434,6 +490,13 @@ class HopperLocomotion(Node):
         if self.state == self.CROUCH:
             if self.state_timer == 0:
                 self.get_logger().info("1. Crouching (waking physics, planting feet under body)")
+                # WALL-CLOCK TIMING (2026-08-10): real entry timestamp for
+                # this CROUCH attempt -- see the __init__ note. state_timer
+                # itself stays as a plain incrementing counter/first-tick
+                # flag below, but the 10s/45s gates further down now read
+                # real elapsed time from here, immune to tick-burst timing.
+                self._crouch_entered_at = time.time()
+                self._last_wake_nudge_at = time.time()
                 # Wake the model FIRST: gz-sim8's DART integration puts a
                 # quiescent model to sleep despite allow_auto_disable=false
                 # in model.sdf (proven live 2026-07-15: exact-zero velocity,
@@ -470,6 +533,7 @@ class HopperLocomotion(Node):
                 self.pubs[f'hip_joint_{i}'].publish(Float64(data=self.CROUCH_HIP - self.LEAN / 2))
                 self.pubs[f'knee_joint_{i}'].publish(Float64(data=self.CROUCH_KNEE))
             self.state_timer += 1
+            crouch_elapsed = time.time() - self._crouch_entered_at
             # Keep-awake: re-nudge every 2 s through the crouch — a slow
             # crouch can cross DART's quiescence window mid-stroke and the
             # model sleeps through its own IGNITION (2026-07-16).
@@ -482,8 +546,13 @@ class HopperLocomotion(Node):
             # side effect. CROUCH builds real velocity too (the ~0.03 m/s
             # stand-up rise), so it was exposed to the same failure mode,
             # just never diagnosed here. Same gate applied for consistency.
-            if self.state_timer % 20 == 0 and getattr(self, 'last_speed', 0.0) < 0.001:
+            # WALL-CLOCK TIMING (2026-08-10): "every 2s" now measured in
+            # real time, not every-20-ticks (which a burst could satisfy
+            # many times within milliseconds, firing redundant teleports).
+            if (time.time() - self._last_wake_nudge_at >= 2.0
+                    and getattr(self, 'last_speed', 0.0) < 0.001):
                 self._wake_model()
+                self._last_wake_nudge_at = time.time()
             # 10 s crouch (was 2 s): standing the 2.5 kg body up from belly-
             # rest onto planted feet at the leg PIDs' soft forces (~0.2 N
             # total) takes 3-5 s of slow rise; cycle-1 telemetry showed
@@ -504,7 +573,11 @@ class HopperLocomotion(Node):
             # controller flags as "liftoff while LANDED" (81 occurrences in
             # launch33.log), so the landed flag flickers false mid-crouch.
             stance_ok = self._stance_ok() or getattr(self, 'recovery_hop', False)
-            if self.state_timer > 450 and not stance_ok:
+            # WALL-CLOCK TIMING (2026-08-10): both gates below were
+            # `self.state_timer > 450`/`> 100` (45s/10s at a nominal 10Hz)
+            # -- now real elapsed seconds since CROUCH entry, see the
+            # __init__ note.
+            if crouch_elapsed > 45.0 and not stance_ok:
                 self.get_logger().warn(
                     f"[{self.robot_name}] Aborting hop: stance still bad at crouch "
                     f"timeout (uz={getattr(self, 'last_uz', 1.0):.2f}, "
@@ -514,8 +587,8 @@ class HopperLocomotion(Node):
                 self.state_timer = 0
                 self.idle_ticks = 0
                 return
-            if self.state_timer > 100 and stance_ok and (
-                    self.attitude_error < 0.15 or self.state_timer > 450):
+            if crouch_elapsed > 10.0 and stance_ok and (
+                    self.attitude_error < 0.15 or crouch_elapsed > 45.0):
                 if self.attitude_error >= 0.15:
                     self.get_logger().warn(
                         f"[{self.robot_name}] Launching despite yaw error "
@@ -527,22 +600,22 @@ class HopperLocomotion(Node):
             if self.state_timer == 0:
                 self.get_logger().info(
                     f"2. IGNITION (stroke fraction={self.launch_amplitude:.2f}, "
-                    f"ramp={self.ramp_ticks / 10.0:.1f}s)")
+                    f"ramp={self.ramp_T:.1f}s)")
                 # Re-wake in case the crouch settled into quiescence.
                 self._wake_model()
                 # Fresh separation-confirmation state for this attempt
                 # (Phase 6, 2026-08-08) -- see the end-of-ramp block below.
                 self._sep_vel_samples = []
                 self._sep_wait_ticks = 0
-                # Phase 7 (2026-08-08): real wall-clock IGNITION timestamp,
-                # so the abort-warning below can report actual elapsed time
-                # alongside the tick-count-derived figure -- Phase 6 saw one
-                # batch repeat where "60s post-ramp" fired after <1 real
-                # second, consistent with a burst of queued tick() callbacks
-                # counted as if 0.1s of real time had elapsed each. This
-                # makes that discrepancy directly visible in the log instead
-                # of requiring after-the-fact timestamp archaeology.
+                # WALL-CLOCK TIMING (2026-08-10, was Phase 7's tick-vs-
+                # wall-clock cross-check comment): this timestamp is now
+                # the AUTHORITATIVE clock for the whole LAUNCH state (ramp
+                # progress fraction and the post-ramp separation-wait
+                # deadline both key off it directly), not just a diagnostic
+                # cross-check against a tick count -- see the __init__
+                # WALL-CLOCK TIMING note for the full incident this closes.
                 self._ignition_wall_t = time.time()
+                self._last_wake_nudge_at = time.time()
                 # Signal flight AT IGNITION, not at ramp end (2026-07-17).
                 # Signalling at ramp end raced the retraction: the landing
                 # controller entered FLIGHT in the same tick the legs were
@@ -564,7 +637,12 @@ class HopperLocomotion(Node):
             # amplitude; measured 0.19 m/s on a "9 m" hop).
             # Re-assert every tick for the same last-write-wins reason as
             # the CROUCH block above.
-            s = min(1.0, (self.state_timer + 1) / self.ramp_ticks)
+            # WALL-CLOCK TIMING (2026-08-10): was
+            # `(self.state_timer + 1) / self.ramp_ticks` -- a tick-count
+            # ratio vulnerable to burst timing (see __init__ note). Real
+            # elapsed time over the real ramp duration is immune to it.
+            launch_elapsed = time.time() - self._ignition_wall_t
+            s = min(1.0, launch_elapsed / self.ramp_T)
             # Quadratic ease-in (2026-07-18): rate peaks at release instead
             # of being wasted early where the leg jacobian is strongest --
             # see the singularity note in jump_target_callback.
@@ -604,8 +682,12 @@ class HopperLocomotion(Node):
             # last_speed preserves the original fix (DART sleeping a
             # quiescent model mid-push) while no longer firing once the
             # stroke has real speed to lose.
-            if self.state_timer % 20 == 0 and getattr(self, 'last_speed', 0.0) < 0.001:
+            # WALL-CLOCK TIMING (2026-08-10): "every 20 ticks" -> every 2s
+            # of real time, same reasoning as the CROUCH nudge above.
+            if (time.time() - self._last_wake_nudge_at >= 2.0
+                    and getattr(self, 'last_speed', 0.0) < 0.001):
                 self._wake_model()
+                self._last_wake_nudge_at = time.time()
             # MID-STROKE TIP ABORT (2026-07-18): launch39 showed a stroke
             # can tip the robot over (uz 0.85 -> 0.38 in one 3.5 s ramp).
             # A flopped launch is a random-azimuth hop -- worse than no
@@ -618,6 +700,7 @@ class HopperLocomotion(Node):
                 self._freeze_extension_pose(frac)
                 self.state = self.FLIGHT   # reuse clearance+slow-retract path
                 self.state_timer = 0
+                self._flight_entered_at = time.time()
                 self.separation_pub.publish(Bool(data=True))
                 return
             # GENUINE-SEPARATION CONFIRMATION (Phase 6, 2026-08-08): replaces
@@ -643,11 +726,22 @@ class HopperLocomotion(Node):
             # similarity > 0.995) -- the signature of unforced, undragged
             # motion, as opposed to a body still catching/releasing on the
             # surface -- before declaring separation. Bounded by
-            # SEPARATION_MAX_WAIT_TICKS: if never confirmed, abort the hop
+            # SEPARATION_MAX_WAIT_SECONDS: if never confirmed, abort the hop
             # (retract, return to IDLE for the swarm to re-dispatch) rather
             # than declare a garbage separation and hand FLIGHT a body that
             # never actually left the ground.
-            if self.state_timer >= self.ramp_ticks + 5:
+            # WALL-CLOCK TIMING (2026-08-10): was
+            # `self.state_timer >= self.ramp_ticks + 5` -- the "+5 ticks"
+            # (0.5s) grace before sampling begins is now "+0.5s" of real
+            # time. _sep_wait_ticks itself is kept as a tick-count purely
+            # for the SEPARATION_SAMPLE_TICKS sampling *cadence* below
+            # (not a deadline -- occasional burst-clustered samples there
+            # are a minor, non-corrupting inefficiency, not the class of
+            # bug this fix targets; see __init__ note). The deadline check
+            # that actually decides whether to give up is wall-clock-based
+            # a few lines down.
+            if launch_elapsed >= self.ramp_T + 0.5:
+                sep_wait_elapsed = launch_elapsed - (self.ramp_T + 0.5)
                 self._sep_wait_ticks += 1
                 if self._sep_wait_ticks % self.SEPARATION_SAMPLE_TICKS == 0:
                     vx, vy, vz = getattr(self, 'last_vel', (0.0, 0.0, 0.0))
@@ -670,24 +764,25 @@ class HopperLocomotion(Node):
                             self._freeze_extension_pose(self.launch_amplitude)
                             self.state = self.FLIGHT
                             self.state_timer = 0
+                            self._flight_entered_at = time.time()
                             self._sep_vel_samples = []
                             self._sep_wait_ticks = 0
                             self.separation_pub.publish(Bool(data=True))
                             return
-                if self._sep_wait_ticks >= self.SEPARATION_MAX_WAIT_TICKS:
-                    wall_elapsed = time.time() - getattr(self, '_ignition_wall_t', time.time())
+                # WALL-CLOCK TIMING (2026-08-10): was
+                # `self._sep_wait_ticks >= self.SEPARATION_MAX_WAIT_TICKS`
+                # -- the exact tick-count deadline that, pre-fix, was
+                # observed satisfied after ~1.0s of real time instead of
+                # the intended 60s (see __init__ note). sep_wait_elapsed is
+                # a real time.time() delta, structurally immune to the
+                # tick-burst mechanism -- no tick-vs-wall-clock cross-check
+                # is needed here anymore, since there is no tick count
+                # left in this decision to be wrong.
+                if sep_wait_elapsed >= self.SEPARATION_MAX_WAIT_SECONDS:
                     self.get_logger().warn(
                         f"[{self.robot_name}] Aborting hop: never confirmed genuine "
-                        f"separation after {self._sep_wait_ticks / 10:.0f}s post-ramp "
-                        f"(tick-derived; real wall-clock since IGNITION={wall_elapsed:.1f}s) "
+                        f"separation after {sep_wait_elapsed:.1f}s post-ramp (real time) "
                         f"(still dragging/in contact). Retracting to IDLE for retry.")
-                    if wall_elapsed < self._sep_wait_ticks / 10.0 * 0.5:
-                        self.get_logger().warn(
-                            f"[{self.robot_name}] TICK/WALL-TIME MISMATCH: tick count implies "
-                            f"{self._sep_wait_ticks / 10:.0f}s but only {wall_elapsed:.1f}s of "
-                            f"real time elapsed -- likely a burst of queued tick() callbacks "
-                            f"after executor starvation, not a genuine {self._sep_wait_ticks / 10:.0f}s "
-                            f"stall. See Phase 7 change report.")
                     self.set_joints(0.0, 0.0)
                     self.state = self.IDLE
                     self.state_timer = 0
@@ -706,15 +801,20 @@ class HopperLocomotion(Node):
             # whose IMU signature is negligible. Flights last minutes at
             # Ryugu gravity, so 12 s of leg choreography is nothing.
             self.state_timer += 1
-            if self.state_timer <= self.CLEARANCE_TICKS:
+            # WALL-CLOCK TIMING (2026-08-10): was tick-count comparisons
+            # against CLEARANCE_TICKS/RETRACT_RAMP_TICKS -- see __init__
+            # note. _flight_entered_at is set at both transitions into
+            # FLIGHT (mid-stroke tip abort and genuine separation confirm).
+            flight_elapsed = time.time() - self._flight_entered_at
+            if flight_elapsed <= self.CLEARANCE_SECONDS:
                 # ~8 s * 0.05 m/s = ~0.4 m of clearance before any retraction.
                 self.pubs['hip_joint_0'].publish(Float64(data=self._ext_hip0))
                 self.pubs['knee_joint_0'].publish(Float64(data=self._ext_knee))
                 for i in (1, 2):
                     self.pubs[f'hip_joint_{i}'].publish(Float64(data=self._ext_hip12))
                     self.pubs[f'knee_joint_{i}'].publish(Float64(data=self._ext_knee))
-            elif self.state_timer <= self.CLEARANCE_TICKS + self.RETRACT_RAMP_TICKS:
-                r = (self.state_timer - self.CLEARANCE_TICKS) / self.RETRACT_RAMP_TICKS
+            elif flight_elapsed <= self.CLEARANCE_SECONDS + self.RETRACT_RAMP_SECONDS:
+                r = (flight_elapsed - self.CLEARANCE_SECONDS) / self.RETRACT_RAMP_SECONDS
                 self.pubs['hip_joint_0'].publish(Float64(data=self._ext_hip0 * (1.0 - r)))
                 self.pubs['knee_joint_0'].publish(Float64(data=self._ext_knee * (1.0 - r)))
                 for i in (1, 2):
