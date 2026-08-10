@@ -1,0 +1,43 @@
+[20:06:13] === e_target=0.1 (/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase8_overnight_batch/variant_worlds/ryugu_e010.sdf) ===
+[20:06:30]   reference drop from z=5.2, fixed 250s wait...
+[20:10:40]   rest_z=4.802369137838924
+[20:10:40]   --- drop 1/3 ---
+[20:25:56]   [e=010 drop1] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[20:25:56]   [e=010 drop1] FIRST-BOUNCE e: 0.11303753362997393
+[20:25:56]   --- drop 2/3 ---
+[20:41:12]   [e=010 drop2] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[20:41:12]   [e=010 drop2] FIRST-BOUNCE e: 0.11302986960383263
+[20:41:13]   --- drop 3/3 ---
+[20:56:29]   [e=010 drop3] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[20:56:29]   [e=010 drop3] FIRST-BOUNCE e: 0.11301066858604951
+[20:56:29] === e_target=0.2 (/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase8_overnight_batch/variant_worlds/ryugu_e020.sdf) ===
+[20:56:45]   reference drop from z=5.2, fixed 250s wait...
+[21:00:55]   rest_z=4.802369137838924
+[21:00:55]   --- drop 1/3 ---
+[21:16:12]   [e=020 drop1] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[21:16:12]   [e=020 drop1] FIRST-BOUNCE e: 0.11302970508174578
+[21:16:12]   --- drop 2/3 ---
+[21:31:28]   [e=020 drop2] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[21:31:28]   [e=020 drop2] FIRST-BOUNCE e: 0.11303050461527658
+[21:31:28]   --- drop 3/3 ---
+[21:46:44]   [e=020 drop3] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[21:46:44]   [e=020 drop3] FIRST-BOUNCE e: 0.11303388347619349
+[21:46:44] === e_target=0.4 (/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase8_overnight_batch/variant_worlds/ryugu_e040.sdf) ===
+[21:47:01]   reference drop from z=5.2, fixed 250s wait...
+[21:51:11]   rest_z=4.802369137838924
+[21:51:11]   --- drop 1/3 ---
+[22:06:27]   [e=040 drop1] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[22:06:27]   [e=040 drop1] FIRST-BOUNCE e: 0.11296606168209722
+[22:06:27]   --- drop 2/3 ---
+[22:21:44]   [e=040 drop2] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[22:21:44]   [e=040 drop2] FIRST-BOUNCE e: 0.11299204259206189
+[22:21:44]   --- drop 3/3 ---
+[22:37:00]   [e=040 drop3] apex heights above rest (m): [0.169, 0.0022, 0.002, 0.002, 0.002]...
+[22:37:00]   [e=040 drop3] FIRST-BOUNCE e: 0.11303673404672264
+[22:37:00] === sweep complete ===
+[22:37:00] e_target=0.1: first-bounce e per drop = [0.113, 0.113, 0.113]
+[22:37:00]   COMPARISON vs Phase 8 pre-fix: 0.113, 0.113, 0.113 (expect identical -- see docstring)
+[22:37:00] e_target=0.2: first-bounce e per drop = [0.113, 0.113, 0.113]
+[22:37:00]   COMPARISON vs Phase 8 pre-fix: 0.113, 0.113, 0.113 (expect identical -- see docstring)
+[22:37:00] e_target=0.4: first-bounce e per drop = [0.113, 0.113, 0.113]
+[22:37:00]   COMPARISON vs Phase 8 pre-fix: 0.113, 0.113, 0.113 (expect identical -- see docstring)

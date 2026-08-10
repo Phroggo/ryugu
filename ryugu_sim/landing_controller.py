@@ -17,9 +17,39 @@ from std_msgs.msg import Float64, Bool
 from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
 import sys
+import os
 import math
+import random
 import subprocess
 import threading
+
+def _quat_mult(q1, q2):
+    """Hamilton product of two (x, y, z, w) quaternions, q1 * q2."""
+    x1, y1, z1, w1 = q1
+    x2, y2, z2, w2 = q2
+    return (
+        w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+        w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+        w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+        w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+    )
+
+
+def _random_small_rotation_quat(std_rad):
+    """A small random-axis, Gaussian-magnitude (std_rad) rotation as a unit
+    quaternion (x, y, z, w) -- the standard construction for simulating
+    small-angle attitude sensor noise: uniformly random rotation axis,
+    rotation angle ~ N(0, std_rad)."""
+    v = [random.gauss(0.0, 1.0) for _ in range(3)]
+    norm = math.sqrt(sum(c * c for c in v))
+    if norm < 1e-9:
+        return (0.0, 0.0, 0.0, 1.0)
+    axis = [c / norm for c in v]
+    theta = random.gauss(0.0, std_rad)
+    half = theta / 2.0
+    s = math.sin(half)
+    return (axis[0] * s, axis[1] * s, axis[2] * s, math.cos(half))
+
 
 class LandingController(Node):
     # ── States ──
@@ -70,6 +100,26 @@ class LandingController(Node):
         # Full pose, for the RIGHTING-state wake-model gate (2026-08-05) --
         # see the DART-sleep note near _wake_model below.
         self.last_pose = None
+
+        # Sensor-noise Monte Carlo (Phase 10, 2026-08-10). Opt-in only --
+        # reads ODOM_ORIENTATION_NOISE_STD from the environment (radians,
+        # default 0.0/off), matching this project's existing convention of
+        # env-var-configured test harnesses (e.g. GZ_SIM_RESOURCE_PATH)
+        # rather than introducing a new ROS-parameter pattern nothing else
+        # here uses. When nonzero, a small random rotation (uniformly
+        # random axis, angle ~ N(0, std)) is composed onto every odometry
+        # orientation reading in odom_callback before it reaches
+        # self.last_pose -- so every downstream consumer (the self-righting
+        # trigger, the righting control law's u_z/roll-direction, the
+        # LANDED-state tilt watchdog) sees the same noisy reading a real
+        # noisy attitude-determination system would produce, not just one
+        # formula perturbed in isolation. Default 0.0 reproduces the exact
+        # unmodified behavior used by every other phase's tests.
+        self._odom_noise_std = float(os.environ.get('ODOM_ORIENTATION_NOISE_STD', '0.0'))
+        if self._odom_noise_std > 0.0:
+            self.get_logger().warn(
+                f'[{self.robot_name}] Odometry orientation noise ACTIVE: '
+                f'std={self._odom_noise_std:.4f} rad -- test-only, not production behavior.')
 
         # V_GAIN calibration diagnostic (2026-07-23). Prior calibration
         # inferred delivered launch velocity indirectly from touchdown
@@ -545,7 +595,12 @@ class LandingController(Node):
         self.pos_z = msg.pose.pose.position.z
         p = msg.pose.pose.position
         q = msg.pose.pose.orientation
-        self.last_pose = (p.x, p.y, p.z, q.x, q.y, q.z, q.w)
+        if self._odom_noise_std > 0.0:
+            qx, qy, qz, qw = _quat_mult(
+                (q.x, q.y, q.z, q.w), _random_small_rotation_quat(self._odom_noise_std))
+        else:
+            qx, qy, qz, qw = q.x, q.y, q.z, q.w
+        self.last_pose = (p.x, p.y, p.z, qx, qy, qz, qw)
 
         if self.launch_v_deadline is not None:
             now = self.get_clock().now().nanoseconds / 1e9

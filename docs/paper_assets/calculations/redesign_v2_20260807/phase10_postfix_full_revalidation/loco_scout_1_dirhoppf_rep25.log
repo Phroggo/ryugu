@@ -1,0 +1,7 @@
+[INFO] [1786394871.475102487] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786394928.481945686] [loco_scout_1]: [scout_1] Target distance: 5.00m. Required Delta-V: 0.0319 m/s. Launch ramp: 1.3s (full stroke)
+[INFO] [1786394928.482445850] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786394928.524502654] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786394929.197027198] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786394938.531541606] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.3s)
+[WARN] [1786395000.327243053] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60.0s post-ramp (real time) (still dragging/in contact). Retracting to IDLE for retry.

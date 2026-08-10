@@ -1,0 +1,50 @@
+[INFO] [1786394663.972094642] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1786394664.578586924] [landing_scout_1]: [scout_1] 🛫 Airborne while IDLE (v=0.053 m/s, free-fall accel) → FLIGHT mode armed
+[INFO] [1786394669.028762578] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394674.028298501] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394679.028248235] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394684.028296166] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394689.028215519] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394694.028307660] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394699.028214232] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394704.028386551] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394709.029169634] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394714.028118259] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394719.028095092] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394724.028518002] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394729.040732335] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394734.028414048] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394738.648847813] [landing_scout_1]: [scout_1] 🚀 Jump detected → FLIGHT mode (contact detection blanked 100 s for launch)
+[INFO] [1786394738.698435051] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=0.0s v=0.00895 m/s (vx=-0.00007 vy=-0.00014 vz=-0.00894)
+[INFO] [1786394739.028581478] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394740.700329498] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=2.1s v=0.00911 m/s (vx=0.00001 vy=-0.00014 vz=-0.00911)
+[INFO] [1786394742.702633845] [landing_scout_1]: [scout_1] 📏 CALIBSERIES t=4.1s v=0.00934 m/s (vx=-0.00005 vy=-0.00015 vz=-0.00934)
+[INFO] [1786394742.703233225] [landing_scout_1]: [scout_1] 📏 CALIBSTABLE t=4.1s v=0.00934 m/s (vx=-0.00005 vy=-0.00015 vz=-0.00934) -- 3 consecutive samples steady
+[INFO] [1786394744.028351300] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394749.028339307] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394754.028311809] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394759.028563049] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394764.028232648] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394769.028355030] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394774.028146293] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394779.028150783] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394784.028241946] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394789.028400226] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394794.028361065] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394799.028310100] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394804.028332678] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394809.028393460] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394814.028385937] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394819.028379810] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394824.028419011] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394829.028377475] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394834.028621940] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394839.028360263] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394844.028302663] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394849.028389495] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394854.028439521] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394859.028770241] [landing_scout_1]: [scout_1] Landing controller state: FLIGHT
+[INFO] [1786394863.585577494] [landing_scout_1]: [scout_1] 🎯 Contact detected! accel=0.1197 m/s² → hands-off settle (no posture commands at contact)
+[INFO] [1786394864.028848483] [landing_scout_1]: [scout_1] Landing controller state: CONTACT
+[INFO] [1786394865.595700675] [landing_scout_1]: [scout_1] ✅ LANDED — stable contact confirmed
+[INFO] [1786394869.028590856] [landing_scout_1]: [scout_1] Landing controller state: LANDED
