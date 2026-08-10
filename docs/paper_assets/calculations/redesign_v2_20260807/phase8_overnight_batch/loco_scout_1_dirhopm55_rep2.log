@@ -1,0 +1,35 @@
+[INFO] [1786338300.471612077] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786338364.990733968] [loco_scout_1]: [scout_1] Target distance: 5.00m. Required Delta-V: 0.0319 m/s. Launch ramp: 1.3s (full stroke)
+[INFO] [1786338364.991432280] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786338365.099189366] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786338365.144873356] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.3s)
+[WARN] [1786338366.192870753] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=1.0s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786338366.197257170] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 1.0s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786338366.223214153] [loco_scout_1]: [scout_1] Target distance: 5.00m. Required Delta-V: 0.0319 m/s. Launch ramp: 1.3s (full stroke)
+[INFO] [1786338366.224458026] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786338366.433693302] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786338366.475381235] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.3s)
+[INFO] [1786338366.489219451] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1786338530.087003544] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786338530.667032849] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786338530.668126470] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786338530.930541206] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786338532.027448006] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=1.1s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786338532.028659244] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 1.1s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786338532.668216882] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786338532.668856934] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786338532.707731026] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786338533.579750918] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=0.9s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786338533.581012304] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 0.9s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786338534.227232736] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786338534.228036852] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786338534.449175975] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786338535.100201091] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=0.6s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786338535.101312452] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 0.6s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786338535.664379540] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786338535.664991305] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786338535.701316704] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786338536.484657076] [loco_scout_1]: [scout_1] Aborting hop: never confirmed genuine separation after 60s post-ramp (tick-derived; real wall-clock since IGNITION=0.8s) (still dragging/in contact). Retracting to IDLE for retry.
+[WARN] [1786338536.485899185] [loco_scout_1]: [scout_1] TICK/WALL-TIME MISMATCH: tick count implies 60s but only 0.8s of real time elapsed -- likely a burst of queued tick() callbacks after executor starvation, not a genuine 60s stall. See Phase 7 change report.
+[INFO] [1786338536.878238432] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786338536.879177627] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)

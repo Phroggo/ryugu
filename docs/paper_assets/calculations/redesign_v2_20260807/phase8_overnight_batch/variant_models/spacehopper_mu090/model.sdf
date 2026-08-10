@@ -1,0 +1,2345 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <model name="spacehopper">
+    <!-- Ryugu's gravity (0.000114 m/s^2) produces velocities small enough that DART's
+         default auto-sleep threshold puts the body to sleep mid-flight, permanently
+         freezing it in the air. Must stay awake for micro-gravity hops to ever land. -->
+    <allow_auto_disable>false</allow_auto_disable>
+
+    <!-- ══════════ BASE CHASSIS ══════════ -->
+    <link name="base_link">
+      <pose>0 0 0.25 0 0 0</pose>
+      <inertial>
+        <pose>0.00243 0.0 -0.00703 0 0 0</pose>
+        <mass>1.3839</mass>
+        <inertia>
+          <ixx>0.009844</ixx><ixy>-0.000090</ixy><ixz>-0.000123</ixz>
+          <iyy>0.010118</iyy><iyz>-0.000008</iyz>
+          <izz>0.007611</izz>
+        </inertia>
+      </inertial>
+
+      <!-- Main hull - brushed aluminum structural panel -->
+      <visual name="hull_visual">
+        <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
+        <material>
+          <ambient>0.3 0.31 0.35 1</ambient>
+          <diffuse>0.3 0.31 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.28</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="seam_front">
+        <pose>0.0995 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.001 0.196 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="seam_back">
+        <pose>-0.0995 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.001 0.196 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="seam_left">
+        <pose>0 0.0995 0.02 0 0 0</pose>
+        <geometry><box><size>0.196 0.001 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="seam_right">
+        <pose>0 -0.0995 0.02 0 0 0</pose>
+        <geometry><box><size>0.196 0.001 0.003</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.045 1</ambient>
+          <diffuse>0.04 0.04 0.045 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.3</metalness>
+              <roughness>0.85</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="hull_bolt_0">
+        <pose>0.099 0.085 0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_1">
+        <pose>0.099 -0.085 0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_2">
+        <pose>0.099 0.085 -0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_3">
+        <pose>0.099 -0.085 -0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_4">
+        <pose>0.099 0 0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hull_bolt_5">
+        <pose>0.099 0 -0.085 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.003</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.85</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- ── MLI thermal blankets ── -->
+
+      <visual name="mli_top">
+        <pose>0 0 0.1015 0 0 0</pose>
+        <geometry><box><size>0.196 0.196 0.003</size></box></geometry>
+        <material>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="mli_bottom">
+        <pose>0 0 -0.1015 0 0 0</pose>
+        <geometry><box><size>0.196 0.196 0.003</size></box></geometry>
+        <material>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="mli_front">
+        <pose>0.1015 0 0 0 0 0</pose>
+        <geometry><box><size>0.003 0.196 0.196</size></box></geometry>
+        <material>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="mli_back">
+        <pose>-0.1015 0 0 0 0 0</pose>
+        <geometry><box><size>0.003 0.196 0.196</size></box></geometry>
+        <material>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="mli_left">
+        <pose>0 0.1015 0 0 0 0</pose>
+        <geometry><box><size>0.196 0.003 0.196</size></box></geometry>
+        <material>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="mli_right">
+        <pose>0 -0.1015 0 0 0 0</pose>
+        <geometry><box><size>0.196 0.003 0.196</size></box></geometry>
+        <material>
+          <ambient>0.85 0.72 0.35 1</ambient>
+          <diffuse>0.85 0.72 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- ── Structural corner brackets ── -->
+
+      <visual name="bracket_0">
+        <pose>-0.0925 -0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_1">
+        <pose>-0.0925 -0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_2">
+        <pose>-0.0925 0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_3">
+        <pose>-0.0925 0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_4">
+        <pose>0.0925 -0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_5">
+        <pose>0.0925 -0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_6">
+        <pose>0.0925 0.0925 -0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="bracket_7">
+        <pose>0.0925 0.0925 0.0925 0 0 0</pose>
+        <geometry><box><size>0.015 0.015 0.015</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- ── Antenna ── -->
+
+      <!-- UHF whip antenna: dark anodized mast, small flat-plate patch
+           antenna instead of a glossy sphere tip (a bright white ball read
+           as a toy topper - real whip antennas taper to a plain dark tip) -->
+      <visual name="antenna_mast">
+        <pose>0.06 0.06 0.122 0 0 0</pose>
+        <geometry><cylinder><radius>0.0035</radius><length>0.044</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.13 1</ambient>
+          <diffuse>0.12 0.12 0.13 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="antenna_base_collar">
+        <pose>0.06 0.06 0.101 0 0 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.006</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="antenna_tip">
+        <pose>0.06 0.06 0.1445 0 0 0</pose>
+        <geometry><cylinder><radius>0.0015</radius><length>0.001</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.6</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- S-Band patch antenna (flat plate, per Research_Paper.md §4.2) -->
+      <visual name="antenna_patch">
+        <pose>-0.04 -0.06 0.101 0 0 0.4</pose>
+        <geometry><box><size>0.03 0.03 0.003</size></box></geometry>
+        <material>
+          <ambient>0.5 0.51 0.55 1</ambient>
+          <diffuse>0.5 0.51 0.55 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.6</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="antenna_patch_frame">
+        <pose>-0.04 -0.06 0.0995 0 0 0.4</pose>
+        <geometry><box><size>0.034 0.034 0.001</size></box></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Comms status LED at the antenna base -->
+      <visual name="comms_led">
+        <pose>0.06 0.048 0.101 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.4 0.8 1</ambient>
+          <diffuse>0.0 0.4 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="comms_led_light">
+        <pose>0.06 0.048 0.101 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+
+      <!-- ── Cameras ── -->
+
+      <!-- Nav-cam floodlights (real spotlights, forward-facing) -->
+
+      <light type="spot" name="headlight_left">
+        <pose>0.11 0.06 0.03 0 0 0</pose>
+        <diffuse>1.0 0.98 0.9 1</diffuse>
+        <specular>1.0 0.98 0.9 1</specular>
+        <intensity>6.0</intensity>
+        <direction>1 0 0</direction>
+        <attenuation>
+          <range>1.2</range>
+          <constant>0.1</constant>
+          <linear>1.0</linear>
+          <quadratic>1.5</quadratic>
+        </attenuation>
+        <spot>
+          <inner_angle>0.4</inner_angle>
+          <outer_angle>0.7</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+
+      <light type="spot" name="headlight_right">
+        <pose>0.11 -0.06 0.03 0 0 0</pose>
+        <diffuse>1.0 0.98 0.9 1</diffuse>
+        <specular>1.0 0.98 0.9 1</specular>
+        <intensity>6.0</intensity>
+        <direction>1 0 0</direction>
+        <attenuation>
+          <range>1.2</range>
+          <constant>0.1</constant>
+          <linear>1.0</linear>
+          <quadratic>1.5</quadratic>
+        </attenuation>
+        <spot>
+          <inner_angle>0.4</inner_angle>
+          <outer_angle>0.7</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="headlight_left_lens">
+        <pose>0.113 0.06 0.03 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.006</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.9 0.8 1</ambient>
+          <diffuse>0.9 0.9 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 1.0 0.9 1</emissive>
+        </material>
+      </visual>
+      <visual name="headlight_right_lens">
+        <pose>0.113 -0.06 0.03 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.006</radius><length>0.004</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.9 0.8 1</ambient>
+          <diffuse>0.9 0.9 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 1.0 0.9 1</emissive>
+        </material>
+      </visual>
+      <!-- Navigation camera -->
+      <visual name="camera_body">
+        <pose>0.105 0 0.02 0 0 0</pose>
+        <geometry><box><size>0.015 0.025 0.025</size></box></geometry>
+        <material>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="camera_lens">
+        <pose>0.114 0 0.02 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.003</length></cylinder></geometry>
+        <material>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Science camera (bottom-mounted, downward-facing) -->
+      <visual name="sci_camera_body">
+        <pose>0 -0.04 -0.105 0 0 0</pose>
+        <geometry><box><size>0.02 0.02 0.015</size></box></geometry>
+        <material>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="sci_camera_lens">
+        <pose>0 -0.04 -0.114 0 0 0</pose>
+        <geometry><cylinder><radius>0.007</radius><length>0.003</length></cylinder></geometry>
+        <material>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Stereo hazard-avoidance cameras (small, flanking the nav camera -
+           real rovers/hoppers pair a wide nav cam with a small stereo set
+           for local depth/obstacle sensing, e.g. Perseverance's Hazcams) -->
+      <visual name="hazcam_left_body">
+        <pose>0.100 0.035 0.02 0 0 0</pose>
+        <geometry><box><size>0.008 0.012 0.012</size></box></geometry>
+        <material>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hazcam_left_lens">
+        <pose>0.107 0.035 0.02 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.004</radius><length>0.002</length></cylinder></geometry>
+        <material>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hazcam_right_body">
+        <pose>0.100 -0.035 0.02 0 0 0</pose>
+        <geometry><box><size>0.008 0.012 0.012</size></box></geometry>
+        <material>
+          <ambient>0.06 0.06 0.07 1</ambient>
+          <diffuse>0.06 0.06 0.07 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.55</metalness>
+              <roughness>0.45</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="hazcam_right_lens">
+        <pose>0.107 -0.035 0.02 0 1.5708 0</pose>
+        <geometry><cylinder><radius>0.004</radius><length>0.002</length></cylinder></geometry>
+        <material>
+          <ambient>0.02 0.02 0.06 1</ambient>
+          <diffuse>0.02 0.02 0.06 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.1</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- ── Thermal louvers ── -->
+
+      <visual name="louver_0">
+        <pose>-0.102 -0.06 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="louver_1">
+        <pose>-0.102 -0.03 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="louver_2">
+        <pose>-0.102 0.0 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="louver_3">
+        <pose>-0.102 0.03 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="louver_4">
+        <pose>-0.102 0.06 0.03 0 0 0</pose>
+        <geometry><box><size>0.003 0.025 0.005</size></box></geometry>
+        <material>
+          <ambient>0.4 0.41 0.44 1</ambient>
+          <diffuse>0.4 0.41 0.44 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- ── Status LEDs ── -->
+
+      <visual name="led_0">
+        <pose>-0.06 0.102 -0.06 0 0 0</pose>
+        <geometry><sphere><radius>0.007</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="led_0_light">
+        <pose>-0.06 0.102 -0.06 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="led_1">
+        <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
+        <geometry><sphere><radius>0.007</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.4 0.8 1</ambient>
+          <diffuse>0.0 0.4 0.8 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="led_1_light">
+        <pose>-0.034999999999999996 0.102 -0.06 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="led_2">
+        <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
+        <geometry><sphere><radius>0.007</radius></sphere></geometry>
+        <material>
+          <ambient>0.8 0.6 0.0 1</ambient>
+          <diffuse>0.8 0.6 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 0.8 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="led_2_light">
+        <pose>-0.009999999999999995 0.102 -0.06 0 0 0</pose>
+        <diffuse>1.0 0.8 0.0 1</diffuse>
+        <specular>1.0 0.8 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+
+      <!-- Internal visuals removed to prevent clipping -->
+
+      <!-- ── Reaction wheel housings ── -->
+
+      <!-- RW protective housings -->
+      <visual name="rw_housing_x">
+        <pose>0 0 0 0 1.5707963267948966 0</pose>
+        <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="rw_housing_y">
+        <pose>0 0 0 1.5707963267948966 0 0</pose>
+        <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="rw_housing_z">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry><cylinder><radius>0.065</radius><length>0.005</length></cylinder></geometry>
+        <material>
+          <ambient>0.2 0.2 0.22 1</ambient>
+          <diffuse>0.2 0.2 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.3</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="rw_led_x">
+        <pose>0.066 0 0 0 1.5708 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.5 1.0 1</ambient>
+          <diffuse>0.0 0.5 1.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="rw_led_x_light">
+        <pose>0.066 0 0 0 1.5708 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="rw_led_y">
+        <pose>0 0.066 0 1.5708 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.5 1.0 1</ambient>
+          <diffuse>0.0 0.5 1.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="rw_led_y_light">
+        <pose>0 0.066 0 1.5708 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <visual name="rw_led_z">
+        <pose>0 0 0.066 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.5 1.0 1</ambient>
+          <diffuse>0.0 0.5 1.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 0.5 1.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="rw_led_z_light">
+        <pose>0 0 0.066 0 0 0</pose>
+        <diffuse>0.0 0.5 1.0 1</diffuse>
+        <specular>0.0 0.5 1.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+
+      <!-- ── Drill mounting turret ── -->
+
+      <!-- ── Drill mounting turret (fixed housing, shaft retracts up into it) ── -->
+      <visual name="drill_turret">
+        <pose>0 0 -0.1125 0 0 0</pose>
+        <geometry><cylinder><radius>0.028</radius><length>0.035</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.75</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="drill_turret_plate">
+        <pose>0 0 -0.10200000000000001 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.004</size></box></geometry>
+        <material>
+          <ambient>0.25 0.25 0.28 1</ambient>
+          <diffuse>0.25 0.25 0.28 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.6</metalness>
+              <roughness>0.4</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Science/sampler status LED -->
+      <visual name="drill_led">
+        <pose>0.024 0.024 -0.10300000000000001 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.8 0.6 0.0 1</ambient>
+          <diffuse>0.8 0.6 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>1.0 0.8 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="drill_led_light">
+        <pose>0.024 0.024 -0.10300000000000001 0 0 0</pose>
+        <diffuse>1.0 0.8 0.0 1</diffuse>
+        <specular>1.0 0.8 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+
+      <!-- ── Chassis collision ── -->
+      <collision name="collision">
+        <geometry><box><size>0.2 0.2 0.2</size></box></geometry>
+      </collision>
+
+      <!-- ── IMU sensor ── -->
+      <!-- No explicit <topic> override: an explicit "imu" topic is treated as a
+           literal, unscoped gz-transport topic name, so it published to global
+           /imu on every spawned instance - ros_gz_bridge was listening on the
+           per-entity-scoped /model/<name>/imu, which never matched, so IMU data
+           silently never reached attitude_controller.py or landing_controller.py
+           (found 2026-07-14: their state machines never progressed past FLIGHT
+           because they're entirely IMU-driven). Omitting <topic> lets gz-sim
+           auto-generate the properly scoped per-entity default topic, matching
+           how the joint controllers and odometry publisher already behave.
+           launch.py's bridge config was updated to match the auto-generated name. -->
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on>
+        <update_rate>100</update_rate>
+        <visualize>true</visualize>
+      </sensor>
+
+      <!-- LIDAR removed to prevent performance stuttering -->
+    </link>
+
+    <!-- Was "ignition-gazebo-imu-system" / "ignition::gazebo::systems::Imu" (old
+         v6/Citadel-era naming). This machine has both the old v6 and current v8
+         (Harmonic) IMU plugin libraries installed side-by-side, and gz-sim
+         silently loaded the old v6 one instead of erroring - a real version
+         mismatch against the v8 engine everything else here runs on (physics,
+         odometry, joint controllers all already used gz-sim8/"gz::sim::systems"
+         naming). That mismatch is the root cause of "Unknown message type"
+         warnings from ros_gz_bridge and why IMU data never actually reached
+         attitude_controller.py/landing_controller.py despite the sensor
+         "working" and the topic existing. Found & fixed 2026-07-14. -->
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+
+    <!-- Real position/velocity feedback - previously nonexistent, which is why
+         swarm_manager.py had to literally assume the robot was always at the origin
+         when computing distance/yaw to a target, and why monitor_height.py/
+         monitor_joints.py (which expect this) were dead code. -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <!-- Generic frame labels (was scout_1/... - cosmetic strings in the
+           odometry message header; nothing consumes TF frames in this
+           project, and the TOPIC is derived from the spawned entity name at
+           runtime, so one model.sdf serves all three scouts). -->
+      <odom_frame>spacehopper/odom</odom_frame>
+      <robot_base_frame>spacehopper/base</robot_base_frame>
+      <odom_publish_frequency>20</odom_publish_frequency>
+      <dimensions>3</dimensions>
+    </plugin>
+
+    <!-- NOTE (2026-07-16): a JointStatePublisher plugin briefly lived here
+         for the zero-stiffness landing catch. REMOVED along with the catch:
+         it publishes every physics step (measured 515 Hz on the wire), and
+         three Python subscribers deserializing that pinned every landing
+         controller at 100% CPU (imu_callback throughput collapsed from
+         ~100 Hz to 2.6 Hz - the whole landing state machine froze). If
+         joint-state telemetry is ever needed again, it MUST be rate-limited
+         or consumed in C++, not Python. -->
+
+    <!-- ══════════ SOLAR PANEL ARRAY (fixed to chassis top) ══════════ -->
+    <link name="solar_panel">
+      <pose>0 0 0.355 0 0 0</pose>
+      <inertial>
+        <mass>0.0152</mass>
+        <inertia>
+          <ixx>0.000041</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000041</iyy><iyz>0.000000</iyz>
+          <izz>0.000082</izz>
+        </inertia>
+      </inertial>
+      <visual name="panel_surface">
+        <geometry><box><size>0.18 0.18 0.005</size></box></geometry>
+        <material>
+          <ambient>0.03 0.05 0.22 1</ambient>
+          <diffuse>0.03 0.05 0.22 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.7</metalness>
+              <roughness>0.15</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Solar cell grid lines -->
+      <visual name="cell_grid_h1">
+        <pose>0 0 0.003 0 0 0</pose>
+        <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
+        <material>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="cell_grid_h2">
+        <pose>0 0.045 0.003 0 0 0</pose>
+        <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
+        <material>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="cell_grid_h3">
+        <pose>0 -0.045 0.003 0 0 0</pose>
+        <geometry><box><size>0.18 0.001 0.001</size></box></geometry>
+        <material>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="cell_grid_v1">
+        <pose>0.045 0 0.003 0 0 0</pose>
+        <geometry><box><size>0.001 0.18 0.001</size></box></geometry>
+        <material>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="cell_grid_v2">
+        <pose>-0.045 0 0.003 0 0 0</pose>
+        <geometry><box><size>0.001 0.18 0.001</size></box></geometry>
+        <material>
+          <ambient>0.75 0.76 0.78 1</ambient>
+          <diffuse>0.75 0.76 0.78 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.9</metalness>
+              <roughness>0.2</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+    <joint name="solar_panel_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>solar_panel</child>
+    </joint>
+
+    <!-- ══════════ REACTION WHEELS (inside chassis) ══════════ -->
+    <link name="rw_x">
+      <pose>0 0 0.25 0 1.5707963267948966 0</pose>
+      <inertial>
+        <mass>0.185</mass>
+        <inertia>
+          <ixx>0.000199</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000199</iyy><iyz>0.000000</iyz>
+          <izz>0.000394</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.05</radius><length>0.01</length></cylinder></geometry>
+        <material>
+          <ambient>0.35 0.1 0.1 1</ambient>
+          <diffuse>0.35 0.1 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+    <joint name="rw_x_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rw_x</child>
+      <pose relative_to="rw_x">0 0 0 0 0 0</pose>
+      <axis><xyz expressed_in="__model__">1 0 0</xyz></axis>
+    </joint>
+
+    <link name="rw_y">
+      <pose>0 0 0.25 1.5707963267948966 0 0</pose>
+      <inertial>
+        <mass>0.185</mass>
+        <inertia>
+          <ixx>0.000199</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000199</iyy><iyz>0.000000</iyz>
+          <izz>0.000394</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.05</radius><length>0.01</length></cylinder></geometry>
+        <material>
+          <ambient>0.1 0.35 0.1 1</ambient>
+          <diffuse>0.1 0.35 0.1 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+    <joint name="rw_y_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rw_y</child>
+      <pose relative_to="rw_y">0 0 0 0 0 0</pose>
+      <axis><xyz expressed_in="__model__">0 1 0</xyz></axis>
+    </joint>
+
+    <link name="rw_z">
+      <pose>0 0 0.25 0 0 0</pose>
+      <inertial>
+        <mass>0.185</mass>
+        <inertia>
+          <ixx>0.000199</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000199</iyy><iyz>0.000000</iyz>
+          <izz>0.000394</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry><cylinder><radius>0.05</radius><length>0.01</length></cylinder></geometry>
+        <material>
+          <ambient>0.1 0.1 0.35 1</ambient>
+          <diffuse>0.1 0.1 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+    <joint name="rw_z_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>rw_z</child>
+      <pose relative_to="rw_z">0 0 0 0 0 0</pose>
+      <axis><xyz expressed_in="__model__">0 0 1</xyz></axis>
+    </joint>
+
+    <!-- ══════════ DRILL (prismatic, underneath chassis) ══════════ -->
+    <!-- Rest pose (joint value 0) tucks the shaft's center 0.03m *above* the
+         chassis bottom face, inside the drill_turret housing above - so at
+         rest the shaft's bottom edge sits just past the turret's lower rim
+         (mostly hidden) instead of the old pose, which hung the entire
+         0.1m shaft fully exposed below the chassis even when "retracted". -->
+    <link name="drill_link">
+      <pose>0 0 0.18 0 0 0</pose>
+      <inertial>
+        <mass>0.25</mass>
+        <inertia>
+          <ixx>0.000222</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000222</iyy><iyz>0.000000</iyz>
+          <izz>0.000028</izz>
+        </inertia>
+      </inertial>
+      <visual name="drill_shaft">
+        <geometry><cylinder><radius>0.012</radius><length>0.1</length></cylinder></geometry>
+        <material>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="drill_bit">
+        <pose>0 0 -0.05 0 0 0</pose>
+        <geometry><cylinder><radius>0.008</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <visual name="drill_collar">
+        <pose>0 0 0.04 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.3 0.3 0.35 1</ambient>
+          <diffuse>0.3 0.3 0.35 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+    </link>
+    <joint name="drill_joint" type="prismatic">
+      <parent>base_link</parent>
+      <child>drill_link</child>
+      <pose relative_to="drill_link">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit><lower>-0.1</lower><upper>0.0</upper></limit>
+        <!-- Spring-to-rest at 0 (fully retracted/flush with chassis) so the drill
+             doesn't passively drift/dangle under flight or landing shocks when
+             uncommanded - it was previously unconstrained and had no actuator at
+             all, which is why it looked detached from the body. Stiffness/damping
+             raised 2026-07-15 (0.05/0.01 -> 0.2/0.05) after live observation: the
+             drill visibly jiggled up/down mid-flight while the commanded position
+             stayed "retracted" the whole time - the same class of issue as the
+             false-landing-detection bug (RW/leg-motor reaction torque produces real
+             transient body accelerations that a too-soft passive spring doesn't
+             resist well). -->
+        <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.2</spring_stiffness><damping>0.05</damping></dynamics>
+      </axis>
+    </joint>
+
+    <!-- ── LEG 0 ── -->
+    <link name="thigh_0">
+      <pose>0.07 0.0 0.15 0 1.2 0.0</pose>
+      <inertial>
+        <mass>0.0219</mass>
+        <inertia>
+          <ixx>0.000043</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000043</iyy><iyz>0.000000</iyz>
+          <izz>0.000005</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.14 1</ambient>
+          <diffuse>0.12 0.12 0.14 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.35</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.0185 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Hip motor housing -->
+      <visual name="hip_housing_0">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Hip actuator status LED (emissive sphere + a real point light so
+           it's actually visible in Ryugu's near-total darkness, not just a
+           colored-but-unlit surface) -->
+      <visual name="hip_led_0">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="hip_led_0_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <!-- Thigh collision removed 2026-07-15: foot-only ground contact
+           (standard legged-sim practice). The thin thigh/calf cylinder
+           collisions catching in heightmap crevices were the root cause of
+           the recurring "wedge-in" jam - legs pinned so hard the 0.134 Nm
+           actuators could not move them at all, silently zeroing all jump
+           thrust. Stance loads go through the foot spheres; the chassis
+           box still protects the body. -->
+    </link>
+    <joint name="hip_joint_0" type="revolute">
+      <parent>base_link</parent>
+      <child>thigh_0</child>
+      <pose relative_to="thigh_0">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+        <!-- Real joint damping added 2026-07-15: with none, the leg position
+             PIDs behave as near-lossless springs at ground contact, and in
+             micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
+             (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
+             per cycle, impacts too soft for spike detection, too mobile for
+             rest detection).
+             Raised 0.005 -> 0.15 on 2026-07-16: with the p=1.0 launch-
+             authority gains, the legs became stiff springs at touchdown and
+             measured contact restitution was ~0.96 (bounces from a 1.15 m
+             drop did not decay; every active-control mitigation - stepped,
+             ramped, or measured-angle-mirroring posture commands - ADDED
+             energy, the last one because bridged joint-state feedback lags
+             and pumps the rebound). Physical damping is phase-perfect by
+             construction. Sizing: effective vertical leg stiffness at
+             p=1.0 is ~48 N/m, so zeta = c_vert/(2*sqrt(k*m)) with
+             c_vert ~= 3*c_joint/r^2 (r~0.25 m) gives zeta ~0.45 and
+             restitution ~0.2 at c_joint = 0.15 N m s/rad -> bounces decay
+             in 2 cycles. DO NOT raise further: p=5.0 + damping=0.4 was
+             tried 2026-07-16 and froze the leg joints entirely (joints
+             pinned at ~0 rad, stand-fold and crouch both produced zero
+             motion, live joint_states-verified) - suspected DART explicit
+             joint-damping discretization limit. p=1.0 + 0.15 is the
+             verified-stable operating point. Launch cost is small because separation joint
+             speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
+             0.134 N m actuator budget. -->
+        <dynamics><damping>0.05</damping></dynamics>
+      </axis>
+    </joint>
+
+    <link name="calf_0">
+      <pose relative_to="thigh_0">0 0 0.15 0 0.8 0</pose>
+      <inertial>
+        <mass>0.0143</mass>
+        <inertia>
+          <ixx>0.000027</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000027</iyy><iyz>0.000000</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.32 0.33 0.37 1</ambient>
+          <diffuse>0.32 0.33 0.37 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.65</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.013500000000000002 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Knee motor housing -->
+      <visual name="knee_housing_0">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Knee actuator status LED -->
+      <visual name="knee_led_0">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="knee_led_0_light">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <!-- Foot pad -->
+      <visual name="foot_0">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <material>
+          <ambient>0.4 0.41 0.43 1</ambient>
+          <diffuse>0.4 0.41 0.43 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.4</metalness>
+              <roughness>0.6</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Foot proximity/contact sensor lens -->
+      <visual name="foot_sensor_0">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.05 0.05 0.15 1</ambient>
+          <diffuse>0.05 0.05 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Calf cylinder collision removed 2026-07-15 (see thigh note):
+           foot-only ground contact eliminates the wedge-in jam class. -->
+      <collision name="foot_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.9</mu>
+              <mu2>0.9</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="knee_joint_0" type="revolute">
+      <parent>thigh_0</parent>
+      <child>calf_0</child>
+      <pose relative_to="calf_0">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      <!-- Damping raised 0.00001 -> 0.005 (2026-07-15), same rationale as the
+           hip joint above: dissipate landing-contact energy so micro-gravity
+           touchdowns settle in a couple of bounce cycles instead of ringing
+           near-losslessly for tens of minutes. -->
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.05</damping><friction>0.00001</friction></dynamics></axis>
+    </joint>
+
+    <!-- ── LEG 1 ── -->
+    <link name="thigh_1">
+      <pose>-0.03499999999999999 0.06062177826491071 0.15 0 1.2 2.0943951023931953</pose>
+      <inertial>
+        <mass>0.0219</mass>
+        <inertia>
+          <ixx>0.000043</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000043</iyy><iyz>0.000000</iyz>
+          <izz>0.000005</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.14 1</ambient>
+          <diffuse>0.12 0.12 0.14 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.35</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.0185 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Hip motor housing -->
+      <visual name="hip_housing_1">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Hip actuator status LED (emissive sphere + a real point light so
+           it's actually visible in Ryugu's near-total darkness, not just a
+           colored-but-unlit surface) -->
+      <visual name="hip_led_1">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="hip_led_1_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <!-- Thigh collision removed 2026-07-15: foot-only ground contact
+           (standard legged-sim practice). The thin thigh/calf cylinder
+           collisions catching in heightmap crevices were the root cause of
+           the recurring "wedge-in" jam - legs pinned so hard the 0.134 Nm
+           actuators could not move them at all, silently zeroing all jump
+           thrust. Stance loads go through the foot spheres; the chassis
+           box still protects the body. -->
+    </link>
+    <joint name="hip_joint_1" type="revolute">
+      <parent>base_link</parent>
+      <child>thigh_1</child>
+      <pose relative_to="thigh_1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+        <!-- Real joint damping added 2026-07-15: with none, the leg position
+             PIDs behave as near-lossless springs at ground contact, and in
+             micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
+             (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
+             per cycle, impacts too soft for spike detection, too mobile for
+             rest detection).
+             Raised 0.005 -> 0.15 on 2026-07-16: with the p=1.0 launch-
+             authority gains, the legs became stiff springs at touchdown and
+             measured contact restitution was ~0.96 (bounces from a 1.15 m
+             drop did not decay; every active-control mitigation - stepped,
+             ramped, or measured-angle-mirroring posture commands - ADDED
+             energy, the last one because bridged joint-state feedback lags
+             and pumps the rebound). Physical damping is phase-perfect by
+             construction. Sizing: effective vertical leg stiffness at
+             p=1.0 is ~48 N/m, so zeta = c_vert/(2*sqrt(k*m)) with
+             c_vert ~= 3*c_joint/r^2 (r~0.25 m) gives zeta ~0.45 and
+             restitution ~0.2 at c_joint = 0.15 N m s/rad -> bounces decay
+             in 2 cycles. DO NOT raise further: p=5.0 + damping=0.4 was
+             tried 2026-07-16 and froze the leg joints entirely (joints
+             pinned at ~0 rad, stand-fold and crouch both produced zero
+             motion, live joint_states-verified) - suspected DART explicit
+             joint-damping discretization limit. p=1.0 + 0.15 is the
+             verified-stable operating point. Launch cost is small because separation joint
+             speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
+             0.134 N m actuator budget. -->
+        <dynamics><damping>0.05</damping></dynamics>
+      </axis>
+    </joint>
+
+    <link name="calf_1">
+      <pose relative_to="thigh_1">0 0 0.15 0 0.8 0</pose>
+      <inertial>
+        <mass>0.0143</mass>
+        <inertia>
+          <ixx>0.000027</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000027</iyy><iyz>0.000000</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.32 0.33 0.37 1</ambient>
+          <diffuse>0.32 0.33 0.37 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.65</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.013500000000000002 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Knee motor housing -->
+      <visual name="knee_housing_1">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Knee actuator status LED -->
+      <visual name="knee_led_1">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="knee_led_1_light">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <!-- Foot pad -->
+      <visual name="foot_1">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <material>
+          <ambient>0.4 0.41 0.43 1</ambient>
+          <diffuse>0.4 0.41 0.43 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.4</metalness>
+              <roughness>0.6</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Foot proximity/contact sensor lens -->
+      <visual name="foot_sensor_1">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.05 0.05 0.15 1</ambient>
+          <diffuse>0.05 0.05 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Calf cylinder collision removed 2026-07-15 (see thigh note):
+           foot-only ground contact eliminates the wedge-in jam class. -->
+      <collision name="foot_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.9</mu>
+              <mu2>0.9</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="knee_joint_1" type="revolute">
+      <parent>thigh_1</parent>
+      <child>calf_1</child>
+      <pose relative_to="calf_1">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      <!-- Damping raised 0.00001 -> 0.005 (2026-07-15), same rationale as the
+           hip joint above: dissipate landing-contact energy so micro-gravity
+           touchdowns settle in a couple of bounce cycles instead of ringing
+           near-losslessly for tens of minutes. -->
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.05</damping><friction>0.00001</friction></dynamics></axis>
+    </joint>
+
+    <!-- ── LEG 2 ── -->
+    <link name="thigh_2">
+      <pose>-0.03500000000000003 -0.06062177826491069 0.15 0 1.2 4.1887902047863905</pose>
+      <inertial>
+        <mass>0.0219</mass>
+        <inertia>
+          <ixx>0.000043</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000043</iyy><iyz>0.000000</iyz>
+          <izz>0.000005</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.015</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.12 0.12 0.14 1</ambient>
+          <diffuse>0.12 0.12 0.14 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.35</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.0185 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Hip motor housing -->
+      <visual name="hip_housing_2">
+        <pose>0 0 0.01 0 0 0</pose>
+        <geometry><cylinder><radius>0.022</radius><length>0.02</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Hip actuator status LED (emissive sphere + a real point light so
+           it's actually visible in Ryugu's near-total darkness, not just a
+           colored-but-unlit surface) -->
+      <visual name="hip_led_2">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <geometry><sphere><radius>0.006</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="hip_led_2_light">
+        <pose>0.026 0 0.01 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.12</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <!-- Thigh collision removed 2026-07-15: foot-only ground contact
+           (standard legged-sim practice). The thin thigh/calf cylinder
+           collisions catching in heightmap crevices were the root cause of
+           the recurring "wedge-in" jam - legs pinned so hard the 0.134 Nm
+           actuators could not move them at all, silently zeroing all jump
+           thrust. Stance loads go through the foot spheres; the chassis
+           box still protects the body. -->
+    </link>
+    <joint name="hip_joint_2" type="revolute">
+      <parent>base_link</parent>
+      <child>thigh_2</child>
+      <pose relative_to="thigh_2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+        <!-- Real joint damping added 2026-07-15: with none, the leg position
+             PIDs behave as near-lossless springs at ground contact, and in
+             micro-gravity the robot bounced for tens of minutes at 3-5 mm/s
+             (observed live: z oscillating 4.81-4.99 m with ~2% energy loss
+             per cycle, impacts too soft for spike detection, too mobile for
+             rest detection).
+             Raised 0.005 -> 0.15 on 2026-07-16: with the p=1.0 launch-
+             authority gains, the legs became stiff springs at touchdown and
+             measured contact restitution was ~0.96 (bounces from a 1.15 m
+             drop did not decay; every active-control mitigation - stepped,
+             ramped, or measured-angle-mirroring posture commands - ADDED
+             energy, the last one because bridged joint-state feedback lags
+             and pumps the rebound). Physical damping is phase-perfect by
+             construction. Sizing: effective vertical leg stiffness at
+             p=1.0 is ~48 N/m, so zeta = c_vert/(2*sqrt(k*m)) with
+             c_vert ~= 3*c_joint/r^2 (r~0.25 m) gives zeta ~0.45 and
+             restitution ~0.2 at c_joint = 0.15 N m s/rad -> bounces decay
+             in 2 cycles. DO NOT raise further: p=5.0 + damping=0.4 was
+             tried 2026-07-16 and froze the leg joints entirely (joints
+             pinned at ~0 rad, stand-fold and crouch both produced zero
+             motion, live joint_states-verified) - suspected DART explicit
+             joint-damping discretization limit. p=1.0 + 0.15 is the
+             verified-stable operating point. Launch cost is small because separation joint
+             speed is only ~0.16 rad/s: 0.15*0.16 = 0.024 N m, ~18% of the
+             0.134 N m actuator budget. -->
+        <dynamics><damping>0.05</damping></dynamics>
+      </axis>
+    </joint>
+
+    <link name="calf_2">
+      <pose relative_to="thigh_2">0 0 0.15 0 0.8 0</pose>
+      <inertial>
+        <mass>0.0143</mass>
+        <inertia>
+          <ixx>0.000027</ixx><ixy>0.000000</ixy><ixz>0.000000</ixz>
+          <iyy>0.000027</iyy><iyz>0.000000</iyz>
+          <izz>0.000001</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.01</radius><length>0.15</length></cylinder></geometry>
+        <material>
+          <ambient>0.32 0.33 0.37 1</ambient>
+          <diffuse>0.32 0.33 0.37 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.65</metalness>
+              <roughness>0.35</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <visual name="cable_harness">
+        <pose>0.013500000000000002 0 0.075 0 0 0</pose>
+        <geometry><cylinder><radius>0.0025</radius><length>0.1275</length></cylinder></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.03 0.03 0.03 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.1</metalness>
+              <roughness>0.7</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Knee motor housing -->
+      <visual name="knee_housing_2">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry><cylinder><radius>0.018</radius><length>0.015</length></cylinder></geometry>
+        <material>
+          <ambient>0.16 0.16 0.18 1</ambient>
+          <diffuse>0.16 0.16 0.18 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.8</metalness>
+              <roughness>0.25</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Knee actuator status LED -->
+      <visual name="knee_led_2">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.0 0.8 0.0 1</ambient>
+          <diffuse>0.0 0.8 0.0 1</diffuse>
+          <specular>0.3 0.3 0.3 1</specular>
+          <emissive>0.0 1.0 0.0 1</emissive>
+        </material>
+      </visual>
+
+      <light type="point" name="knee_led_2_light">
+        <pose>0.021 0 0.005 0 0 0</pose>
+        <diffuse>0.0 1.0 0.0 1</diffuse>
+        <specular>0.0 1.0 0.0 1</specular>
+        <intensity>3.0</intensity>
+        <attenuation>
+          <range>0.05</range>
+          <constant>0.15</constant>
+          <linear>2.5</linear>
+          <quadratic>6</quadratic>
+        </attenuation>
+        <cast_shadows>false</cast_shadows>
+        <visualize>false</visualize>
+      </light>
+      <!-- Foot pad -->
+      <visual name="foot_2">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <material>
+          <ambient>0.4 0.41 0.43 1</ambient>
+          <diffuse>0.4 0.41 0.43 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.4</metalness>
+              <roughness>0.6</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Foot proximity/contact sensor lens -->
+      <visual name="foot_sensor_2">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><sphere><radius>0.005</radius></sphere></geometry>
+        <material>
+          <ambient>0.05 0.05 0.15 1</ambient>
+          <diffuse>0.05 0.05 0.15 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <pbr>
+            <metal>
+              <metalness>0.5</metalness>
+              <roughness>0.5</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+      <!-- Calf cylinder collision removed 2026-07-15 (see thigh note):
+           foot-only ground contact eliminates the wedge-in jam class. -->
+      <collision name="foot_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry><sphere><radius>0.025</radius></sphere></geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.9</mu>
+              <mu2>0.9</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+    <joint name="knee_joint_2" type="revolute">
+      <parent>thigh_2</parent>
+      <child>calf_2</child>
+      <pose relative_to="calf_2">0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit><lower>-3.14</lower><upper>3.14</upper></limit>
+      <!-- Damping raised 0.00001 -> 0.005 (2026-07-15), same rationale as the
+           hip joint above: dissipate landing-contact energy so micro-gravity
+           touchdowns settle in a couple of bounce cycles instead of ringing
+           near-losslessly for tens of minutes. -->
+      <dynamics><spring_reference>0</spring_reference><spring_stiffness>0.00028</spring_stiffness><damping>0.05</damping><friction>0.00001</friction></dynamics></axis>
+    </joint>
+
+    <!-- ══════════ JOINT CONTROLLER PLUGINS ══════════ -->
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>hip_joint_0</joint_name>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>knee_joint_0</joint_name>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>hip_joint_1</joint_name>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>knee_joint_1</joint_name>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>hip_joint_2</joint_name>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>knee_joint_2</joint_name>
+      <!-- Gains raised 2026-07-15 (p 0.05 -> 1.0, d 0.01 -> 0.05) after the
+           full-stroke liftoff test: at p=0.05 the legs extend at ~4 mm/s
+           under body load (verified: clean ballistic arc, separation
+           velocity ~3.5-4 mm/s, apex +53 mm matching v^2/2g exactly), which
+           is 5x short of the 18.5 mm/s a 3 m hop needs. The launch stroke
+           is rate-limited by controller authority, not by the motor: the
+           0.134 Nm cmd_max (Maxon RE 13 + 1:67 gearhead spec, DO NOT raise)
+           permits ~25x more torque than p=0.05 demands at typical stroke
+           errors. p=1.0 makes the stroke torque-cap-limited (bang-bang
+           style), which physics predicts delivers ~0.3 m/s of separation
+           velocity headroom; d=0.05 keeps the unloaded joint response from
+           ringing (zeta ~0.35 vs joint inertia). -->
+      <p_gain>1.0</p_gain><i_gain>0</i_gain><d_gain>0.05</d_gain>
+      <cmd_max>0.134</cmd_max><cmd_min>-0.134</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>rw_x_joint</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+      <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>rw_y_joint</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+      <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>rw_z_joint</joint_name>
+      <p_gain>0.05</p_gain><i_gain>0</i_gain><d_gain>0</d_gain>
+      <cmd_max>0.015</cmd_max><cmd_min>-0.015</cmd_min>
+    </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>drill_joint</joint_name>
+      <!-- Gains raised 2026-07-15 (p=2.0/d=0.1/cmd_max=0.5 -> p=8.0/d=0.3/
+           cmd_max=1.0) after live observation of visible mid-flight jiggle
+           at the commanded "retracted" position - see the spring/damping
+           note on drill_joint's <dynamics> above for the root-cause story. -->
+      <p_gain>8.0</p_gain><i_gain>0</i_gain><d_gain>0.3</d_gain>
+      <cmd_max>1.0</cmd_max><cmd_min>-1.0</cmd_min>
+    </plugin>
+
+  </model>
+</sdf>
