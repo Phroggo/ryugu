@@ -1,0 +1,464 @@
+[01:34:50] Starting gz sim... (ODOM_ORIENTATION_NOISE_STD=0.01 on landing_scout_1 only)
+[01:34:58] === bucket side_rest (85.0-95.0 deg), n=50 ===
+[01:35:06]   [side_rest trial1/50] commanded_tilt=94.5 az=245 start_uz=-0.08406162638062686
+[01:38:00]     landed=True after 174.2s uz=0.4543609839764763
+[01:40:00]     outcome=failed final_uz=0.4639106827058772 recover_time_s=None
+[01:40:08]   [side_rest trial2/50] commanded_tilt=86.3 az=45 start_uz=0.06459464902933432
+[01:43:34]     landed=True after 205.8s uz=0.96883655057161
+[01:43:34]     outcome=recovered final_uz=0.96883655057161 recover_time_s=0.009192228317260742
+[01:43:45]   [side_rest trial3/50] commanded_tilt=88.6 az=286 start_uz=0.023805903476092127
+[01:46:56]     landed=True after 191.8s uz=0.06465023907664735
+[01:48:56]     outcome=failed final_uz=-0.30971873531510274 recover_time_s=None
+[01:49:05]   [side_rest trial4/50] commanded_tilt=90.4 az=293 start_uz=-0.015301364927174044
+[01:52:04]     landed=True after 179.3s uz=0.7065844780663721
+[01:54:04]     outcome=failed final_uz=-0.9128151388071135 recover_time_s=None
+[01:54:12]   [side_rest trial5/50] commanded_tilt=89.6 az=80 start_uz=0.0022240516061301507
+[01:57:03]     landed=True after 171.2s uz=0.7606103029842328
+[01:59:03]     outcome=failed final_uz=-0.2807406989058412 recover_time_s=None
+[01:59:11]   [side_rest trial6/50] commanded_tilt=88.4 az=170 start_uz=0.02437650465290897
+[02:02:06]     landed=True after 175.3s uz=-0.6246947499783393
+[02:04:06]     outcome=failed final_uz=-0.9109533773301184 recover_time_s=None
+[02:04:14]   [side_rest trial7/50] commanded_tilt=85.9 az=179 start_uz=0.06552544550867068
+[02:07:21]     landed=True after 187.1s uz=0.3373501815686607
+[02:09:21]     outcome=failed final_uz=-0.18992376151140533 recover_time_s=None
+[02:09:28]   [side_rest trial8/50] commanded_tilt=93.2 az=98 start_uz=-0.06337939870379161
+[02:14:19]     landed=True after 291.1s uz=0.17187970402431796
+[02:15:05]     outcome=recovered final_uz=0.9001862678126122 recover_time_s=45.187124490737915
+[02:15:12]   [side_rest trial9/50] commanded_tilt=91.6 az=325 start_uz=-0.03252594225253591
+[02:17:55]     landed=True after 163.0s uz=-0.37506818109015594
+[02:19:55]     outcome=failed final_uz=0.8333321810861131 recover_time_s=None
+[02:20:03]   [side_rest trial10/50] commanded_tilt=89.6 az=150 start_uz=0.006531850170251041
+[02:22:52]     landed=True after 168.3s uz=0.1557246152572369
+[02:24:52]     outcome=failed final_uz=-0.4610091676693473 recover_time_s=None
+[02:24:59]   [side_rest trial11/50] commanded_tilt=88.2 az=76 start_uz=0.028097096700016477
+[02:28:16]     landed=True after 197.1s uz=0.7708607738185188
+[02:30:16]     outcome=failed final_uz=-0.8303834459736379 recover_time_s=None
+[02:30:24]   [side_rest trial12/50] commanded_tilt=92.2 az=56 start_uz=-0.04442167392628793
+[02:33:20]     landed=True after 175.6s uz=0.14427366879059722
+[02:35:20]     outcome=failed final_uz=0.2408105941080353 recover_time_s=None
+[02:35:28]   [side_rest trial13/50] commanded_tilt=85.8 az=48 start_uz=0.07403746475682293
+[02:38:52]     landed=True after 204.8s uz=0.7354750170279543
+[02:40:52]     outcome=failed final_uz=0.5172473230842887 recover_time_s=None
+[02:41:00]   [side_rest trial14/50] commanded_tilt=92.2 az=39 start_uz=-0.038665795908045864
+[02:44:25]     landed=True after 204.9s uz=-0.5112834846692116
+[02:44:26]     outcome=recovered final_uz=0.9141182905786499 recover_time_s=0.6413848400115967
+[02:44:33]   [side_rest trial15/50] commanded_tilt=86.3 az=205 start_uz=0.061564535635692086
+[02:48:28]     landed=True after 234.7s uz=-0.7878624194502568
+[02:48:30]     outcome=recovered final_uz=0.9157949524168312 recover_time_s=1.793968915939331
+[02:48:38]   [side_rest trial16/50] commanded_tilt=93.2 az=84 start_uz=-0.06281817626704411
+[02:53:11]     landed=True after 272.8s uz=0.40243804548923445
+[02:55:11]     outcome=failed final_uz=0.7158846294367536 recover_time_s=None
+[02:55:18]   [side_rest trial17/50] commanded_tilt=91.8 az=7 start_uz=-0.03863061703491555
+[02:58:17]     landed=True after 178.3s uz=-0.6036212751545458
+[02:58:18]     outcome=recovered final_uz=0.9203849988080498 recover_time_s=1.4869158267974854
+[02:58:26]   [side_rest trial18/50] commanded_tilt=92.5 az=154 start_uz=-0.044041226885326745
+[03:01:15]     landed=True after 169.1s uz=-0.09846601352939421
+[03:03:15]     outcome=failed final_uz=0.13926963299137474 recover_time_s=None
+[03:03:23]   [side_rest trial19/50] commanded_tilt=91.4 az=19 start_uz=-0.02483256436076231
+[03:06:18]     landed=True after 175.6s uz=0.45054986317546886
+[03:06:19]     outcome=recovered final_uz=0.9099033311839209 recover_time_s=0.5438864231109619
+[03:06:27]   [side_rest trial20/50] commanded_tilt=92.2 az=81 start_uz=-0.04378603548545401
+[03:11:25]     landed=True after 298.7s uz=0.1345995212684915
+[03:13:25]     outcome=failed final_uz=0.3925010070348499 recover_time_s=None
+[03:13:33]   [side_rest trial21/50] commanded_tilt=88.4 az=151 start_uz=0.027227634353209074
+[03:16:33]     landed=True after 180.0s uz=0.37006210078627144
+[03:18:33]     outcome=failed final_uz=-0.19573720055266164 recover_time_s=None
+[03:18:41]   [side_rest trial22/50] commanded_tilt=86.5 az=300 start_uz=0.054206142267984814
+[03:22:02]     landed=True after 201.3s uz=0.6311331878743206
+[03:24:02]     outcome=failed final_uz=0.6559848538663762 recover_time_s=None
+[03:24:10]   [side_rest trial23/50] commanded_tilt=94.8 az=311 start_uz=-0.0951739613217335
+[03:27:27]     landed=True after 197.0s uz=0.44267880690972117
+[03:29:27]     outcome=failed final_uz=0.6427545961664263 recover_time_s=None
+[03:29:35]   [side_rest trial24/50] commanded_tilt=89.9 az=207 start_uz=-0.0018393868997694796
+[03:34:51]     landed=True after 315.6s uz=0.5740847551131436
+[03:36:51]     outcome=failed final_uz=0.8255523302304392 recover_time_s=None
+[03:36:58]   [side_rest trial25/50] commanded_tilt=94.4 az=188 start_uz=-0.08605126728657564
+[03:39:15]     landed=True after 137.0s uz=0.8367993455729141
+[03:39:16]     outcome=recovered final_uz=0.9005026883333019 recover_time_s=0.9296057224273682
+[03:39:24]   [side_rest trial26/50] commanded_tilt=92.5 az=3 start_uz=-0.05130201293843206
+[03:42:25]     landed=True after 180.9s uz=-0.2254091377293761
+[03:42:26]     outcome=recovered final_uz=0.91090305691663 recover_time_s=1.037271499633789
+[03:42:34]   [side_rest trial27/50] commanded_tilt=89.8 az=54 start_uz=-0.0019173978479556375
+[03:45:35]     landed=True after 181.5s uz=-0.2512125445706259
+[03:45:37]     outcome=recovered final_uz=0.9098461259576034 recover_time_s=2.1985323429107666
+[03:45:45]   [side_rest trial28/50] commanded_tilt=87.5 az=197 start_uz=0.03897045580833136
+[03:49:02]     landed=True after 197.0s uz=0.6273562676733899
+[03:51:02]     outcome=failed final_uz=0.0807457093696975 recover_time_s=None
+[03:51:10]   [side_rest trial29/50] commanded_tilt=85.4 az=275 start_uz=0.07970312736570662
+[03:54:32]     landed=True after 201.7s uz=-0.8350818096596506
+[03:54:33]     outcome=recovered final_uz=0.9348469567462989 recover_time_s=1.398589849472046
+[03:54:41]   [side_rest trial30/50] commanded_tilt=87.1 az=48 start_uz=0.04937595677715101
+[03:58:07]     landed=True after 205.8s uz=0.23141204527625847
+[04:00:07]     outcome=failed final_uz=0.29749446525574563 recover_time_s=None
+[04:00:14]   [side_rest trial31/50] commanded_tilt=88.1 az=55 start_uz=0.026985810000472066
+[04:03:43]     landed=True after 208.4s uz=0.7055945815082514
+[04:05:43]     outcome=failed final_uz=0.4443618373207472 recover_time_s=None
+[04:05:51]   [side_rest trial32/50] commanded_tilt=90.4 az=189 start_uz=-0.013746651791830766
+[04:08:07]     landed=True after 136.9s uz=0.21309399804822915
+[04:09:29]     outcome=recovered final_uz=0.9000655714358173 recover_time_s=81.3736526966095
+[04:09:40]   [side_rest trial33/50] commanded_tilt=89.9 az=322 start_uz=-0.006911346631308435
+[04:12:54]     landed=True after 194.2s uz=-0.1428060043521766
+[04:12:55]     outcome=recovered final_uz=0.9368947015640315 recover_time_s=1.339813470840454
+[04:13:03]   [side_rest trial34/50] commanded_tilt=87.8 az=266 start_uz=0.03875277167046298
+[04:16:14]     landed=True after 191.1s uz=-0.8055527754993139
+[04:18:14]     outcome=failed final_uz=-0.880190204963079 recover_time_s=None
+[04:18:22]   [side_rest trial35/50] commanded_tilt=85.5 az=351 start_uz=0.07438198669440466
+[04:23:13]     landed=True after 291.5s uz=-0.3174087896300124
+[04:25:13]     outcome=failed final_uz=0.10247996764378908 recover_time_s=None
+[04:25:21]   [side_rest trial36/50] commanded_tilt=91.4 az=110 start_uz=-0.031132516656509734
+[04:28:38]     landed=True after 196.9s uz=0.6663031607570722
+[04:30:38]     outcome=failed final_uz=0.41796022435239943 recover_time_s=None
+[04:30:49]   [side_rest trial37/50] commanded_tilt=91.3 az=160 start_uz=-0.02347838521661272
+[04:33:37]     landed=True after 168.4s uz=0.09751043171531837
+[04:35:32]     outcome=recovered final_uz=0.9001144217132079 recover_time_s=114.79826331138611
+[04:35:42]   [side_rest trial38/50] commanded_tilt=88.0 az=163 start_uz=0.034591003714502855
+[04:38:31]     landed=True after 169.0s uz=0.7262772824540404
+[04:40:31]     outcome=failed final_uz=-0.47497398720756734 recover_time_s=None
+[04:40:42]   [side_rest trial39/50] commanded_tilt=87.5 az=114 start_uz=0.02824445512556384
+[04:43:54]     landed=True after 191.8s uz=0.7853969807381629
+[04:45:54]     outcome=failed final_uz=0.42300341110980955 recover_time_s=None
+[04:46:02]   [side_rest trial40/50] commanded_tilt=88.4 az=153 start_uz=0.028067083129485693
+[04:48:50]     landed=True after 168.4s uz=0.5476674994952102
+[04:50:50]     outcome=failed final_uz=-0.8606356175293708 recover_time_s=None
+[04:50:58]   [side_rest trial41/50] commanded_tilt=93.6 az=53 start_uz=-0.06891040950357352
+[04:53:53]     landed=True after 175.1s uz=0.29397653900580223
+[04:55:53]     outcome=failed final_uz=0.6388911639982924 recover_time_s=None
+[04:56:01]   [side_rest trial42/50] commanded_tilt=94.9 az=140 start_uz=-0.08462514426927692
+[04:58:53]     landed=True after 171.9s uz=0.6691831989255348
+[05:00:53]     outcome=failed final_uz=-0.9691526967533888 recover_time_s=None
+[05:01:00]   [side_rest trial43/50] commanded_tilt=89.8 az=80 start_uz=-0.00015315693884687676
+[05:03:50]     landed=True after 170.0s uz=0.6848855505911838
+[05:05:50]     outcome=failed final_uz=0.8808114875237046 recover_time_s=None
+[05:05:58]   [side_rest trial44/50] commanded_tilt=92.8 az=237 start_uz=-0.060207518472982224
+[05:09:14]     landed=True after 196.0s uz=0.5217196350692586
+[05:10:52]     outcome=recovered final_uz=0.900090122321592 recover_time_s=97.8436393737793
+[05:11:00]   [side_rest trial45/50] commanded_tilt=90.4 az=236 start_uz=-0.01733336740892799
+[05:14:22]     landed=True after 201.7s uz=0.9630162695241617
+[05:14:22]     outcome=recovered final_uz=0.9617138097226099 recover_time_s=0.005933284759521484
+[05:14:29]   [side_rest trial46/50] commanded_tilt=92.1 az=348 start_uz=-0.04502473687533315
+[05:17:42]     landed=True after 192.4s uz=0.4614400025758014
+[05:19:42]     outcome=failed final_uz=0.3253379544875351 recover_time_s=None
+[05:19:50]   [side_rest trial47/50] commanded_tilt=94.7 az=153 start_uz=-0.08128561634305065
+[05:22:39]     landed=True after 169.0s uz=0.4879601696033491
+[05:24:39]     outcome=failed final_uz=-0.29514354300935386 recover_time_s=None
+[05:24:46]   [side_rest trial48/50] commanded_tilt=90.6 az=115 start_uz=-0.01900796020382267
+[05:28:02]     landed=True after 195.4s uz=0.9503063604045718
+[05:28:02]     outcome=recovered final_uz=0.9503063604045718 recover_time_s=0.009759187698364258
+[05:28:10]   [side_rest trial49/50] commanded_tilt=90.0 az=161 start_uz=-0.000439703341796438
+[05:31:01]     landed=True after 171.1s uz=0.04818711268850828
+[05:33:01]     outcome=failed final_uz=0.3421856598239925 recover_time_s=None
+[05:33:09]   [side_rest trial50/50] commanded_tilt=86.2 az=315 start_uz=0.0612459358202635
+[05:37:27]     landed=True after 258.2s uz=0.4027678539867223
+[05:39:27]     outcome=failed final_uz=0.34841054038442776 recover_time_s=None
+[05:39:27] === bucket moderate (45.0-60.0 deg), n=50 ===
+[05:39:35]   [moderate trial1/50] commanded_tilt=49.0 az=122 start_uz=0.656116230743941
+[05:42:05]     landed=True after 150.6s uz=0.9994135049272427
+[05:42:05]     outcome=recovered final_uz=0.9994135049272427 recover_time_s=0.0033960342407226562
+[05:42:13]   [moderate trial2/50] commanded_tilt=57.7 az=13 start_uz=0.534952367122935
+[05:45:11]     landed=True after 177.7s uz=0.9993385433767124
+[05:45:11]     outcome=recovered final_uz=0.9993385433767124 recover_time_s=0.006597280502319336
+[05:45:18]   [moderate trial3/50] commanded_tilt=59.4 az=43 start_uz=0.5097482011626923
+[05:48:28]     landed=True after 189.4s uz=0.999410681443624
+[05:48:28]     outcome=recovered final_uz=0.999410681443624 recover_time_s=0.008249282836914062
+[05:48:36]   [moderate trial4/50] commanded_tilt=55.2 az=290 start_uz=0.570866140715597
+[05:52:10]     landed=True after 214.5s uz=0.9993623293262717
+[05:52:10]     outcome=recovered final_uz=0.9993623293262717 recover_time_s=0.009418010711669922
+[05:52:18]   [moderate trial5/50] commanded_tilt=54.9 az=27 start_uz=0.5754307957937383
+[05:55:15]     landed=True after 177.5s uz=0.9993997926525283
+[05:55:15]     outcome=recovered final_uz=0.9993997926525283 recover_time_s=0.006338834762573242
+[05:55:23]   [moderate trial6/50] commanded_tilt=47.3 az=161 start_uz=0.6781289000920726
+[05:58:16]     landed=True after 172.6s uz=0.9993968710857076
+[05:58:16]     outcome=recovered final_uz=0.9993968710857076 recover_time_s=0.003108501434326172
+[05:58:24]   [moderate trial7/50] commanded_tilt=49.2 az=118 start_uz=0.6539638386153949
+[06:00:49]     landed=True after 145.4s uz=0.9994139674071926
+[06:00:49]     outcome=recovered final_uz=0.9994139674071926 recover_time_s=0.0029382705688476562
+[06:00:57]   [moderate trial8/50] commanded_tilt=54.2 az=339 start_uz=0.5850122173073207
+[06:03:23]     landed=True after 146.2s uz=0.999323436906266
+[06:03:23]     outcome=recovered final_uz=0.999323436906266 recover_time_s=0.009026527404785156
+[06:03:31]   [moderate trial9/50] commanded_tilt=45.9 az=286 start_uz=0.6956842988487209
+[06:06:18]     landed=True after 166.9s uz=0.9993265906113429
+[06:06:18]     outcome=recovered final_uz=0.9993265906113429 recover_time_s=0.0013437271118164062
+[06:06:26]   [moderate trial10/50] commanded_tilt=51.7 az=131 start_uz=0.619382268390367
+[06:09:14]     landed=True after 168.3s uz=0.9994120990640154
+[06:09:14]     outcome=recovered final_uz=0.9994120990640154 recover_time_s=0.004158735275268555
+[06:09:22]   [moderate trial11/50] commanded_tilt=51.4 az=56 start_uz=0.6243661860301306
+[06:12:08]     landed=True after 166.6s uz=0.9994132717955373
+[06:12:08]     outcome=recovered final_uz=0.9994132717955373 recover_time_s=0.0019452571868896484
+[06:12:16]   [moderate trial12/50] commanded_tilt=56.9 az=218 start_uz=0.546390482760349
+[06:15:05]     landed=True after 168.9s uz=0.9993208645501943
+[06:15:05]     outcome=recovered final_uz=0.9993208645501943 recover_time_s=0.005237579345703125
+[06:15:13]   [moderate trial13/50] commanded_tilt=46.6 az=55 start_uz=0.6866453679662143
+[06:17:42]     landed=True after 148.6s uz=0.9994122785163115
+[06:17:42]     outcome=recovered final_uz=0.9994122785163115 recover_time_s=0.00588226318359375
+[06:17:49]   [moderate trial14/50] commanded_tilt=52.6 az=170 start_uz=0.6073151153577536
+[06:21:20]     landed=True after 210.9s uz=0.9994065090584565
+[06:21:20]     outcome=recovered final_uz=0.9994065090584565 recover_time_s=0.009413719177246094
+[06:21:28]   [moderate trial15/50] commanded_tilt=50.5 az=123 start_uz=0.6365645807553554
+[06:24:01]     landed=True after 153.3s uz=0.9994131743054896
+[06:24:01]     outcome=recovered final_uz=0.9994131743054896 recover_time_s=0.00954294204711914
+[06:24:09]   [moderate trial16/50] commanded_tilt=48.5 az=25 start_uz=0.6621617004560421
+[06:27:06]     landed=True after 176.7s uz=0.999379548016188
+[06:27:06]     outcome=recovered final_uz=0.999379548016188 recover_time_s=0.008059024810791016
+[06:27:17]   [moderate trial17/50] commanded_tilt=51.7 az=175 start_uz=0.6197442102082007
+[06:30:17]     landed=True after 180.0s uz=0.9994109239799231
+[06:30:17]     outcome=recovered final_uz=0.9994109239799231 recover_time_s=0.009978771209716797
+[06:30:24]   [moderate trial18/50] commanded_tilt=52.9 az=323 start_uz=0.6034001353042544
+[06:32:51]     landed=True after 146.8s uz=0.9992828910491818
+[06:32:51]     outcome=recovered final_uz=0.9992828910491818 recover_time_s=0.0013527870178222656
+[06:32:59]   [moderate trial19/50] commanded_tilt=57.9 az=332 start_uz=0.5320264145283702
+[06:35:36]     landed=True after 156.8s uz=0.9994886207943001
+[06:35:36]     outcome=recovered final_uz=0.9994886207943001 recover_time_s=0.008876800537109375
+[06:35:44]   [moderate trial20/50] commanded_tilt=51.3 az=20 start_uz=0.6258516296053109
+[06:38:39]     landed=True after 175.1s uz=0.9993685273609021
+[06:38:39]     outcome=recovered final_uz=0.9993685273609021 recover_time_s=0.0005979537963867188
+[06:38:46]   [moderate trial21/50] commanded_tilt=51.6 az=229 start_uz=0.621360023637213
+[06:41:13]     landed=True after 146.8s uz=0.999247482458437
+[06:41:13]     outcome=recovered final_uz=0.999247482458437 recover_time_s=0.00044989585876464844
+[06:41:21]   [moderate trial22/50] commanded_tilt=45.2 az=324 start_uz=0.7051506971784536
+[06:43:46]     landed=True after 144.6s uz=0.9992943781904473
+[06:43:46]     outcome=recovered final_uz=0.9992943781904473 recover_time_s=0.0012955665588378906
+[06:43:53]   [moderate trial23/50] commanded_tilt=56.6 az=228 start_uz=0.5507746902783973
+[06:46:35]     landed=True after 161.9s uz=0.9992713138691008
+[06:46:35]     outcome=recovered final_uz=0.9992713138691008 recover_time_s=0.0021028518676757812
+[06:46:43]   [moderate trial24/50] commanded_tilt=45.4 az=277 start_uz=0.7018469344552645
+[06:49:37]     landed=True after 174.3s uz=0.9993340838815796
+[06:49:37]     outcome=recovered final_uz=0.9993340838815796 recover_time_s=0.001104593276977539
+[06:49:45]   [moderate trial25/50] commanded_tilt=51.2 az=324 start_uz=0.6260734894612554
+[06:52:11]     landed=True after 146.3s uz=0.9992880090801677
+[06:52:11]     outcome=recovered final_uz=0.9992880090801677 recover_time_s=0.009786367416381836
+[06:52:19]   [moderate trial26/50] commanded_tilt=59.9 az=279 start_uz=0.5018528354766248
+[06:55:27]     landed=True after 187.7s uz=0.9992950173951487
+[06:55:27]     outcome=recovered final_uz=0.9992950173951487 recover_time_s=0.0028994083404541016
+[06:55:35]   [moderate trial27/50] commanded_tilt=46.9 az=129 start_uz=0.6836327985538475
+[06:58:14]     landed=True after 159.1s uz=0.999414159001362
+[06:58:14]     outcome=recovered final_uz=0.999414159001362 recover_time_s=0.0016627311706542969
+[06:58:22]   [moderate trial28/50] commanded_tilt=52.3 az=296 start_uz=0.6111881901302584
+[07:01:07]     landed=True after 165.4s uz=0.9993325648363438
+[07:01:07]     outcome=recovered final_uz=0.9993325648363438 recover_time_s=0.003362417221069336
+[07:01:15]   [moderate trial29/50] commanded_tilt=51.5 az=147 start_uz=0.622363958282641
+[07:04:09]     landed=True after 174.3s uz=0.9994202536373603
+[07:04:09]     outcome=recovered final_uz=0.9994202536373603 recover_time_s=0.0012786388397216797
+[07:04:17]   [moderate trial30/50] commanded_tilt=48.3 az=296 start_uz=0.6651972988502686
+[07:06:47]     landed=True after 150.2s uz=0.9992749601292232
+[07:06:47]     outcome=recovered final_uz=0.9992749601292232 recover_time_s=0.0022575855255126953
+[07:06:55]   [moderate trial31/50] commanded_tilt=51.1 az=99 start_uz=0.6279791189343558
+[07:09:21]     landed=True after 146.1s uz=0.9994117522349554
+[07:09:21]     outcome=recovered final_uz=0.9994117522349554 recover_time_s=0.0069446563720703125
+[07:09:29]   [moderate trial32/50] commanded_tilt=58.0 az=52 start_uz=0.5301567817166513
+[07:12:33]     landed=True after 183.6s uz=0.9994110410679463
+[07:12:33]     outcome=recovered final_uz=0.9994110410679463 recover_time_s=0.0069026947021484375
+[07:12:41]   [moderate trial33/50] commanded_tilt=58.0 az=229 start_uz=0.530540650786246
+[07:15:42]     landed=True after 181.9s uz=0.9993047871009996
+[07:15:42]     outcome=recovered final_uz=0.9993047871009996 recover_time_s=0.006698131561279297
+[07:15:50]   [moderate trial34/50] commanded_tilt=52.8 az=313 start_uz=0.6052495707367849
+[07:18:16]     landed=True after 145.9s uz=0.9992539610696348
+[07:18:16]     outcome=recovered final_uz=0.9992539610696348 recover_time_s=0.0013222694396972656
+[07:18:24]   [moderate trial35/50] commanded_tilt=48.8 az=150 start_uz=0.658259213259792
+[07:21:27]     landed=True after 183.3s uz=0.9994059146247435
+[07:21:27]     outcome=recovered final_uz=0.9994059146247435 recover_time_s=0.008725166320800781
+[07:21:35]   [moderate trial36/50] commanded_tilt=47.5 az=275 start_uz=0.6756971047828144
+[07:24:31]     landed=True after 176.4s uz=0.9993256168356273
+[07:24:31]     outcome=recovered final_uz=0.9993256168356273 recover_time_s=0.003002166748046875
+[07:24:39]   [moderate trial37/50] commanded_tilt=57.9 az=67 start_uz=0.5312516034582873
+[07:27:35]     landed=True after 176.0s uz=0.9994124154996318
+[07:27:35]     outcome=recovered final_uz=0.9994124154996318 recover_time_s=0.003386974334716797
+[07:27:43]   [moderate trial38/50] commanded_tilt=58.8 az=170 start_uz=0.5185570169155655
+[07:30:39]     landed=True after 176.0s uz=0.9994221485318143
+[07:30:39]     outcome=recovered final_uz=0.9994221930240447 recover_time_s=0.0031960010528564453
+[07:30:47]   [moderate trial39/50] commanded_tilt=59.8 az=146 start_uz=0.5022845084256121
+[07:33:51]     landed=True after 183.8s uz=0.9994281672104823
+[07:33:51]     outcome=recovered final_uz=0.9994281672104823 recover_time_s=0.0033419132232666016
+[07:33:58]   [moderate trial40/50] commanded_tilt=45.3 az=174 start_uz=0.7027838010211058
+[07:36:33]     landed=True after 154.6s uz=0.9994056138263243
+[07:36:33]     outcome=recovered final_uz=0.9994056138263243 recover_time_s=0.005579710006713867
+[07:36:41]   [moderate trial41/50] commanded_tilt=56.0 az=97 start_uz=0.5595326677989867
+[07:39:12]     landed=True after 151.5s uz=0.9994123811007476
+[07:39:12]     outcome=recovered final_uz=0.9994123811007476 recover_time_s=0.008810281753540039
+[07:39:20]   [moderate trial42/50] commanded_tilt=55.7 az=285 start_uz=0.563549944262913
+[07:42:16]     landed=True after 175.7s uz=0.999346196738702
+[07:42:16]     outcome=recovered final_uz=0.999346196738702 recover_time_s=0.0073015689849853516
+[07:42:24]   [moderate trial43/50] commanded_tilt=55.8 az=314 start_uz=0.5622915815728587
+[07:44:51]     landed=True after 147.6s uz=0.9992634713803036
+[07:44:51]     outcome=recovered final_uz=0.9992634713803036 recover_time_s=0.00048804283142089844
+[07:44:59]   [moderate trial44/50] commanded_tilt=59.7 az=42 start_uz=0.5043725637868849
+[07:48:10]     landed=True after 191.4s uz=0.9994107936153694
+[07:48:10]     outcome=recovered final_uz=0.9994107936153694 recover_time_s=0.00435638427734375
+[07:48:18]   [moderate trial45/50] commanded_tilt=53.7 az=282 start_uz=0.5915686787522514
+[07:51:28]     landed=True after 189.4s uz=0.9993448058454473
+[07:51:28]     outcome=recovered final_uz=0.9993448058454473 recover_time_s=0.009185075759887695
+[07:51:35]   [moderate trial46/50] commanded_tilt=53.6 az=9 start_uz=0.5934275092374044
+[07:54:26]     landed=True after 170.3s uz=0.9993304616868333
+[07:54:26]     outcome=recovered final_uz=0.9993304616868333 recover_time_s=0.0072820186614990234
+[07:54:34]   [moderate trial47/50] commanded_tilt=58.7 az=7 start_uz=0.5187912889612243
+[07:57:30]     landed=True after 176.8s uz=0.9993134538320738
+[07:57:30]     outcome=recovered final_uz=0.9993134538320738 recover_time_s=0.008783340454101562
+[07:57:38]   [moderate trial48/50] commanded_tilt=52.8 az=348 start_uz=0.6050159334395894
+[08:00:03]     landed=True after 145.0s uz=0.9993347886818804
+[08:00:03]     outcome=recovered final_uz=0.9993347886818804 recover_time_s=0.009081840515136719
+[08:00:11]   [moderate trial49/50] commanded_tilt=46.3 az=256 start_uz=0.6907913019192757
+[08:02:59]     landed=True after 167.7s uz=0.9992855232525003
+[08:02:59]     outcome=recovered final_uz=0.9992855232525003 recover_time_s=0.005026102066040039
+[08:03:09]   [moderate trial50/50] commanded_tilt=58.9 az=88 start_uz=0.5158071174449645
+[08:05:50]     landed=True after 160.4s uz=0.999414062655689
+[08:05:50]     outcome=recovered final_uz=0.999414062655689 recover_time_s=0.002668142318725586
+[08:05:50] === bucket full_inversion (170.0-180.0 deg), n=50 ===
+[08:05:58]   [full_inversion trial1/50] commanded_tilt=172.7 az=14 start_uz=-0.9919710199209186
+[08:09:15]     landed=True after 197.1s uz=0.9836316594282452
+[08:09:15]     outcome=recovered final_uz=0.9836316594282452 recover_time_s=0.008800506591796875
+[08:09:23]   [full_inversion trial2/50] commanded_tilt=175.8 az=33 start_uz=-0.9973596779549903
+[08:12:40]     landed=True after 197.0s uz=-0.3580014396297062
+[08:14:40]     outcome=failed final_uz=0.8877667087314753 recover_time_s=None
+[08:14:47]   [full_inversion trial3/50] commanded_tilt=170.3 az=308 start_uz=-0.9857623556918051
+[08:18:05]     landed=True after 197.2s uz=0.6831335622952703
+[08:20:05]     outcome=failed final_uz=-0.5329968064198956 recover_time_s=None
+[08:20:12]   [full_inversion trial4/50] commanded_tilt=177.7 az=136 start_uz=-0.9992093210250252
+[08:23:30]     landed=True after 197.2s uz=0.7307089985101847
+[08:25:30]     outcome=failed final_uz=0.4657267308710331 recover_time_s=None
+[08:25:38]   [full_inversion trial5/50] commanded_tilt=174.8 az=88 start_uz=-0.9958082179759749
+[08:28:55]     landed=True after 197.1s uz=0.8172627076140759
+[08:28:55]     outcome=recovered final_uz=0.9409368101948445 recover_time_s=0.09863400459289551
+[08:29:03]   [full_inversion trial6/50] commanded_tilt=174.8 az=150 start_uz=-0.9958147418405388
+[08:32:20]     landed=True after 197.1s uz=0.7331544914335375
+[08:34:20]     outcome=failed final_uz=-0.6029897343440653 recover_time_s=None
+[08:34:27]   [full_inversion trial7/50] commanded_tilt=171.5 az=23 start_uz=-0.9890791360032372
+[08:37:45]     landed=True after 197.2s uz=-0.9419212427636365
+[08:37:45]     outcome=recovered final_uz=0.9102940742406251 recover_time_s=0.7445099353790283
+[08:37:53]   [full_inversion trial8/50] commanded_tilt=173.6 az=68 start_uz=-0.9937329064333151
+[08:41:10]     landed=True after 197.1s uz=0.6741835358462918
+[08:43:10]     outcome=failed final_uz=0.4370178147601165 recover_time_s=None
+[08:43:18]   [full_inversion trial9/50] commanded_tilt=178.1 az=62 start_uz=-0.9994526613186085
+[08:46:35]     landed=True after 197.1s uz=-0.09126810265025753
+[08:48:35]     outcome=failed final_uz=-0.2998709490282432 recover_time_s=None
+[08:48:43]   [full_inversion trial10/50] commanded_tilt=171.5 az=323 start_uz=-0.9889239551415048
+[08:52:00]     landed=True after 196.9s uz=0.7408551639917038
+[08:54:00]     outcome=failed final_uz=0.298635370094663 recover_time_s=None
+[08:54:08]   [full_inversion trial11/50] commanded_tilt=177.4 az=251 start_uz=-0.9989813441671345
+[08:57:25]     landed=True after 197.1s uz=-0.2558877542874727
+[08:59:25]     outcome=failed final_uz=0.5375280102944827 recover_time_s=None
+[08:59:36]   [full_inversion trial12/50] commanded_tilt=173.9 az=62 start_uz=-0.9942885239259756
+[09:02:50]     landed=True after 194.2s uz=0.8562079598190545
+[09:03:36]     outcome=recovered final_uz=0.9000074554567888 recover_time_s=46.393080711364746
+[09:03:44]   [full_inversion trial13/50] commanded_tilt=174.1 az=133 start_uz=-0.9946893394342475
+[09:07:01]     landed=True after 197.1s uz=0.44403095244719126
+[09:09:01]     outcome=failed final_uz=0.5199805628956344 recover_time_s=None
+[09:09:12]   [full_inversion trial14/50] commanded_tilt=174.3 az=193 start_uz=-0.9949810904971337
+[09:12:29]     landed=True after 197.0s uz=-0.6102897314687814
+[09:12:30]     outcome=recovered final_uz=0.9110077886173009 recover_time_s=1.1460187435150146
+[09:12:38]   [full_inversion trial15/50] commanded_tilt=171.4 az=120 start_uz=-0.9888548712136922
+[09:15:55]     landed=True after 197.1s uz=-0.6777509098735568
+[09:15:55]     outcome=recovered final_uz=0.9060692630567342 recover_time_s=0.6435894966125488
+[09:16:03]   [full_inversion trial16/50] commanded_tilt=177.0 az=205 start_uz=-0.9986346415553702
+[09:19:20]     landed=True after 197.2s uz=0.6601461476825629
+[09:21:20]     outcome=failed final_uz=-0.4648963087043041 recover_time_s=None
+[09:21:28]   [full_inversion trial17/50] commanded_tilt=171.4 az=149 start_uz=-0.9887264832364737
+[09:24:45]     landed=True after 197.1s uz=-0.11313833088707481
+[09:26:45]     outcome=failed final_uz=0.6504934261719436 recover_time_s=None
+[09:26:53]   [full_inversion trial18/50] commanded_tilt=172.3 az=27 start_uz=-0.9909173533016142
+[09:30:10]     landed=True after 197.1s uz=-0.6597596158232133
+[09:30:26]     outcome=recovered final_uz=0.9000176453091537 recover_time_s=15.6688711643219
+[09:30:34]   [full_inversion trial19/50] commanded_tilt=176.5 az=32 start_uz=-0.9981808951966276
+[09:33:51]     landed=True after 197.0s uz=0.6806657524973985
+[09:35:51]     outcome=failed final_uz=0.1810701102710588 recover_time_s=None
+[09:36:01]   [full_inversion trial20/50] commanded_tilt=171.3 az=320 start_uz=-0.9886251595732474
+[09:39:18]     landed=True after 197.1s uz=0.7772602176434993
+[09:39:19]     outcome=recovered final_uz=0.9283391444350624 recover_time_s=0.09037923812866211
+[09:39:26]   [full_inversion trial21/50] commanded_tilt=178.6 az=186 start_uz=-0.9997085579273106
+[09:42:43]     landed=True after 197.1s uz=0.613883560174152
+[09:44:43]     outcome=failed final_uz=0.11765618319387583 recover_time_s=None
+[09:44:51]   [full_inversion trial22/50] commanded_tilt=170.1 az=165 start_uz=-0.9850290462363873
+[09:48:08]     landed=True after 197.0s uz=0.4896153232682251
+[09:50:08]     outcome=failed final_uz=-0.27875816051578095 recover_time_s=None
+[09:50:19]   [full_inversion trial23/50] commanded_tilt=170.1 az=57 start_uz=-0.9849685865939657
+[09:53:36]     landed=True after 197.2s uz=0.415594807704901
+[09:55:36]     outcome=failed final_uz=-0.31486140557459463 recover_time_s=None
+[09:55:44]   [full_inversion trial24/50] commanded_tilt=171.2 az=40 start_uz=-0.9882904325954924
+[09:59:01]     landed=True after 197.2s uz=-0.4230947958356506
+[10:01:01]     outcome=failed final_uz=0.09532698552499852 recover_time_s=None
+[10:01:12]   [full_inversion trial25/50] commanded_tilt=173.4 az=251 start_uz=-0.9934017972476337
+[10:04:29]     landed=True after 197.2s uz=0.17387954935436367
+[10:06:29]     outcome=failed final_uz=-0.4785691154101632 recover_time_s=None
+[10:06:37]   [full_inversion trial26/50] commanded_tilt=170.3 az=45 start_uz=-0.985604541765174
+[10:09:54]     landed=True after 197.1s uz=-0.8269316567650946
+[10:11:54]     outcome=failed final_uz=0.36701301519643914 recover_time_s=None
+[10:12:04]   [full_inversion trial27/50] commanded_tilt=173.1 az=356 start_uz=-0.992766817272505
+[10:15:22]     landed=True after 197.8s uz=-0.3499333585874602
+[10:17:22]     outcome=failed final_uz=0.5696185578922104 recover_time_s=None
+[10:17:30]   [full_inversion trial28/50] commanded_tilt=177.8 az=333 start_uz=-0.9992823578098531
+[10:20:47]     landed=True after 197.0s uz=-0.18698377567798863
+[10:20:48]     outcome=recovered final_uz=0.9170157956856144 recover_time_s=1.5457799434661865
+[10:20:56]   [full_inversion trial29/50] commanded_tilt=176.6 az=295 start_uz=-0.9982525258868167
+[10:24:13]     landed=True after 197.1s uz=0.5252467317048283
+[10:26:13]     outcome=failed final_uz=-0.09394720024139103 recover_time_s=None
+[10:26:21]   [full_inversion trial30/50] commanded_tilt=174.2 az=253 start_uz=-0.9948103425869803
+[10:29:38]     landed=True after 197.0s uz=0.7430169478411193
+[10:31:38]     outcome=failed final_uz=0.23197259423275385 recover_time_s=None
+[10:31:46]   [full_inversion trial31/50] commanded_tilt=174.8 az=333 start_uz=-0.9958633559748253
+[10:35:03]     landed=True after 197.0s uz=0.379675870590761
+[10:37:03]     outcome=failed final_uz=0.393122062221696 recover_time_s=None
+[10:37:11]   [full_inversion trial32/50] commanded_tilt=174.4 az=303 start_uz=-0.9951548670870642
+[10:40:28]     landed=True after 197.2s uz=0.29556647340889874
+[10:42:28]     outcome=failed final_uz=0.7815230621251197 recover_time_s=None
+[10:42:36]   [full_inversion trial33/50] commanded_tilt=171.3 az=188 start_uz=-0.9883868126343964
+[10:45:53]     landed=True after 197.1s uz=-0.6350413691618908
+[10:47:53]     outcome=failed final_uz=0.4803860595934275 recover_time_s=None
+[10:48:01]   [full_inversion trial34/50] commanded_tilt=177.8 az=51 start_uz=-0.9992306552186156
+[10:51:18]     landed=True after 197.1s uz=0.836680539074134
+[10:53:18]     outcome=failed final_uz=0.032456454423319125 recover_time_s=None
+[10:53:26]   [full_inversion trial35/50] commanded_tilt=174.2 az=350 start_uz=-0.9949139386157524
+[10:56:43]     landed=True after 197.8s uz=0.5238926503518244
+[10:58:43]     outcome=failed final_uz=0.04935097581912007 recover_time_s=None
+[10:58:51]   [full_inversion trial36/50] commanded_tilt=171.9 az=255 start_uz=-0.9900569950178322
+[11:02:08]     landed=True after 197.1s uz=0.8335621731821107
+[11:04:08]     outcome=failed final_uz=-0.9913062622762796 recover_time_s=None
+[11:04:16]   [full_inversion trial37/50] commanded_tilt=174.2 az=20 start_uz=-0.9947927336697093
+[11:07:33]     landed=True after 197.2s uz=-0.2956477881368502
+[11:09:33]     outcome=failed final_uz=-0.5649304892886822 recover_time_s=None
+[11:09:41]   [full_inversion trial38/50] commanded_tilt=179.9 az=326 start_uz=-0.9999993376568741
+[11:12:58]     landed=True after 197.1s uz=0.4184033875138986
+[11:13:00]     outcome=recovered final_uz=0.901603214411744 recover_time_s=1.6453866958618164
+[11:13:08]   [full_inversion trial39/50] commanded_tilt=177.6 az=327 start_uz=-0.9990896610729139
+[11:16:25]     landed=True after 197.0s uz=-0.7396347966450456
+[11:18:25]     outcome=failed final_uz=0.09482005586666531 recover_time_s=None
+[11:18:32]   [full_inversion trial40/50] commanded_tilt=179.8 az=93 start_uz=-0.9999907404836348
+[11:21:50]     landed=True after 197.2s uz=0.6825972420595077
+[11:21:50]     outcome=recovered final_uz=0.9029709576995903 recover_time_s=0.5984420776367188
+[11:21:58]   [full_inversion trial41/50] commanded_tilt=176.0 az=283 start_uz=-0.997589781469252
+[11:25:15]     landed=True after 197.1s uz=-0.9334607877660221
+[11:25:16]     outcome=recovered final_uz=0.9115322225884364 recover_time_s=0.9432260990142822
+[11:25:24]   [full_inversion trial42/50] commanded_tilt=176.2 az=221 start_uz=-0.9978540280472712
+[11:28:41]     landed=True after 197.1s uz=0.5988786373660522
+[11:30:41]     outcome=failed final_uz=0.23427957300002822 recover_time_s=None
+[11:30:52]   [full_inversion trial43/50] commanded_tilt=177.5 az=104 start_uz=-0.999083049888775
+[11:34:09]     landed=True after 197.1s uz=0.14830101931861317
+[11:34:10]     outcome=recovered final_uz=0.9111189789723337 recover_time_s=1.4454128742218018
+[11:34:18]   [full_inversion trial44/50] commanded_tilt=179.1 az=147 start_uz=-0.9998862543219531
+[11:37:35]     landed=True after 197.1s uz=-0.8233095529698897
+[11:37:36]     outcome=recovered final_uz=0.9111378948391764 recover_time_s=1.3396706581115723
+[11:37:44]   [full_inversion trial45/50] commanded_tilt=178.3 az=124 start_uz=-0.9995678393558494
+[11:41:01]     landed=True after 197.1s uz=0.5930962693666368
+[11:43:01]     outcome=failed final_uz=0.2855095582729946 recover_time_s=None
+[11:43:12]   [full_inversion trial46/50] commanded_tilt=171.4 az=14 start_uz=-0.9886996271041715
+[11:46:26]     landed=True after 194.2s uz=0.4256652318363301
+[11:48:26]     outcome=failed final_uz=0.6043836173976374 recover_time_s=None
+[11:48:34]   [full_inversion trial47/50] commanded_tilt=175.0 az=188 start_uz=-0.9962280879090539
+[11:51:51]     landed=True after 197.1s uz=-0.6061753565311712
+[11:53:51]     outcome=failed final_uz=-0.5981255769153884 recover_time_s=None
+[11:53:59]   [full_inversion trial48/50] commanded_tilt=176.2 az=197 start_uz=-0.9977766026194324
+[11:57:16]     landed=True after 197.1s uz=0.8414241505888798
+[11:59:16]     outcome=failed final_uz=0.7918870330364187 recover_time_s=None
+[11:59:24]   [full_inversion trial49/50] commanded_tilt=172.0 az=187 start_uz=-0.9903522050213984
+[12:02:41]     landed=True after 197.1s uz=0.3868470915899822
+[12:04:41]     outcome=failed final_uz=0.13777809728276513 recover_time_s=None
+[12:04:49]   [full_inversion trial50/50] commanded_tilt=170.5 az=144 start_uz=-0.9864215245991592
+[12:08:06]     landed=True after 197.0s uz=0.07174102818325367
+[12:10:06]     outcome=failed final_uz=0.35878639306616145 recover_time_s=None
+[12:10:06] === batch complete ===
+[12:10:06] side_rest: 16/50 recovered (32.0%), 95% CI [20.8%, 45.8%]; 34 failed, 0 no_landing
+[12:10:06]   BASELINE (no noise, Phase 7 post-fix): 10/20 (50.0%) -- OUTSIDE CI -- FLAG
+[12:10:06]   recover_time_s: n=16 mean=21.9 median=1.4 min=0.0 max=114.8
+[12:10:06] moderate: 50/50 recovered (100.0%), 95% CI [92.9%, 100.0%]; 0 failed, 0 no_landing
+[12:10:06]   BASELINE (no noise, Phase 7 post-fix): 20/20 (100.0%) -- within CI (no significant shift)
+[12:10:06]   recover_time_s: n=50 mean=0.0 median=0.0 min=0.0 max=0.0
+[12:10:06] full_inversion: 14/50 recovered (28.0%), 95% CI [17.5%, 41.7%]; 36 failed, 0 no_landing
+[12:10:06]   BASELINE (no noise, Phase 7 post-fix): 3/20 (15.0%) -- OUTSIDE CI -- FLAG
+[12:10:06]   recover_time_s: n=14 mean=5.2 median=1.1 min=0.0 max=46.4
