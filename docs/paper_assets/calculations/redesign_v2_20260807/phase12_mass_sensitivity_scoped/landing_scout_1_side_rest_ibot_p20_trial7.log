@@ -1,0 +1,112 @@
+[INFO] [1786525552.848965965] [landing_scout_1]: [scout_1] Landing Controller: ONLINE
+[INFO] [1786525557.889548835] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525562.888879136] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525567.889228624] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525572.889210263] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525577.889522600] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525582.888792287] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525587.888741946] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525592.889195927] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525597.889472793] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525602.888890273] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525607.888856283] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525612.888799317] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525617.888804443] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525622.889312353] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525627.888943695] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525632.889519145] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525637.888999216] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525642.889079010] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525647.888850391] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525652.888773467] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525657.888800049] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525662.889291632] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525667.888757118] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525672.888777560] [landing_scout_1]: [scout_1] Landing controller state: IDLE
+[INFO] [1786525674.912192192] [landing_scout_1]: [scout_1] 🎯 Resting while IDLE (altitude static) — confirming ground contact
+[WARN] [1786525676.912427407] [landing_scout_1]: [scout_1] ⚠️ Settled badly tilted/inverted — initiating RW righting roll
+[INFO] [1786525676.922979283] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 1/5: proportional roll, u_z=-0.30
+[INFO] [1786525677.888911355] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525678.931816563] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.5781 w=63 omega=0.469 omega_roll=-0.458 dir=(0.71,0.70)
+[INFO] [1786525680.934530494] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=0.8019 w=86 omega=0.989 omega_roll=-0.954 dir=(0.87,0.48)
+[INFO] [1786525682.889810885] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525682.935797327] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=0.7068 w=86 omega=3.504 omega_roll=2.695 dir=(-0.09,-1.00)
+[INFO] [1786525684.934446951] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.5714 w=101 omega=1.918 omega_roll=-1.108 dir=(0.83,-0.56)
+[INFO] [1786525686.934321721] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.3427 w=118 omega=1.699 omega_roll=-1.105 dir=(0.54,0.84)
+[INFO] [1786525687.889232658] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525688.937385345] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=-0.0796 w=139 omega=1.813 omega_roll=-0.770 dir=(-0.92,-0.40)
+[INFO] [1786525690.936304835] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=1 u_z=0.0485 w=157 omega=2.171 omega_roll=-0.712 dir=(0.52,0.85)
+[WARN] [1786525692.436814283] [landing_scout_1]: [scout_1] Still inverted (u_z=0.46), retrying with alternate roll axis/sign (attempt 2/5)
+[INFO] [1786525692.447190091] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 2/5: proportional roll, u_z=0.46
+[INFO] [1786525692.889273640] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525694.437974052] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=0.3752 w=28 omega=2.542 omega_roll=-0.696 dir=(0.78,-0.63)
+[INFO] [1786525696.438361243] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.1075 w=49 omega=1.982 omega_roll=-1.806 dir=(-0.96,0.27)
+[INFO] [1786525697.889271882] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525698.438894961] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=0.6633 w=77 omega=1.473 omega_roll=-0.314 dir=(0.88,-0.48)
+[INFO] [1786525700.438646045] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=0.1166 w=102 omega=1.831 omega_roll=-1.426 dir=(0.98,-0.19)
+[INFO] [1786525702.439656006] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=-0.5321 w=120 omega=1.630 omega_roll=-1.229 dir=(0.09,1.00)
+[INFO] [1786525702.888749463] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525704.441906548] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=0.0907 w=141 omega=1.516 omega_roll=-1.133 dir=(-0.68,-0.73)
+[INFO] [1786525706.442670322] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=2 u_z=0.2319 w=159 omega=2.378 omega_roll=-0.666 dir=(0.17,0.98)
+[INFO] [1786525707.888901916] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786525707.944454015] [landing_scout_1]: [scout_1] Still inverted (u_z=0.49), retrying with alternate roll axis/sign (attempt 3/5)
+[INFO] [1786525707.954484181] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 3/5: proportional roll, u_z=0.49
+[INFO] [1786525709.947868102] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=0.3998 w=25 omega=2.508 omega_roll=-0.797 dir=(0.91,-0.41)
+[INFO] [1786525711.949002591] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=0.0043 w=42 omega=2.055 omega_roll=-1.932 dir=(-0.96,0.29)
+[INFO] [1786525712.888819916] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525713.952094574] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=0.6910 w=68 omega=1.612 omega_roll=-0.176 dir=(0.89,-0.45)
+[INFO] [1786525715.951002474] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.0979 w=94 omega=2.632 omega_roll=-1.738 dir=(0.70,-0.71)
+[INFO] [1786525717.889637884] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525717.953273131] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.3995 w=111 omega=1.532 omega_roll=-0.931 dir=(0.95,-0.30)
+[INFO] [1786525719.975195763] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=-0.4140 w=130 omega=1.654 omega_roll=-1.005 dir=(-0.27,0.96)
+[INFO] [1786525721.974706039] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=3 u_z=0.1268 w=150 omega=1.680 omega_roll=-1.038 dir=(0.16,-0.99)
+[INFO] [1786525722.889252639] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786525723.475051714] [landing_scout_1]: [scout_1] Still inverted (u_z=0.24), retrying with alternate roll axis/sign (attempt 4/5)
+[INFO] [1786525723.484529371] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 4/5: proportional roll, u_z=0.24
+[INFO] [1786525725.479547636] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.0557 w=29 omega=2.591 omega_roll=-0.573 dir=(-0.90,0.43)
+[INFO] [1786525727.480511366] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=-0.1844 w=62 omega=1.859 omega_roll=-1.563 dir=(0.99,0.17)
+[INFO] [1786525727.888885904] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525729.481938350] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=0.3439 w=89 omega=1.500 omega_roll=-0.425 dir=(-0.90,0.43)
+[INFO] [1786525731.481718003] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=0.2939 w=115 omega=1.285 omega_roll=-1.057 dir=(-0.84,-0.55)
+[INFO] [1786525732.889800607] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525733.483422115] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=0.3910 w=135 omega=1.637 omega_roll=-0.954 dir=(0.98,-0.20)
+[INFO] [1786525735.482221205] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=0.3529 w=157 omega=2.398 omega_roll=-0.709 dir=(-1.00,0.00)
+[INFO] [1786525737.483836131] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=4 u_z=0.1529 w=160 omega=2.598 omega_roll=-0.246 dir=(0.45,0.89)
+[INFO] [1786525737.889440509] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[WARN] [1786525738.985019896] [landing_scout_1]: [scout_1] Still inverted (u_z=0.50), retrying with alternate roll axis/sign (attempt 5/5)
+[INFO] [1786525738.995484402] [landing_scout_1]: [scout_1] 🔄 RW righting attempt 5/5: proportional roll, u_z=0.50
+[INFO] [1786525740.985187096] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=0.5054 w=31 omega=2.719 omega_roll=0.143 dir=(0.34,-0.94)
+[INFO] [1786525742.889162826] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525742.985394245] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=-0.4789 w=57 omega=2.569 omega_roll=-2.334 dir=(-0.53,0.85)
+[INFO] [1786525744.986858805] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=0.4583 w=84 omega=1.514 omega_roll=-0.446 dir=(0.85,-0.52)
+[INFO] [1786525746.987444351] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=0.8378 w=108 omega=2.574 omega_roll=-1.462 dir=(0.97,-0.24)
+[INFO] [1786525747.890842498] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525748.988992231] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=0.5316 w=127 omega=2.570 omega_roll=-1.913 dir=(0.44,0.90)
+[INFO] [1786525750.989353659] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=0.6668 w=147 omega=2.528 omega_roll=-1.383 dir=(-0.76,-0.65)
+[INFO] [1786525752.890786212] [landing_scout_1]: [scout_1] Landing controller state: RIGHTING
+[INFO] [1786525752.989177803] [landing_scout_1]: [scout_1] 📐 RIGHTTRACE attempt=5 u_z=0.1276 w=160 omega=2.827 omega_roll=-0.101 dir=(0.08,1.00)
+[ERROR] [1786525754.489676293] [landing_scout_1]: [scout_1] ❌ Self-righting failed after 5 attempts — giving up, marking LANDED anyway so downstream logic (e.g. SAMPLER dispatch) does not hang forever. Robot may still be physically inverted.
+[INFO] [1786525757.888825443] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525762.888762945] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525767.889170476] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525772.888963131] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525777.888822346] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525782.889481169] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525787.889095464] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525792.888747568] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525797.889396396] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525802.888691507] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525807.888831438] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525812.889475683] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525817.889174352] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525822.888797169] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525827.889128523] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525832.889665951] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525837.888988646] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525842.888855634] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525847.888921720] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525852.888784369] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525857.889212970] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525862.889437176] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525867.889202113] [landing_scout_1]: [scout_1] Landing controller state: LANDED
+[INFO] [1786525872.888815936] [landing_scout_1]: [scout_1] Landing controller state: LANDED

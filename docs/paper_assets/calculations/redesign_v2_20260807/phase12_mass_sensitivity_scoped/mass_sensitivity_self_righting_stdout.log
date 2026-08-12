@@ -1,0 +1,258 @@
+[12:35:25]   (re)starting gz sim daemon...
+[12:35:33] === bucket=side_rest (85.0-95.0deg) config=ibot_p20 (model://spacehopper_ibot_p20), n=20 ===
+[12:35:40]   [side_rest_ibot_p20 trial1/20] commanded_tilt=90.7 az=340 start_uz=-0.018989293535394136
+[12:38:24]     landed=True after 163.9s uz=0.9877100943604451
+[12:38:24]     outcome=recovered final_uz=0.9877100943604451 righting_started_at=1786523827.29436 recover_time_s=77.61748552322388
+[12:38:32]   [side_rest_ibot_p20 trial2/20] commanded_tilt=85.5 az=44 start_uz=0.07801817336772343
+[12:41:58]     landed=True after 205.4s uz=0.5613810538150379
+[12:43:58]     outcome=failed final_uz=0.24400629097767512 righting_started_at=1786524040.571436 recover_time_s=None
+[12:44:05]   [side_rest_ibot_p20 trial3/20] commanded_tilt=92.5 az=337 start_uz=-0.051324138947911546
+[12:48:59]     landed=True after 293.5s uz=-0.045828182660684336
+[12:50:59]     outcome=failed final_uz=-0.7403794739270131 righting_started_at=1786524461.773474 recover_time_s=None
+[12:51:07]   [side_rest_ibot_p20 trial4/20] commanded_tilt=88.5 az=162 start_uz=0.026012345610250565
+[12:53:58]     landed=True after 171.4s uz=0.6076485047911236
+[12:55:58]     outcome=failed final_uz=-0.5055338325447001 righting_started_at=1786524761.0587947 recover_time_s=None
+[12:56:06]   [side_rest_ibot_p20 trial5/20] commanded_tilt=93.1 az=55 start_uz=-0.06089061835997245
+[12:59:02]     landed=True after 176.1s uz=0.5015339756653467
+[13:01:02]     outcome=failed final_uz=-0.8244414236484399 righting_started_at=1786525064.9627001 recover_time_s=None
+[13:01:10]   [side_rest_ibot_p20 trial6/20] commanded_tilt=85.8 az=91 start_uz=0.06968976483725653
+[13:05:47]     landed=True after 277.3s uz=-0.9385757111321955
+[13:05:48]     outcome=recovered final_uz=0.9067582935391594 righting_started_at=1786525469.9973264 recover_time_s=78.70608448982239
+[13:05:56]   [side_rest_ibot_p20 trial7/20] commanded_tilt=94.8 az=42 start_uz=-0.08432995419283262
+[13:09:14]     landed=True after 198.1s uz=0.5701947147898088
+[13:11:14]     outcome=failed final_uz=0.5724360134749777 righting_started_at=1786525676.9129097 recover_time_s=None
+[13:11:22]   [side_rest_ibot_p20 trial8/20] commanded_tilt=94.6 az=161 start_uz=-0.08011324896339311
+[13:14:13]     landed=True after 171.8s uz=0.89527017915751
+[13:16:13]     outcome=failed final_uz=-0.7815189191250087 righting_started_at=1786525976.4425642 recover_time_s=None
+[13:16:21]   [side_rest_ibot_p20 trial9/20] commanded_tilt=88.8 az=148 start_uz=0.021228707000406688
+[13:19:09]     landed=True after 168.2s uz=0.9141161151119979
+[13:19:09]     outcome=recovered final_uz=0.9141161151119979 righting_started_at=1786526272.4314709 recover_time_s=77.56554961204529
+[13:19:17]   [side_rest_ibot_p20 trial10/20] commanded_tilt=87.5 az=234 start_uz=0.037257637049101455
+[13:22:55]     landed=True after 217.4s uz=0.4614382933230282
+[13:24:55]     outcome=failed final_uz=0.7931162929265738 righting_started_at=1786526497.4257202 recover_time_s=None
+[13:25:02]   [side_rest_ibot_p20 trial11/20] commanded_tilt=89.3 az=293 start_uz=0.004839189555983614
+[13:28:17]     landed=True after 194.4s uz=-0.37217647633360307
+[13:28:57]     outcome=recovered final_uz=0.9001091734583524 righting_started_at=1786526819.6294801 recover_time_s=118.14733338356018
+[13:29:05]   [side_rest_ibot_p20 trial12/20] commanded_tilt=90.2 az=300 start_uz=-0.01178139198289685
+[13:32:11]     landed=True after 186.2s uz=0.14787961772853775
+[13:32:26]     outcome=recovered final_uz=0.9000070005277431 righting_started_at=1786527054.1178043 recover_time_s=92.71313405036926
+[13:32:34]   [side_rest_ibot_p20 trial13/20] commanded_tilt=90.9 az=67 start_uz=-0.023934904099488286
+[13:35:40]     landed=True after 185.9s uz=0.3247973176821599
+[13:37:40]     outcome=failed final_uz=0.27428975362904306 righting_started_at=1786527262.9745286 recover_time_s=None
+[13:37:48]   [side_rest_ibot_p20 trial14/20] commanded_tilt=89.0 az=322 start_uz=0.012531214349131292
+[13:41:05]     landed=True after 196.9s uz=-0.9384685994677662
+[13:43:05]     outcome=failed final_uz=-0.8384574592899523 righting_started_at=1786527587.6177428 recover_time_s=None
+[13:43:12]   [side_rest_ibot_p20 trial15/20] commanded_tilt=87.6 az=81 start_uz=0.03837420188679497
+[13:48:09]     landed=True after 296.5s uz=0.669321567159856
+[13:50:09]     outcome=failed final_uz=-0.6865868814981417 righting_started_at=1786528011.9258492 recover_time_s=None
+[13:50:17]   [side_rest_ibot_p20 trial16/20] commanded_tilt=86.1 az=80 start_uz=0.06423948922657075
+[13:56:07]     landed=False after 350.0s uz=-0.08574820945160733
+[13:56:14]   [side_rest_ibot_p20 trial17/20] commanded_tilt=92.8 az=205 start_uz=-0.055586519126527456
+[13:58:58]     landed=True after 163.4s uz=0.7147023274845556
+[14:00:58]     outcome=failed final_uz=0.1570159425457165 righting_started_at=1786528660.683181 recover_time_s=None
+[14:01:06]   [side_rest_ibot_p20 trial18/20] commanded_tilt=93.1 az=136 start_uz=-0.0537178809591059
+[14:04:01]     landed=True after 175.3s uz=0.8980350005154245
+[14:06:01]     outcome=failed final_uz=-0.4946884879009401 righting_started_at=1786528963.7676768 recover_time_s=None
+[14:06:09]   [side_rest_ibot_p20 trial19/20] commanded_tilt=93.2 az=4 start_uz=-0.06394481651204598
+[14:09:10]     landed=True after 181.2s uz=0.3822780856511242
+[14:11:10]     outcome=failed final_uz=0.842668265952411 righting_started_at=1786529272.723559 recover_time_s=None
+[14:11:18]   [side_rest_ibot_p20 trial20/20] commanded_tilt=92.7 az=286 start_uz=-0.04773218728666051
+[14:14:27]     landed=True after 189.2s uz=0.3852523450588474
+[14:16:27]     outcome=failed final_uz=0.7895633092709153 righting_started_at=1786529589.6863062 recover_time_s=None
+[14:16:29]   (re)starting gz sim daemon...
+[14:16:37] === bucket=side_rest (85.0-95.0deg) config=ibot_m20 (model://spacehopper_ibot_m20), n=20 ===
+[14:16:45]   [side_rest_ibot_m20 trial1/20] commanded_tilt=91.3 az=135 start_uz=-0.023480134696053145
+[14:19:42]     landed=True after 177.0s uz=0.4583979648799049
+[14:21:42]     outcome=failed final_uz=0.2299470173241679 righting_started_at=1786529904.535093 recover_time_s=None
+[14:21:49]   [side_rest_ibot_m20 trial2/20] commanded_tilt=86.8 az=107 start_uz=0.05107484236361193
+[14:25:06]     landed=True after 196.9s uz=-0.8613976409817945
+[14:25:08]     outcome=recovered final_uz=0.9012233426499084 righting_started_at=1786530229.2020695 recover_time_s=79.76957368850708
+[14:25:16]   [side_rest_ibot_m20 trial3/20] commanded_tilt=90.7 az=128 start_uz=-0.021729286920751267
+[14:28:16]     landed=True after 179.7s uz=0.9229630732873028
+[14:28:16]     outcome=recovered final_uz=0.9229630732873028 righting_started_at=1786530418.8496678 recover_time_s=77.6135025024414
+[14:28:24]   [side_rest_ibot_m20 trial4/20] commanded_tilt=89.7 az=299 start_uz=-0.003889247453164435
+[14:31:28]     landed=True after 184.6s uz=0.8488288021324342
+[14:31:30]     outcome=recovered final_uz=0.9137391073659457 righting_started_at=1786530611.3076954 recover_time_s=79.45491409301758
+[14:31:38]   [side_rest_ibot_m20 trial5/20] commanded_tilt=88.5 az=278 start_uz=0.02562789782620911
+[14:34:50]     landed=True after 191.9s uz=-0.14664755004428565
+[14:36:50]     outcome=failed final_uz=0.5643065832572166 righting_started_at=1786530812.7477536 recover_time_s=None
+[14:36:58]   [side_rest_ibot_m20 trial6/20] commanded_tilt=86.0 az=335 start_uz=0.06707278183883991
+[14:41:57]     landed=True after 299.3s uz=0.6562836038292535
+[14:43:57]     outcome=failed final_uz=0.4040147502291551 righting_started_at=1786531239.8514256 recover_time_s=None
+[14:44:05]   [side_rest_ibot_m20 trial7/20] commanded_tilt=94.7 az=165 start_uz=-0.08498043973702307
+[14:46:52]     landed=True after 167.4s uz=-0.16623222310461894
+[14:48:34]     outcome=recovered final_uz=0.9000788334985323 righting_started_at=1786531535.0102794 recover_time_s=179.27676439285278
+[14:48:42]   [side_rest_ibot_m20 trial8/20] commanded_tilt=89.6 az=339 start_uz=0.0008652080915974025
+[14:53:21]     landed=True after 279.7s uz=-0.7507413105599365
+[14:55:21]     outcome=failed final_uz=-0.8879419421679751 righting_started_at=1786531924.110075 recover_time_s=None
+[14:55:29]   [side_rest_ibot_m20 trial9/20] commanded_tilt=89.3 az=137 start_uz=0.013032081910733906
+[14:58:21]     landed=True after 172.5s uz=0.5403893258983621
+[15:00:21]     outcome=failed final_uz=-0.278795751264 righting_started_at=1786532224.3472629 recover_time_s=None
+[15:00:29]   [side_rest_ibot_m20 trial10/20] commanded_tilt=85.2 az=299 start_uz=0.0773325488095018
+[15:03:56]     landed=True after 206.4s uz=0.5269521643090724
+[15:05:56]     outcome=failed final_uz=0.811014048800098 righting_started_at=1786532558.5972302 recover_time_s=None
+[15:06:03]   [side_rest_ibot_m20 trial11/20] commanded_tilt=85.9 az=95 start_uz=0.06908089969968367
+[15:09:46]     landed=True after 222.8s uz=0.7597139303207086
+[15:11:46]     outcome=failed final_uz=-0.24680371785923083 righting_started_at=1786532909.0730612 recover_time_s=None
+[15:11:54]   [side_rest_ibot_m20 trial12/20] commanded_tilt=87.3 az=358 start_uz=0.04021937896682004
+[15:15:06]     landed=True after 192.1s uz=0.6215501511429635
+[15:17:06]     outcome=failed final_uz=-0.41766853219492095 righting_started_at=1786533229.1237879 recover_time_s=None
+[15:17:14]   [side_rest_ibot_m20 trial13/20] commanded_tilt=94.2 az=324 start_uz=-0.07745979600495434
+[15:19:59]     landed=True after 165.0s uz=0.02756470954294299
+[15:21:59]     outcome=failed final_uz=0.6842132805646974 righting_started_at=1786533521.9144492 recover_time_s=None
+[15:22:07]   [side_rest_ibot_m20 trial14/20] commanded_tilt=87.6 az=36 start_uz=0.04128534295893216
+[15:25:11]     landed=True after 184.7s uz=-0.12764848705618514
+[15:27:11]     outcome=failed final_uz=0.37490274222005116 righting_started_at=1786533834.318047 recover_time_s=None
+[15:27:19]   [side_rest_ibot_m20 trial15/20] commanded_tilt=87.6 az=116 start_uz=0.03147879915915763
+[15:30:32]     landed=True after 192.7s uz=0.9281721139917363
+[15:30:32]     outcome=recovered final_uz=0.9281721139917363 righting_started_at=1786534154.8346329 recover_time_s=77.6538074016571
+[15:30:40]   [side_rest_ibot_m20 trial16/20] commanded_tilt=89.4 az=155 start_uz=0.010727703876802774
+[15:33:29]     landed=True after 168.8s uz=0.5675636788204181
+[15:35:29]     outcome=failed final_uz=-0.64391121111033 righting_started_at=1786534331.3978412 recover_time_s=None
+[15:35:36]   [side_rest_ibot_m20 trial17/20] commanded_tilt=85.6 az=275 start_uz=0.07727007967072663
+[15:38:55]     landed=True after 198.9s uz=0.6799294201380256
+[15:40:55]     outcome=failed final_uz=0.42272065240123224 righting_started_at=1786534658.1307561 recover_time_s=None
+[15:41:03]   [side_rest_ibot_m20 trial18/20] commanded_tilt=87.4 az=346 start_uz=0.04076988629885847
+[15:44:54]     landed=True after 230.9s uz=0.39314286254805
+[15:46:54]     outcome=failed final_uz=0.5661435442764366 righting_started_at=1786535016.7411501 recover_time_s=None
+[15:47:02]   [side_rest_ibot_m20 trial19/20] commanded_tilt=90.6 az=145 start_uz=-0.010341625071665028
+[15:49:50]     landed=True after 168.5s uz=-0.3859170096375566
+[15:51:50]     outcome=failed final_uz=0.6142555394438287 righting_started_at=1786535313.094144 recover_time_s=None
+[15:51:58]   [side_rest_ibot_m20 trial20/20] commanded_tilt=92.4 az=232 start_uz=-0.05380906394709184
+[15:55:15]     landed=True after 196.9s uz=-0.8978160750717061
+[15:57:15]     outcome=failed final_uz=-0.8013473542065654 righting_started_at=1786535637.7751772 recover_time_s=None
+[15:57:17]   (re)starting gz sim daemon...
+[15:57:25] === bucket=full_inversion (170.0-180.0deg) config=ibot_p20 (model://spacehopper_ibot_p20), n=20 ===
+[15:57:33]   [full_inversion_ibot_p20 trial1/20] commanded_tilt=175.3 az=177 start_uz=-0.9966798154529286
+[16:00:50]     landed=True after 197.1s uz=0.9643303586111075
+[16:00:50]     outcome=recovered final_uz=0.9643303586111075 righting_started_at=1786535972.614511 recover_time_s=77.63961839675903
+[16:00:57]   [full_inversion_ibot_p20 trial2/20] commanded_tilt=177.1 az=181 start_uz=-0.9987113919889736
+[16:04:14]     landed=True after 197.0s uz=0.868291778277301
+[16:06:14]     outcome=failed final_uz=-0.9419427046930535 righting_started_at=1786536177.437648 recover_time_s=None
+[16:06:22]   [full_inversion_ibot_p20 trial3/20] commanded_tilt=173.3 az=233 start_uz=-0.9931705533518966
+[16:09:39]     landed=True after 197.0s uz=0.7376682404185665
+[16:11:39]     outcome=failed final_uz=0.7684330814224571 righting_started_at=1786536502.145008 recover_time_s=None
+[16:11:47]   [full_inversion_ibot_p20 trial4/20] commanded_tilt=172.1 az=78 start_uz=-0.9905901391114484
+[16:15:04]     landed=True after 196.9s uz=0.7911329040278862
+[16:17:04]     outcome=failed final_uz=0.1759959491403983 righting_started_at=1786536827.0204337 recover_time_s=None
+[16:17:12]   [full_inversion_ibot_p20 trial5/20] commanded_tilt=177.9 az=19 start_uz=-0.9993135034677383
+[16:20:29]     landed=True after 197.2s uz=-0.9369016587172025
+[16:20:30]     outcome=recovered final_uz=0.9348684344452048 righting_started_at=1786537151.7681854 recover_time_s=78.59623336791992
+[16:20:38]   [full_inversion_ibot_p20 trial6/20] commanded_tilt=171.3 az=162 start_uz=-0.9884263923653853
+[16:23:55]     landed=True after 197.2s uz=0.5424529141813642
+[16:25:55]     outcome=failed final_uz=0.0020629169875229225 righting_started_at=1786537357.672153 recover_time_s=None
+[16:26:03]   [full_inversion_ibot_p20 trial7/20] commanded_tilt=177.6 az=229 start_uz=-0.9991382506924031
+[16:29:20]     landed=True after 197.2s uz=0.7205740132661687
+[16:29:20]     outcome=recovered final_uz=0.9012595990428225 righting_started_at=1786537682.6199083 recover_time_s=77.74120378494263
+[16:29:28]   [full_inversion_ibot_p20 trial8/20] commanded_tilt=173.7 az=2 start_uz=-0.9939549747409557
+[16:32:45]     landed=True after 197.3s uz=-0.15454500978025032
+[16:34:45]     outcome=failed final_uz=0.8766655552983016 righting_started_at=1786537887.8318048 recover_time_s=None
+[16:34:53]   [full_inversion_ibot_p20 trial9/20] commanded_tilt=174.3 az=43 start_uz=-0.9949883686334027
+[16:38:10]     landed=True after 197.2s uz=0.5799474662720876
+[16:40:10]     outcome=failed final_uz=-0.17044189364170315 righting_started_at=1786538212.7082038 recover_time_s=None
+[16:40:18]   [full_inversion_ibot_p20 trial10/20] commanded_tilt=178.3 az=44 start_uz=-0.9995726415225339
+[16:43:35]     landed=True after 197.1s uz=0.39501777823869844
+[16:45:35]     outcome=failed final_uz=0.4123372201957355 righting_started_at=1786538537.6264799 recover_time_s=None
+[16:45:42]   [full_inversion_ibot_p20 trial11/20] commanded_tilt=172.5 az=273 start_uz=-0.9913495477491843
+[16:49:00]     landed=True after 197.1s uz=-0.1340227118629711
+[16:51:00]     outcome=failed final_uz=-0.3325563366031836 righting_started_at=1786538862.452036 recover_time_s=None
+[16:51:07]   [full_inversion_ibot_p20 trial12/20] commanded_tilt=171.3 az=305 start_uz=-0.9885071054549734
+[16:54:24]     landed=True after 197.1s uz=0.8371340748895404
+[16:54:25]     outcome=recovered final_uz=0.9065881735314127 righting_started_at=1786539187.3628452 recover_time_s=77.84460115432739
+[16:54:32]   [full_inversion_ibot_p20 trial13/20] commanded_tilt=178.2 az=352 start_uz=-0.9994790453570668
+[16:57:50]     landed=True after 197.3s uz=0.39082960486052376
+[16:57:52]     outcome=recovered final_uz=0.9113734645580801 righting_started_at=1786539392.6097264 recover_time_s=79.51204371452332
+[16:57:59]   [full_inversion_ibot_p20 trial14/20] commanded_tilt=172.3 az=77 start_uz=-0.9909765057691666
+[17:01:16]     landed=True after 197.1s uz=0.792045155093488
+[17:03:16]     outcome=failed final_uz=0.738384990482768 righting_started_at=1786539599.3382788 recover_time_s=None
+[17:03:27]   [full_inversion_ibot_p20 trial15/20] commanded_tilt=170.1 az=220 start_uz=-0.9851769324990269
+[17:06:44]     landed=True after 197.1s uz=-0.17798952910556132
+[17:06:46]     outcome=recovered final_uz=0.9065045684621188 righting_started_at=1786539927.0007281 recover_time_s=79.95237135887146
+[17:06:54]   [full_inversion_ibot_p20 trial16/20] commanded_tilt=177.7 az=119 start_uz=-0.9992111972229989
+[17:10:11]     landed=True after 197.0s uz=-0.49489378898334313
+[17:12:11]     outcome=failed final_uz=-0.6956073266354645 righting_started_at=1786540134.1597528 recover_time_s=None
+[17:12:19]   [full_inversion_ibot_p20 trial17/20] commanded_tilt=171.0 az=38 start_uz=-0.9877001554835187
+[17:16:01]     landed=True after 221.5s uz=0.1917643257875965
+[17:16:47]     outcome=recovered final_uz=0.9002742383288833 righting_started_at=1786540483.4543738 recover_time_s=124.51333999633789
+[17:16:55]   [full_inversion_ibot_p20 trial18/20] commanded_tilt=175.8 az=301 start_uz=-0.9972642830775078
+[17:20:12]     landed=True after 197.0s uz=-0.09323445934765195
+[17:20:37]     outcome=recovered final_uz=0.9001214211366327 righting_started_at=1786540735.2252467 recover_time_s=102.42877411842346
+[17:20:45]   [full_inversion_ibot_p20 trial19/20] commanded_tilt=179.3 az=125 start_uz=-0.9999141749146927
+[17:24:02]     landed=True after 197.0s uz=0.8428572195193067
+[17:26:02]     outcome=failed final_uz=-0.41464905858048806 righting_started_at=1786540964.8756993 recover_time_s=None
+[17:26:10]   [full_inversion_ibot_p20 trial20/20] commanded_tilt=173.1 az=245 start_uz=-0.992742869963019
+[17:29:27]     landed=True after 197.0s uz=0.8727954997198792
+[17:29:30]     outcome=recovered final_uz=0.9038968896569645 righting_started_at=1786541289.6343215 recover_time_s=81.00536227226257
+[17:29:32]   (re)starting gz sim daemon...
+[17:29:40] === bucket=full_inversion (170.0-180.0deg) config=ibot_m20 (model://spacehopper_ibot_m20), n=20 ===
+[17:29:48]   [full_inversion_ibot_m20 trial1/20] commanded_tilt=175.0 az=348 start_uz=-0.9961379956692344
+[17:33:05]     landed=True after 197.5s uz=0.46003511344887027
+[17:35:05]     outcome=failed final_uz=-0.3646017985092933 righting_started_at=1786541508.2745922 recover_time_s=None
+[17:35:13]   [full_inversion_ibot_m20 trial2/20] commanded_tilt=174.9 az=317 start_uz=-0.9960926861931907
+[17:38:30]     landed=True after 197.1s uz=0.41387681677557664
+[17:40:30]     outcome=failed final_uz=-0.45248979579102677 righting_started_at=1786541833.1868935 recover_time_s=None
+[17:40:38]   [full_inversion_ibot_m20 trial3/20] commanded_tilt=179.9 az=28 start_uz=-0.9999975236764551
+[17:43:55]     landed=True after 197.1s uz=0.3635231569544033
+[17:45:55]     outcome=failed final_uz=-0.17897040034252942 righting_started_at=1786542158.0374014 recover_time_s=None
+[17:46:03]   [full_inversion_ibot_m20 trial4/20] commanded_tilt=179.4 az=358 start_uz=-0.9999520635099277
+[17:49:20]     landed=True after 197.1s uz=0.814174482056686
+[17:51:10]     outcome=recovered final_uz=0.9002562168803145 righting_started_at=1786542482.929091 recover_time_s=187.83907675743103
+[17:51:18]   [full_inversion_ibot_m20 trial5/20] commanded_tilt=170.5 az=272 start_uz=-0.9863074615017471
+[17:54:35]     landed=True after 196.9s uz=0.4047472487809014
+[17:56:35]     outcome=failed final_uz=-0.42087868263619876 righting_started_at=1786542797.8700757 recover_time_s=None
+[17:56:43]   [full_inversion_ibot_m20 trial6/20] commanded_tilt=179.9 az=181 start_uz=-0.9999981082538278
+[18:00:00]     landed=True after 197.1s uz=0.678288164051266
+[18:02:00]     outcome=failed final_uz=0.8032929191492917 righting_started_at=1786543122.6802084 recover_time_s=None
+[18:02:08]   [full_inversion_ibot_m20 trial7/20] commanded_tilt=171.0 az=199 start_uz=-0.9878132990469972
+[18:05:25]     landed=True after 197.1s uz=-0.888016092181702
+[18:05:26]     outcome=recovered final_uz=0.9164607925387607 righting_started_at=1786543447.5630832 recover_time_s=79.22491931915283
+[18:05:34]   [full_inversion_ibot_m20 trial8/20] commanded_tilt=176.2 az=50 start_uz=-0.9978418931951261
+[18:08:51]     landed=True after 197.2s uz=-0.6334496544525781
+[18:08:53]     outcome=recovered final_uz=0.920664757493125 righting_started_at=1786543654.0695994 recover_time_s=79.29704022407532
+[18:09:01]   [full_inversion_ibot_m20 trial9/20] commanded_tilt=178.0 az=39 start_uz=-0.9993869514745395
+[18:12:18]     landed=True after 197.1s uz=0.8383379835436493
+[18:14:18]     outcome=failed final_uz=-0.9477399115225829 righting_started_at=1786543860.59791 recover_time_s=None
+[18:14:25]   [full_inversion_ibot_m20 trial10/20] commanded_tilt=177.2 az=263 start_uz=-0.9988120593969796
+[18:17:42]     landed=True after 197.0s uz=0.9643725143190875
+[18:17:42]     outcome=recovered final_uz=0.9643725143190875 righting_started_at=1786544185.4169798 recover_time_s=77.55686092376709
+[18:17:50]   [full_inversion_ibot_m20 trial11/20] commanded_tilt=176.6 az=152 start_uz=-0.9982792801030842
+[18:21:07]     landed=True after 197.0s uz=0.838637715921873
+[18:23:07]     outcome=failed final_uz=-0.9872360004930631 righting_started_at=1786544390.1768017 recover_time_s=None
+[18:23:15]   [full_inversion_ibot_m20 trial12/20] commanded_tilt=173.4 az=121 start_uz=-0.9933535749705027
+[18:26:32]     landed=True after 197.1s uz=0.8567019186654219
+[18:28:32]     outcome=failed final_uz=-0.9031923905428609 righting_started_at=1786544715.0085585 recover_time_s=None
+[18:28:40]   [full_inversion_ibot_m20 trial13/20] commanded_tilt=171.4 az=315 start_uz=-0.9887270227045599
+[18:31:57]     landed=True after 197.2s uz=0.3603548988414623
+[18:32:33]     outcome=recovered final_uz=0.9000337286204132 righting_started_at=1786545039.9920597 recover_time_s=113.41590571403503
+[18:32:41]   [full_inversion_ibot_m20 trial14/20] commanded_tilt=173.9 az=174 start_uz=-0.9943778512719781
+[18:35:58]     landed=True after 197.0s uz=0.20780546266258693
+[18:37:58]     outcome=failed final_uz=0.8192715175009438 righting_started_at=1786545280.6391227 recover_time_s=None
+[18:38:05]   [full_inversion_ibot_m20 trial15/20] commanded_tilt=170.2 az=167 start_uz=-0.9852666389085556
+[18:41:23]     landed=True after 197.1s uz=0.5682902658205613
+[18:43:23]     outcome=failed final_uz=0.17387899503303195 righting_started_at=1786545605.491017 recover_time_s=None
+[18:43:30]   [full_inversion_ibot_m20 trial16/20] commanded_tilt=178.1 az=138 start_uz=-0.9994394126570296
+[18:46:47]     landed=True after 197.0s uz=0.8726016090859939
+[18:46:48]     outcome=recovered final_uz=0.9042774525083086 righting_started_at=1786545930.3845003 recover_time_s=77.69409251213074
+[18:46:55]   [full_inversion_ibot_m20 trial17/20] commanded_tilt=179.2 az=181 start_uz=-0.9998909389256798
+[18:50:12]     landed=True after 197.0s uz=0.028531508780774817
+[18:50:13]     outcome=recovered final_uz=0.900643700945665 righting_started_at=1786546135.229773 recover_time_s=78.72829079627991
+[18:50:21]   [full_inversion_ibot_m20 trial18/20] commanded_tilt=179.1 az=235 start_uz=-0.9998875134289356
+[18:53:38]     landed=True after 197.1s uz=0.4780259410127389
+[18:55:38]     outcome=failed final_uz=-0.022805451613128858 righting_started_at=1786546341.1675477 recover_time_s=None
+[18:55:46]   [full_inversion_ibot_m20 trial19/20] commanded_tilt=177.0 az=300 start_uz=-0.9986001185065867
+[18:59:03]     landed=True after 197.1s uz=0.6209830304922561
+[19:01:03]     outcome=failed final_uz=-0.8294442006541012 righting_started_at=1786546666.103577 recover_time_s=None
+[19:01:11]   [full_inversion_ibot_m20 trial20/20] commanded_tilt=176.0 az=241 start_uz=-0.997506998056142
+[19:07:01]     landed=False after 350.0s uz=0.9960986278549859
+[19:07:03]   (re)starting gz sim daemon...
+[19:07:11] === mass-sensitivity batch complete ===
+[19:07:11] --- side_rest (baseline, Phase 7, reused not rerun: 10/20 = 50.0%) ---
+[19:07:11]   ibot_p20: 5/20 recovered (25.0%), 95% CI [11.2%, 46.9%]
+[19:07:11]     recover_time_s: n=5 mean=88.95 std=15.68 min=77.57 max=118.15
+[19:07:11]   ibot_m20: 5/20 recovered (25.0%), 95% CI [11.2%, 46.9%]
+[19:07:11]     recover_time_s: n=5 mean=98.75 std=40.27 min=77.61 max=179.28
+[19:07:11] --- full_inversion (baseline, Phase 7, reused not rerun: 3/20 = 15.0%) ---
+[19:07:11]   ibot_p20: 9/20 recovered (45.0%), 95% CI [25.8%, 65.8%]
+[19:07:11]     recover_time_s: n=9 mean=86.58 std=15.32 min=77.64 max=124.51
+[19:07:11]   ibot_m20: 7/20 recovered (35.0%), 95% CI [18.1%, 56.7%]
+[19:07:11]     recover_time_s: n=7 mean=99.11 std=38.18 min=77.56 max=187.84
