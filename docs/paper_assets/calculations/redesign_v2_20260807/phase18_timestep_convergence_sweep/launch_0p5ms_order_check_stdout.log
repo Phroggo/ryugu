@@ -1,0 +1,18 @@
+[22:37:32] === throwaway warm-up: 2 reps at 1ms (consume any cold-start effect) ===
+[22:38:52]   [warmup1ms rep1] ready check done: landed=False, speed=0.007734728999952978
+[22:39:08]   [warmup1ms rep1] STABILIZED: delivered=0.00936 ratio=0.219 t=4.0s
+[22:40:18]   [warmup1ms rep2] ready check done: landed=False, speed=0.007715870454279499
+[22:40:34]   [warmup1ms rep2] STABILIZED: delivered=0.00936 ratio=0.219 t=4.0s
+[22:40:34] === 0.5ms, NOT first this time -- n=5 reps ===
+[22:41:55]   [0p5ms_notfirst rep1] ready check done: landed=False, speed=0.007484014500214187
+[22:42:10]   [0p5ms_notfirst rep1] STABILIZED: delivered=0.00896 ratio=0.209 t=4.0s
+[22:43:21]   [0p5ms_notfirst rep2] ready check done: landed=False, speed=0.007437570111186314
+[22:43:37]   [0p5ms_notfirst rep2] STABILIZED: delivered=0.00896 ratio=0.209 t=4.0s
+[22:44:47]   [0p5ms_notfirst rep3] ready check done: landed=False, speed=0.0074147234906751175
+[22:45:03]   [0p5ms_notfirst rep3] STABILIZED: delivered=0.00889 ratio=0.208 t=4.0s
+[22:46:13]   [0p5ms_notfirst rep4] ready check done: landed=False, speed=0.00746607364851359
+[22:46:29]   [0p5ms_notfirst rep4] STABILIZED: delivered=0.00902 ratio=0.211 t=4.0s
+[22:47:39]   [0p5ms_notfirst rep5] ready check done: landed=False, speed=0.007574374326834782
+[22:47:55]   [0p5ms_notfirst rep5] STABILIZED: delivered=0.00916 ratio=0.214 t=4.0s
+[22:47:55] === 0.5ms (not first) result: n=5 ratios=[0.209, 0.209, 0.208, 0.211, 0.214] mean=0.2102 ===
+[22:47:55] Compare vs original 0.5ms-first mean=0.2118 and the 1/2/4/8ms plateau ~0.2184-0.2190
