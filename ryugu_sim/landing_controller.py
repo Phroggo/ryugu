@@ -257,6 +257,12 @@ class LandingController(Node):
         self.righting_ticks = 0
         self.righting_attempt = 0
         self.MAX_RIGHTING_ATTEMPTS = 5
+        # FIX (2026-08-13, torque-vs-geometry investigation): see the
+        # _finalize_righting_timeout note. Counts how many times THIS
+        # attempt has been given a fresh window instead of being
+        # discarded into a new attempt, so a body oscillating near the
+        # threshold without ever genuinely settling can't loop forever.
+        self._righting_timeout_extensions = 0
 
         # ── Publishers ──
         self.joint_pubs = {}
@@ -1170,6 +1176,7 @@ class LandingController(Node):
             self._right_legs_ext = None   # force a leg-pose publish this attempt
             self._righting_cmd_vel = 0.0
             self._righting_last_time = None
+            self._righting_timeout_extensions = 0
             self.get_logger().info(
                 f'[{self.robot_name}] 🔄 RW righting attempt '
                 f'{self.righting_attempt + 1}/{self.MAX_RIGHTING_ATTEMPTS}: '
@@ -1284,6 +1291,17 @@ class LandingController(Node):
                 # HOLD-CONFIRM redesign above already had to fix once
                 # ("An instant wheel-speed-to-zero command...dumps its own
                 # deceleration reaction-torque into the body").
+                if self._righting_confirm_ticks > 0:
+                    # DIAGNOSTIC (2026-08-13, torque-vs-geometry investigation,
+                    # purely observational -- no control-law change): a hold
+                    # that had genuinely started (>0 ticks held) just got
+                    # released before reaching RIGHTING_HOLD_TICKS. Distinct
+                    # from "never got close enough to start a hold at all."
+                    self.get_logger().info(
+                        f'[{self.robot_name}] \U0001f3af HOLD-LOST attempt='
+                        f'{self.righting_attempt + 1} held_ticks='
+                        f'{self._righting_confirm_ticks} u_z={u_z:.4f} '
+                        f'omega={omega:.3f}')
                 self._righting_confirm_ticks = 0
                 omega_roll = msg.angular_velocity.x * d[0] + msg.angular_velocity.y * d[1]
                 error = 0.9 - u_z
@@ -1298,6 +1316,12 @@ class LandingController(Node):
                 # this branch exists to avoid.
                 if self._righting_confirm_ticks == 0:
                     self._hold_ramp_start_speed = self._righting_cmd_vel
+                    # DIAGNOSTIC (2026-08-13, purely observational): first
+                    # tick of a fresh hold attempt.
+                    self.get_logger().info(
+                        f'[{self.robot_name}] \U0001f3af HOLD-START attempt='
+                        f'{self.righting_attempt + 1} u_z={u_z:.4f} '
+                        f'omega={omega:.3f} start_speed={self._hold_ramp_start_speed:.0f}')
                 self._righting_confirm_ticks += 1
                 ramp = min(1.0, self._righting_confirm_ticks / self.RIGHTING_HOLD_RAMP_TICKS)
                 w = self._hold_ramp_start_speed * (1.0 - ramp)
@@ -1333,14 +1357,47 @@ class LandingController(Node):
         self.rw_pubs['x'].publish(Float64(data=0.0))
         self.rw_pubs['y'].publish(Float64(data=0.0))
         self._righting_cmd_vel = 0.0
-        self.righting_attempt += 1
-        self.righting_ticks = 0
         # BUG FIX (2026-08-05): confirm_ticks was never reset here, so a
         # stale nonzero value from an interrupted hold-confirm in the
         # attempt that just timed out could carry into the next attempt,
         # making a brand-new attempt (new axis/sign) start as if already
         # mid-hold from leftover bookkeeping.
         self._righting_confirm_ticks = 0
+
+        # FIX (2026-08-13, torque-vs-geometry investigation): this path
+        # previously declared "still inverted" and discarded progress
+        # into a fresh attempt (new roll axis/sign, wheel history reset)
+        # UNCONDITIONALLY on every timeout, without checking u_z at all.
+        # Confirmed live via the HOLD-START/HOLD-LOST diagnostics: a body
+        # that rolled through to u_z=0.99 in an attempt's closing seconds
+        # (residual momentum from reaching the wheel-speed ceiling) had
+        # that near-perfect recovery thrown away and logged as "still
+        # inverted (u_z=0.99)" -- factually wrong -- because the per-tick
+        # hold-confirm gate in _run_righting_sequence is bypassed entirely
+        # during the timeout's own brake-ramp sequence, so it never got a
+        # chance to register the crossing. If the body is already at or
+        # above the same hysteresis floor the hold-confirm itself uses
+        # (RIGHTING_HOLD_RELEASE_UZ) at the moment of timeout, give THIS
+        # attempt a fresh window to complete a genuine hold instead of
+        # burning an attempt and resetting the roll axis/wheel state --
+        # bounded to a small number of extensions so a body oscillating
+        # near the threshold without ever truly settling still reaches
+        # give-up in bounded time rather than looping indefinitely.
+        MAX_TIMEOUT_EXTENSIONS = 3
+        if (u_z >= self.RIGHTING_HOLD_RELEASE_UZ
+                and self._righting_timeout_extensions < MAX_TIMEOUT_EXTENSIONS):
+            self._righting_timeout_extensions += 1
+            self.righting_ticks = 1  # next tick -> 2, skips the ticks==1 reset/announce branch
+            self.get_logger().info(
+                f'[{self.robot_name}] \U0001f3af Near-upright at timeout '
+                f'(u_z={u_z:.2f}) -- extension '
+                f'{self._righting_timeout_extensions}/{MAX_TIMEOUT_EXTENSIONS}, '
+                f'giving this attempt more time to hold instead of discarding '
+                f'progress into a fresh attempt.')
+            return
+
+        self.righting_attempt += 1
+        self.righting_ticks = 0
         if self.righting_attempt >= self.MAX_RIGHTING_ATTEMPTS:
             self.get_logger().error(
                 f'[{self.robot_name}] ❌ Self-righting failed after '

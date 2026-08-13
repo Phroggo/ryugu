@@ -1,0 +1,24 @@
+[
+  {
+    "trial": 1,
+    "commanded_tilt_deg": 177.23560193171,
+    "azimuth_deg": 15.74595241576041,
+    "start_uz": -0.998836295258763,
+    "landed": true,
+    "final_uz": -0.28623970310966507,
+    "outcome": "failed",
+    "righting_started_at": 1786580088.7154698,
+    "recover_time_s": null
+  },
+  {
+    "trial": 2,
+    "commanded_tilt_deg": 176.27362686281836,
+    "azimuth_deg": 154.26199077146924,
+    "start_uz": -0.9978858061961664,
+    "landed": true,
+    "final_uz": 0.9272669577355391,
+    "outcome": "recovered",
+    "righting_started_at": 1786580413.6795857,
+    "recover_time_s": 78.78323173522949
+  }
+]

@@ -1,0 +1,9 @@
+[04:12:33]   (re)starting gz sim daemon...
+[04:12:41] === bucket=full_inversion (170.0-180.0deg), n=15, HOLD-START/HOLD-LOST diagnostic instrumentation active ===
+[04:12:49]   [trial1/15] commanded_tilt=177.2 az=16 start_uz=-0.998836295258763
+[04:16:06]     landed=True after 197.0s uz=0.17827677481591642
+[04:18:06]     outcome=failed final_uz=-0.28623970310966507 recover_time_s=None
+[04:18:14]   [trial2/15] commanded_tilt=176.3 az=154 start_uz=-0.9978858061961664
+[04:21:31]     landed=True after 197.2s uz=-0.9409381795793954
+[04:21:32]     outcome=recovered final_uz=0.9272669577355391 recover_time_s=78.78323173522949
+[04:21:40]   [trial3/15] commanded_tilt=173.9 az=39 start_uz=-0.9944253458581116
