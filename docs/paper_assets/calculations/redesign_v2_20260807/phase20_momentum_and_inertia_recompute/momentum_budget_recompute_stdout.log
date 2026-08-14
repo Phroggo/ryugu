@@ -1,0 +1,26 @@
+hip sweep = 0.750 rad, knee sweep = 1.500 rad
+worst-case ramp_T = 1.2s (code-enforced floor)
+omega_hip (avg) = 0.6250 rad/s, omega_knee_rel (avg) = 1.2500 rad/s
+omega_calf_absolute (avg) = 1.8750 rad/s
+
+r_thigh (perp. distance, hip axis to thigh CoM) = 0.0750 m (rotation-invariant, see comment)
+r_calf (perp. distance, hip axis to calf CoM) = 0.2093 m
+
+I_thigh_about_hip = 4.3e-05 + 0.0219*0.0750^2 = 1.661875e-04 kg m^2
+I_calf_about_hip  = 2.7e-05 + 0.0143*0.2093^2 = 6.533529e-04 kg m^2
+
+=== Method A: average rate (sweep / ramp_T) ===
+L_thigh = 1.038672e-04 N m s
+L_calf  = 1.225037e-03 N m s
+L_leg_total (avg-rate method) = 1.328904e-03 N m s
+
+=== Method B: peak instantaneous rate at release (quadratic ease-in, 2x average) ===
+L_leg_total (peak-rate method) = 2.657808e-03 N m s
+
+H_max (corrected I_wheel=0.0003944, max_rw_speed=982.0) = 0.387301 N m s
+
+Margin (Method A, avg-rate): H_max / L = 291.4x
+Margin (Method B, peak-rate): H_max / L = 145.7x
+
+For reference, the stale pre-redesign figure cited in Research_Paper.md SS3.2 is ~=0.0084 N m s (46.1x margin at the corrected H_max).
+Ratio of this reconstruction to the stale figure: Method A = 0.158x, Method B = 0.316x

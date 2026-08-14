@@ -1,0 +1,48 @@
+=== Current lumped base_link, converted to about the LINK ORIGIN ===
+  ixx = 9.912394e-03
+  iyy = 1.019457e-02
+  izz = 7.619172e-03
+  ixy = -9.000000e-05
+  ixz = -9.935897e-05
+  iyz = -8.000000e-06
+
+=== Geometric-proxy components (position relative to base_link origin) ===
+  [T1] chassis: m=0.4920 kg, pos=(0, 0, 0)
+  [T1] mli_0: m=0.0163 kg, pos=(0, 0, 0.1015)
+  [T1] mli_1: m=0.0163 kg, pos=(0, 0, -0.1015)
+  [T1] mli_2: m=0.0163 kg, pos=(0.1015, 0, 0)
+  [T1] mli_3: m=0.0163 kg, pos=(-0.1015, 0, 0)
+  [T1] mli_4: m=0.0163 kg, pos=(0, 0.1015, 0)
+  [T1] mli_5: m=0.0163 kg, pos=(0, -0.1015, 0)
+  [T1] antenna_uhf: m=0.0150 kg, pos=(0.06, 0.06, 0.122)
+  [T1] antenna_sband: m=0.0150 kg, pos=(-0.04, -0.06, 0.101)
+  [T1] camera_navcam: m=0.0100 kg, pos=(0.105, 0, 0.02)
+  [T1] camera_sci: m=0.0100 kg, pos=(0, -0.04, -0.105)
+  [T1] camera_hazcam_left: m=0.0100 kg, pos=(0.1, 0.035, 0.02)
+  [T1] camera_hazcam_right: m=0.0100 kg, pos=(0.1, -0.035, 0.02)
+  [T2] leg0_motor_gearhead: m=0.0800 kg, pos=(0.07, 0.0, -0.1)
+  [T2] leg1_motor_gearhead: m=0.0800 kg, pos=(-0.035, 0.0606, -0.1)
+  [T2] leg2_motor_gearhead: m=0.0800 kg, pos=(-0.035, -0.0606, -0.1)
+  [T2] rw_x_motor: m=0.0220 kg, pos=(0.0, 0.0, 0.0)
+  [T2] rw_y_motor: m=0.0220 kg, pos=(0.0, 0.0, 0.0)
+  [T2] rw_z_motor: m=0.0220 kg, pos=(0.0, 0.0, 0.0)
+  [T3] avionics_battery_comms_cluster (no position data, kept at origin): m=0.4280 kg, pos=(0, 0, 0)
+
+Tier 1 (geometry-derived) mass = 0.6600 kg (47.3%)
+Tier 2 (estimated placement) mass = 0.3060 kg (22.0%)
+Tier 3 (no placement data, at origin) mass = 0.4280 kg (30.7%)
+
+Total geometric-proxy mass = 1.3940 kg (vs. current lumped base_link mass = 1.3839 kg, diff = +0.0101 kg)
+
+=== Geometric-proxy inertia tensor, about base_link origin ===
+  ixx = 7.588105e-03
+  iyy = 7.827855e-03
+  izz = 5.665830e-03
+  ixy = -9.000000e-05
+  ixz = -1.102000e-04
+  iyz = -6.090000e-05
+
+=== Comparison: geometric-proxy vs. current lumped (about link origin) ===
+  ixx: lumped=9.912394e-03  proxy=7.588105e-03  diff=-2.324288e-03 (-23.4%)
+  iyy: lumped=1.019457e-02  proxy=7.827855e-03  diff=-2.366710e-03 (-23.2%)
+  izz: lumped=7.619172e-03  proxy=5.665830e-03  diff=-1.953341e-03 (-25.6%)
