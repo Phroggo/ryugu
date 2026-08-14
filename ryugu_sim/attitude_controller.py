@@ -191,29 +191,44 @@ class AttitudeController(Node):
         # Was K_ang=0.05, K_rate=0.066.
         self.K_ang = 0.0394   # N m / rad      (attitude stiffness)
         self.K_rate = 0.0456  # N m / (rad/s)  (rate damping)
-        # NOT updated this phase, deliberately: I_wheel below is also
-        # stale against Phase 1/2's real RW annulus (3.944e-4 kg*m^2 spin-
-        # axis, vs. the 2.7e-4 here from the old solid-disc model) -- left
-        # untouched so Phase 4 stays a single-variable test (gains only,
-        # per explicit instruction), not a second simultaneous change.
-        # Flagged for a later phase, not silently left inconsistent.
-        self.I_wheel = 0.00027  # kg m^2, RW spin-axis inertia (model.sdf)
+        # CORRECTED (2026-08-14, external review round): was 2.7e-4 kg*m^2
+        # (old solid-disc model), left deliberately stale through Phase 4
+        # so that phase stayed a single-variable gain-only test. Now using
+        # Phase 1/2's real RW annulus spin-axis value. K_ang/K_rate above
+        # are NOT retuned here -- ran the existing self-righting and
+        # yaw-hold cases once each at this corrected value first (see
+        # phase24_iwheel_correction/), per explicit instruction to check
+        # stability rather than assume it, before treating this as safe to
+        # build on for items 2/3 of the same review round.
+        self.I_wheel = 3.944e-4  # kg m^2, RW spin-axis inertia (Phase 1/2 audit)
         self.tau_max = 0.015    # N m, RW motor torque budget (SS3.2)
 
         self.target_yaw = 0.0
         # Wheel speed ceiling from the actual motor spec: Maxon EC 20 flat
         # no-load speed ~9380 rpm = 982 rad/s. (Was 1396 rad/s = 13,330 rpm,
         # above anything the cited motor can spin -- corrected 2026-07-15 in
-        # the scientific-accuracy pass. H_max = I_w * w_max = 0.00027 * 982
-        # ~= 0.265 N m s, still ~30x the worst-case single-leg launch
-        # momentum of ~0.0084 N m s from Research_Paper.md SS3.2.)
+        # the scientific-accuracy pass. H_max = I_w * w_max = 3.944e-4 * 982
+        # ~= 0.387 N m s -- with the I_wheel correction above, ~46x the
+        # stale worst-case single-leg launch momentum figure of ~0.0084 N m s
+        # from Research_Paper.md SS3.2; see Phase 20's reconstruction for a
+        # from-current-model derivation, which gives a substantially larger
+        # margin than this stale-numerator comparison.)
         self.max_rw_speed = 982.0 # rad/s
         self.in_flight = False
         self.landed = False  # Phase 5 follow-up: see landed_callback
         self.last_imu_time = None
 
-        # Wheel acceleration ceiling, conservative vs the physical
-        # tau_max/I_wheel = 55.6 rad/s^2.
+        # Wheel acceleration ceiling. Was sized as conservative vs. the old
+        # I_wheel's physical tau_max/I_wheel = 55.6 rad/s^2. With the
+        # corrected I_wheel above, that physical ceiling is now
+        # 0.015/3.944e-4 ~= 38.0 rad/s^2 -- BELOW this 50.0 slew limit, so
+        # torque-capping (tau_max) is now the binding constraint instead of
+        # this slew limit; this ceiling itself is now unreachable in
+        # practice, not actively limiting anything. Not changed here (the
+        # controller is still self-consistent -- delta=-tau/I_wheel*dt can
+        # never exceed the physical ceiling regardless of this constant's
+        # value), flagged since it's a real behavioral consequence of the
+        # I_wheel correction worth knowing about, not a bug.
         self.max_wheel_accel = 50.0 # rad/s^2
 
         # Grounded tilt-wheel bleed rate. This CANNOT reuse the full control

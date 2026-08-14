@@ -1,0 +1,122 @@
+[
+  {
+    "bucket": "side_rest",
+    "trial": 1,
+    "commanded_tilt_deg": 86.28530247007293,
+    "azimuth_deg": 165.1397690562689,
+    "start_uz": 0.06478829172988598,
+    "landed": true,
+    "final_uz": -0.7085082959877687,
+    "outcome": "failed",
+    "righting_started_at": 1786733057.800775,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "side_rest",
+    "trial": 2,
+    "commanded_tilt_deg": 89.45633467017753,
+    "azimuth_deg": 306.1254394904864,
+    "start_uz": 0.0016506513568737002,
+    "landed": true,
+    "final_uz": 0.9132557443466405,
+    "outcome": "recovered",
+    "righting_started_at": 1786733424.0113935,
+    "recover_time_s": 109.41995406150818
+  },
+  {
+    "bucket": "side_rest",
+    "trial": 3,
+    "commanded_tilt_deg": 89.93934236201615,
+    "azimuth_deg": 150.16624508019657,
+    "start_uz": 0.0010586753015420225,
+    "landed": true,
+    "final_uz": -0.6800883688181245,
+    "outcome": "failed",
+    "righting_started_at": 1786733631.853939,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "side_rest",
+    "trial": 4,
+    "commanded_tilt_deg": 92.00917931481689,
+    "azimuth_deg": 175.27261874866588,
+    "start_uz": -0.04041249262447599,
+    "landed": true,
+    "final_uz": 0.013867856673399404,
+    "outcome": "failed",
+    "righting_started_at": 1786733999.0097618,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "side_rest",
+    "trial": 5,
+    "commanded_tilt_deg": 90.51087949191262,
+    "azimuth_deg": 109.09757550562136,
+    "start_uz": -0.015775790260310618,
+    "landed": true,
+    "final_uz": 0.12931038299219144,
+    "outcome": "failed",
+    "righting_started_at": 1786734324.0354571,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "full_inversion",
+    "trial": 1,
+    "commanded_tilt_deg": 173.508540915027,
+    "azimuth_deg": 310.7895112755672,
+    "start_uz": -0.9935886573605879,
+    "landed": true,
+    "final_uz": 0.917000089058579,
+    "outcome": "recovered",
+    "righting_started_at": 1786734649.0986578,
+    "recover_time_s": 77.97224831581116
+  },
+  {
+    "bucket": "full_inversion",
+    "trial": 2,
+    "commanded_tilt_deg": 171.834382441916,
+    "azimuth_deg": 245.50039559117775,
+    "start_uz": -0.9898646372383151,
+    "landed": true,
+    "final_uz": 0.9005630212935681,
+    "outcome": "recovered",
+    "righting_started_at": 1786734854.3739796,
+    "recover_time_s": 77.80272030830383
+  },
+  {
+    "bucket": "full_inversion",
+    "trial": 3,
+    "commanded_tilt_deg": 173.9230051935919,
+    "azimuth_deg": 24.407530763059086,
+    "start_uz": -0.9943804458196075,
+    "landed": true,
+    "final_uz": -0.6641288261457841,
+    "outcome": "failed",
+    "righting_started_at": 1786735059.3995564,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "full_inversion",
+    "trial": 4,
+    "commanded_tilt_deg": 174.94988345767732,
+    "azimuth_deg": 305.9824903749765,
+    "start_uz": -0.9961196324496002,
+    "landed": true,
+    "final_uz": 0.06374352040587417,
+    "outcome": "failed",
+    "righting_started_at": 1786735399.7533615,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "full_inversion",
+    "trial": 5,
+    "commanded_tilt_deg": 175.56091642945788,
+    "azimuth_deg": 358.2100143241722,
+    "start_uz": -0.9970002379141336,
+    "landed": true,
+    "final_uz": -0.24924766033750756,
+    "outcome": "failed",
+    "righting_started_at": 1786735771.6650891,
+    "recover_time_s": null
+  }
+]

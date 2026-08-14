@@ -1,0 +1,26 @@
+[
+  {
+    "bucket": "side_rest",
+    "trial": 1,
+    "commanded_tilt_deg": 93.11889813287347,
+    "azimuth_deg": 197.02554003627216,
+    "start_uz": -0.06404659940606816,
+    "landed": false,
+    "final_uz": 0.9978852964084616,
+    "outcome": "no_landing",
+    "righting_started_at": 1786732378.327724,
+    "recover_time_s": null
+  },
+  {
+    "bucket": "full_inversion",
+    "trial": 1,
+    "commanded_tilt_deg": 171.63973825072904,
+    "azimuth_deg": 75.71652055828426,
+    "start_uz": -0.9893733255880395,
+    "landed": true,
+    "final_uz": 0.3842912065528804,
+    "outcome": "failed",
+    "righting_started_at": 1786732654.0026388,
+    "recover_time_s": null
+  }
+]
