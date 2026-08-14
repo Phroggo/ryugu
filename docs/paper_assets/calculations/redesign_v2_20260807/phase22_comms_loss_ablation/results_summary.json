@@ -1,0 +1,298 @@
+{
+  "0pct_rep1": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 0.0,
+    "comms_dropped_uplink": 0,
+    "comms_dropped_downlink": 0,
+    "anomalies_found": 50,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 8,
+    "distance_by_agent": {
+      "scout_1": 13.298007055682625,
+      "scout_2": 26.37530350911316,
+      "scout_3": 7.823604327361364
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 72.79999999999977,
+      "scout_3": 77.55000000000008
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 1,
+      "scout_3": 3
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "0pct_rep2": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 0.0,
+    "comms_dropped_uplink": 0,
+    "comms_dropped_downlink": 0,
+    "anomalies_found": 1,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 3,
+    "distance_by_agent": {
+      "scout_1": 0.0,
+      "scout_2": 0.0,
+      "scout_3": 0.0
+    },
+    "energy_by_agent": {
+      "scout_1": 0.29000000000000004,
+      "scout_2": 0.2,
+      "scout_3": 0.2
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 1,
+      "scout_3": 1
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "5pct_rep1": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 5.0,
+    "comms_dropped_uplink": 0,
+    "comms_dropped_downlink": 0,
+    "anomalies_found": 0,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 3,
+    "distance_by_agent": {
+      "scout_1": 0.0,
+      "scout_2": 0.0,
+      "scout_3": 0.0
+    },
+    "energy_by_agent": {
+      "scout_1": 0.29000000000000004,
+      "scout_2": 0.2,
+      "scout_3": 0.2
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 1,
+      "scout_3": 1
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "5pct_rep2": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 5.0,
+    "comms_dropped_uplink": 0,
+    "comms_dropped_downlink": 37662,
+    "anomalies_found": 64,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 9,
+    "distance_by_agent": {
+      "scout_1": 22.663548200624003,
+      "scout_2": 42.588693699286104,
+      "scout_3": 11.967036077284485
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 81.79999999999981,
+      "scout_3": 75.99999999999987
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 3,
+      "scout_3": 4
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "10pct_rep1": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 10.0,
+    "comms_dropped_uplink": 4,
+    "comms_dropped_downlink": 75042,
+    "anomalies_found": 62,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 8,
+    "distance_by_agent": {
+      "scout_1": 20.95092251646163,
+      "scout_2": 56.50239600124841,
+      "scout_3": 17.415378789767864
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 77.89999999999947,
+      "scout_3": 83.70000000000032
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 3,
+      "scout_3": 2
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "10pct_rep2": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 10.0,
+    "comms_dropped_uplink": 3,
+    "comms_dropped_downlink": 72286,
+    "anomalies_found": 31,
+    "samples_extracted": 1,
+    "data_transmitted": 1,
+    "role_switches": 9,
+    "distance_by_agent": {
+      "scout_1": 6.899943352081627,
+      "scout_2": 28.664236394528267,
+      "scout_3": 28.029234990210245
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 86.90000000000025,
+      "scout_3": 82.85000000000028
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 3,
+      "scout_3": 4
+    },
+    "target_latencies_s": [
+      702.0
+    ],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "20pct_rep1": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 20.0,
+    "comms_dropped_uplink": 2,
+    "comms_dropped_downlink": 152110,
+    "anomalies_found": 132,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 6,
+    "distance_by_agent": {
+      "scout_1": 14.081133632333469,
+      "scout_2": 24.339247735085948,
+      "scout_3": 25.41211428628963
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 37.84999999999999,
+      "scout_3": 76.9
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 0,
+      "scout_3": 2
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "20pct_rep2": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 20.0,
+    "comms_dropped_uplink": 4,
+    "comms_dropped_downlink": 144756,
+    "anomalies_found": 84,
+    "samples_extracted": 3,
+    "data_transmitted": 3,
+    "role_switches": 11,
+    "distance_by_agent": {
+      "scout_1": 9.700010384604788,
+      "scout_2": 3.1400076019391636,
+      "scout_3": 42.77932094311298
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 72.69999999999973,
+      "scout_3": 74.99999999999991
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 3,
+      "scout_3": 1
+    },
+    "target_latencies_s": [
+      338.0,
+      708.0,
+      850.0
+    ],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "30pct_rep1": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 30.0,
+    "comms_dropped_uplink": 3,
+    "comms_dropped_downlink": 209644,
+    "anomalies_found": 44,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 9,
+    "distance_by_agent": {
+      "scout_1": 23.267415554792013,
+      "scout_2": 22.119328067025855,
+      "scout_3": 11.52827481253548
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 82.39999999999986,
+      "scout_3": 75.19999999999983
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 4,
+      "scout_3": 2
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  },
+  "30pct_rep2": {
+    "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+    "dispatch_policy": "auction",
+    "comms_loss_pct": 30.0,
+    "comms_dropped_uplink": 5,
+    "comms_dropped_downlink": 221927,
+    "anomalies_found": 154,
+    "samples_extracted": 0,
+    "data_transmitted": 0,
+    "role_switches": 6,
+    "distance_by_agent": {
+      "scout_1": 29.574391319268734,
+      "scout_2": 16.732451798786535,
+      "scout_3": 11.921336398171755
+    },
+    "energy_by_agent": {
+      "scout_1": 60.52999999999906,
+      "scout_2": 37.84999999999999,
+      "scout_3": 73.19999999999969
+    },
+    "hop_count_by_agent": {
+      "scout_1": 0,
+      "scout_2": 0,
+      "scout_3": 1
+    },
+    "target_latencies_s": [],
+    "tick_count": 757,
+    "elapsed_s": 1514.0
+  }
+}
