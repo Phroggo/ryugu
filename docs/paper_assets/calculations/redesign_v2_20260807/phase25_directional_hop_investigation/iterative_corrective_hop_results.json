@@ -1,0 +1,74 @@
+[
+  {
+    "rep": 1,
+    "target": [
+      2.8678821817552307,
+      -4.095760221444959
+    ],
+    "final_status": "no_separation",
+    "n_hops": 3,
+    "hops": [
+      {
+        "hop": 1,
+        "status": "landed",
+        "x": -0.035832800661135596,
+        "y": 0.5064484204982977,
+        "flight_time_s": 118.89285135269165,
+        "dist_remaining_m": 5.441680354732945
+      },
+      {
+        "hop": 2,
+        "status": "landed",
+        "x": 0.023548837005688703,
+        "y": 0.3777657321660753,
+        "flight_time_s": 171.9647922515869,
+        "dist_remaining_m": 5.301194830760857
+      },
+      {
+        "hop": 3,
+        "status": "no_separation",
+        "x": 0.023548837005688703,
+        "y": 0.3777657321660753,
+        "flight_time_s": null,
+        "dist_remaining_m": 5.301194830760857
+      }
+    ],
+    "final_dist_remaining_m": 5.301194830760857
+  },
+  {
+    "rep": 2,
+    "target": [
+      2.8678821817552307,
+      -4.095760221444959
+    ],
+    "final_status": "never_landed",
+    "n_hops": 3,
+    "hops": [
+      {
+        "hop": 1,
+        "status": "landed",
+        "x": -0.13823684054882854,
+        "y": 0.4079344185382695,
+        "flight_time_s": 237.50020813941956,
+        "dist_remaining_m": 5.414796116796271
+      },
+      {
+        "hop": 2,
+        "status": "landed",
+        "x": -3.3341985469562414,
+        "y": 0.5350020259201249,
+        "flight_time_s": 399.3636405467987,
+        "dist_remaining_m": 7.740139815085768
+      },
+      {
+        "hop": 3,
+        "status": "never_landed",
+        "x": -3.3341985469562414,
+        "y": 0.5350020259201249,
+        "flight_time_s": 1400.009363412857,
+        "dist_remaining_m": 7.740139815085768
+      }
+    ],
+    "final_dist_remaining_m": 7.740139815085768
+  }
+]

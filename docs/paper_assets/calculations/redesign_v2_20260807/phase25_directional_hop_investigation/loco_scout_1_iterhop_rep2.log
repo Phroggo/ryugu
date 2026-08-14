@@ -1,0 +1,24 @@
+[INFO] [1786736736.148471824] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786736800.718313382] [loco_scout_1]: [scout_1] Target distance: 5.42m. Required Delta-V: 0.0332 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786736800.718760863] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786736800.810780975] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786736801.468635674] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786736810.814715063] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[INFO] [1786736812.562230204] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[WARN] [1786737050.272557664] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=3)
+[INFO] [1786737050.273202380] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786737050.564896794] [loco_scout_1]: [scout_1] Target distance: 5.41m. Required Delta-V: 0.0332 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786737050.565440168] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786737050.807290646] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786737095.808228291] [loco_scout_1]: [scout_1] Aborting hop: stance still bad at crouch timeout (uz=0.30, speed=0.008 m/s). Back to IDLE.
+[INFO] [1786737207.285930105] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786737207.286490311] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786737217.289416127] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[INFO] [1786737221.793530146] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1786737621.368697765] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786737621.760970321] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786737621.761661538] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786737622.655396085] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[WARN] [1786737628.840653049] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786737631.762867313] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786737631.781308915] [loco_scout_1]: [scout_1] Aborting launch mid-stroke: tipping (uz=0.68). Retracting; righting will recover.

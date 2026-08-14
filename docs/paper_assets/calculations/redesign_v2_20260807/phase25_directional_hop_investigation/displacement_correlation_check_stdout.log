@@ -1,0 +1,33 @@
+  disp_m   azimuth   raw_off_from_-55
+   0.020     172.7             -132.3
+   0.022      56.1              111.1
+   0.025    -157.5             -102.5
+   0.028     161.3             -143.7
+   0.033      18.6               73.6
+   0.041     119.1              174.1
+   0.047      52.4              107.4
+   0.048       6.3               61.3
+   0.050     167.1             -137.9
+   0.050      58.5              113.5
+   0.054      43.1               98.1
+   0.059     161.5             -143.5
+   0.060     171.5             -133.5
+   0.063      52.0              107.0
+   0.070     -42.4               12.6
+   0.076     155.0             -150.0
+   0.081     136.4             -168.6
+   0.082    -178.2             -123.2
+   0.085     149.5             -155.5
+   0.085     175.1             -129.9
+   0.088     164.5             -140.5
+   0.090       4.9               59.9
+   0.090     107.2              162.2
+   0.096     141.3             -163.7
+   0.121     130.4             -174.6
+   0.147     119.7              174.7
+
+displacement range: min=0.020 max=0.147 mean=0.066
+small-displacement half (n=13): mean |offset| = 117.9 deg, disp range 0.020-0.060
+large-displacement half (n=13): mean |offset| = 132.5 deg, disp range 0.063-0.147
+
+CONCLUSION: if the small-vector-measurement-noise hypothesis were correct, the small-displacement half should show a MUCH larger mean |offset| than the large-displacement half. It does not (they are approximately equal, large-displacement trials if anything slightly worse) -- ruling out measurement noise as the primary explanation. The scatter is a real feature of launch-direction inconsistency, not an artifact of measuring angles from near-zero vectors.

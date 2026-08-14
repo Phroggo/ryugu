@@ -1,0 +1,20 @@
+[INFO] [1786736130.458011215] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786736195.235809083] [loco_scout_1]: [scout_1] Target distance: 5.42m. Required Delta-V: 0.0332 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786736195.236278357] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786736195.335315087] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786736196.304160993] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786736205.336014407] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[INFO] [1786736207.084542455] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[WARN] [1786736326.150962158] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=3)
+[INFO] [1786736326.151659608] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786736326.400039650] [loco_scout_1]: [scout_1] Target distance: 5.44m. Required Delta-V: 0.0333 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786736326.400624233] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786736326.569806014] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786736336.571407924] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[INFO] [1786736358.069293835] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[WARN] [1786736530.319418207] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=3)
+[INFO] [1786736530.319991684] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786736530.709952470] [loco_scout_1]: [scout_1] Target distance: 5.30m. Required Delta-V: 0.0329 m/s. Launch ramp: 1.3s (full stroke)
+[INFO] [1786736530.710421812] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786736530.963761111] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786736576.003776344] [loco_scout_1]: [scout_1] Aborting hop: stance still bad at crouch timeout (uz=0.28, speed=0.008 m/s). Back to IDLE.

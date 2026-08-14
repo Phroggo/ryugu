@@ -1,0 +1,35 @@
+n=26 trials
+RAW offset-from-commanded:       mean=-28.6 std=128.1 mean_abs_err=125.2 (deg)
+CORRECTED (retrospective bias):  mean=+9.4 std=87.1 mean_abs_err=71.2 (deg)
+
+bias trajectory (deg, value used for each trial i, i.e. learned from trials 1..i-1):
+  trial  1: bias_used=   +0.0  raw_off= +162.2  corrected_off= +162.2
+  trial  2: bias_used=  +81.1  raw_off= -174.6  corrected_off= +104.3
+  trial  3: bias_used= +133.3  raw_off= +113.5  corrected_off=  -19.8
+  trial  4: bias_used= +123.4  raw_off= +111.1  corrected_off=  -12.2
+  trial  5: bias_used= +117.2  raw_off= +107.0  corrected_off=  -10.2
+  trial  6: bias_used= +112.1  raw_off= -129.9  corrected_off= +118.0
+  trial  7: bias_used= +171.1  raw_off= +174.1  corrected_off=   +3.0
+  trial  8: bias_used= +172.6  raw_off=  +73.6  corrected_off=  -99.0
+  trial  9: bias_used= +123.1  raw_off= -150.0  corrected_off=  +87.0
+  trial 10: bias_used= +166.6  raw_off= -132.3  corrected_off=  +61.2
+  trial 11: bias_used= -162.9  raw_off= -163.7  corrected_off=   -0.9
+  trial 12: bias_used= -163.3  raw_off= -123.2  corrected_off=  +40.1
+  trial 13: bias_used= -143.2  raw_off= +174.7  corrected_off=  -42.1
+  trial 14: bias_used= -164.3  raw_off= -102.5  corrected_off=  +61.8
+  trial 15: bias_used= -133.4  raw_off=  +61.3  corrected_off= -165.3
+  trial 16: bias_used= +144.0  raw_off= -133.5  corrected_off=  +82.6
+  trial 17: bias_used= -174.7  raw_off= +107.4  corrected_off=  -77.9
+  trial 18: bias_used= +146.3  raw_off= -143.7  corrected_off=  +70.0
+  trial 19: bias_used= -178.7  raw_off= -137.9  corrected_off=  +40.8
+  trial 20: bias_used= -158.3  raw_off= -143.5  corrected_off=  +14.8
+  trial 21: bias_used= -150.9  raw_off=  +59.9  corrected_off= -149.2
+  trial 22: bias_used= +134.5  raw_off= -140.5  corrected_off=  +85.0
+  trial 23: bias_used= +177.0  raw_off= -155.5  corrected_off=  +27.5
+  trial 24: bias_used= -169.3  raw_off=  +12.6  corrected_off= -178.1
+  trial 25: bias_used= +101.6  raw_off= -168.6  corrected_off=  +89.8
+  trial 26: bias_used= +146.5  raw_off=  +98.1  corrected_off=  -48.4
+
+First-half vs second-half corrected mean_abs_err (does it improve as bias converges?):
+  first 13: mean_abs_err=58.5 deg
+  last 13: mean_abs_err=83.9 deg

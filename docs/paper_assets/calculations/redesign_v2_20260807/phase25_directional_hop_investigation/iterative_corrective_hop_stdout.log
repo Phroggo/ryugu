@@ -1,0 +1,44 @@
+[23:35:16]   (re)starting gz sim daemon...
+[23:35:24] === iterative corrective-hop test: n=10, target=(2.87,-4.10) [5.0m @ -55deg heading, same scenario as Phase 10], MAX_REHOPS=5, ARRIVAL_TOLERANCE=1.0m ===
+[23:36:35]   [rep1] ready check done: landed=False, speed=0.007723328999986734
+[23:36:35]     [hop1] from (0.00,0.50), dist_to_target=5.42m, yaw_error_at_ignition=3.874679762011057e-06
+[23:38:45]     [hop1] LANDED at (-0.04,0.51) after 118.9s
+[23:38:45]     [hop2] from (-0.04,0.51), dist_to_target=5.44m, yaw_error_at_ignition=0.012027240072624679
+[23:42:10]     [hop2] LANDED at (0.02,0.38) after 172.0s
+[23:42:10]     [hop3] from (0.02,0.38), dist_to_target=5.30m, yaw_error_at_ignition=0.026461643399410484
+[23:45:30]     [hop3] TIMEOUT waiting for confirmed separation
+[23:46:40]   [rep2] ready check done: landed=False, speed=0.007729711045599966
+[23:46:40]     [hop1] from (-0.01,0.50), dist_to_target=5.42m, yaw_error_at_ignition=0.03367095416186013
+[23:50:50]     [hop1] LANDED at (-0.14,0.41) after 237.5s
+[23:50:50]     [hop2] from (-0.14,0.41), dist_to_target=5.41m, yaw_error_at_ignition=0.00012077915002350892
+[00:00:21]     [hop2] LANDED at (-3.33,0.54) after 399.4s
+[00:00:21]     [hop3] from (-3.33,0.54), dist_to_target=7.74m, yaw_error_at_ignition=0.0015933388903719425
+[00:23:51]     [hop3] never landed within 1400.0s
+[00:25:02]   [rep3] ready check done: landed=False, speed=0.007711944170295427
+[00:25:02]     [hop1] from (-0.00,0.50), dist_to_target=5.41m, yaw_error_at_ignition=0.016999975392508304
+[00:28:20]     [hop1] LANDED at (-0.02,0.50) after 186.5s
+[00:28:20]     [hop2] from (-0.02,0.50), dist_to_target=5.42m, yaw_error_at_ignition=0.00012160571373964757
+[00:35:08]     [hop2] LANDED at (-1.95,3.49) after 255.6s
+[00:35:08]     [hop3] from (-1.95,3.49), dist_to_target=8.98m, yaw_error_at_ignition=0.0021086276991511
+Traceback (most recent call last):
+  File "/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase25_directional_hop_investigation/iterative_corrective_hop_test.py", line 290, in <module>
+    main()
+  File "/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase25_directional_hop_investigation/iterative_corrective_hop_test.py", line 263, in main
+    r = run_one_repeat(rep, log)
+  File "/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase25_directional_hop_investigation/iterative_corrective_hop_test.py", line 226, in run_one_repeat
+    status, cur_x, cur_y, flight_time = do_one_hop(node, hop_idx, cur_x, cur_y, log)
+  File "/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase25_directional_hop_investigation/iterative_corrective_hop_test.py", line 200, in do_one_hop
+    node.spin_for(0.3)
+  File "/home/melvin/ryugu_v2_ws/src/ryugu_sim/docs/paper_assets/calculations/redesign_v2_20260807/phase25_directional_hop_investigation/iterative_corrective_hop_test.py", line 115, in spin_for
+    rclpy.spin_once(self, timeout_sec=min(0.2, seconds))
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 208, in spin_once
+    executor.spin_once(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException

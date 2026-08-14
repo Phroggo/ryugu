@@ -1,0 +1,40 @@
+[INFO] [1786739037.493601704] [loco_scout_1]: [scout_1] Tri-Pedal Locomotion Engine: ONLINE
+[INFO] [1786739102.243658617] [loco_scout_1]: [scout_1] Target distance: 5.41m. Required Delta-V: 0.0332 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786739102.244196470] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786739102.338543382] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786739102.639379991] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786739112.339335153] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=1.2s)
+[INFO] [1786739114.088578418] [loco_scout_1]: 3. Separation confirmed (genuine ground clearance) — holding extension for clearance, then slow retract (FLIGHT)
+[INFO] [1786739300.707463862] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786739300.943640846] [loco_scout_1]: [scout_1] Target distance: 5.42m. Required Delta-V: 0.0332 m/s. Launch ramp: 1.2s (full stroke)
+[INFO] [1786739300.944058501] [loco_scout_1]: [scout_1] Initiating Tri-Pedal Jump Sequence!
+[INFO] [1786739301.177828592] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786739304.612122012] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[WARN] [1786739346.178708477] [loco_scout_1]: [scout_1] Aborting hop: stance still bad at crouch timeout (uz=-0.16, speed=0.008 m/s). Back to IDLE.
+[INFO] [1786739442.723447957] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786739442.724112783] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[INFO] [1786739452.724746032] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786739452.726698563] [loco_scout_1]: [scout_1] Aborting launch mid-stroke: tipping (uz=0.12). Retracting; righting will recover.
+[INFO] [1786739708.592625985] [loco_scout_1]: [scout_1] Landing controller reported LANDED. Settling to IDLE.
+[INFO] [1786739709.052632441] [loco_scout_1]: [scout_1] 🦵 Idle 300s with no jump command -- self-initiating recovery hop (legs).
+[INFO] [1786739709.053307998] [loco_scout_1]: 1. Crouching (waking physics, planting feet under body)
+[WARN] [1786739709.987135897] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[WARN] [1786739715.785762700] [loco_scout_1]: [scout_1] Ignoring jump command, currently not IDLE (state=1)
+[INFO] [1786739719.062266889] [loco_scout_1]: 2. IGNITION (stroke fraction=0.90, ramp=4.0s)
+[WARN] [1786739719.077322533] [loco_scout_1]: [scout_1] Aborting launch mid-stroke: tipping (uz=-0.21). Retracting; righting will recover.
+Traceback (most recent call last):
+  File "/home/melvin/ryugu_v2_ws/install/ryugu_sim/lib/ryugu_sim/hopper_locomotion", line 33, in <module>
+    sys.exit(load_entry_point('ryugu-sim', 'console_scripts', 'hopper_locomotion')())
+  File "/home/melvin/ryugu_v2_ws/build/ryugu_sim/ryugu_sim/hopper_locomotion.py", line 832, in main
+    rclpy.spin(node)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
