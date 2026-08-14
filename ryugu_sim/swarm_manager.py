@@ -6,6 +6,8 @@ from nav_msgs.msg import Odometry
 import random
 import time
 import math
+import os
+import json
 
 # How close (m) the odometry-reported position must be to a target before a
 # SAMPLER is considered "arrived" and allowed to deploy its drill. Real jumps
@@ -85,29 +87,88 @@ STALENESS_DISTANCE_PENALTY = 3.0   # "tick-equivalents" per metre
 # is returned to the queue for the others.
 OFFLINE_TIMEOUT_S = 10.0
 
+# Phase 21 dispatch-policy ablation (2026-08-14): selects the SAMPLER task-
+# assignment mechanism used in the auction block below. "auction" (default)
+# is the current shipped distance+battery+carousel market auction -- this
+# env var exists ONLY to let a comparison harness swap in one of three
+# simplified baselines without touching this file per run. Unset/default
+# behavior is byte-for-byte identical to before this change.
+#   auction       - current: full-queue search, cost=_bid (distance+battery+carousel)
+#   distance_only - full-queue search, cost=pure euclidean distance
+#   nearest       - oldest queued target only, assigned to the nearest eligible agent
+#   fifo          - oldest queued target only, assigned to the first eligible agent (list order)
+DISPATCH_POLICY = os.environ.get("SWARM_DISPATCH_POLICY", "auction")
+
+# Phase 22 comms-loss ablation (2026-08-14): probability (0-100) that any
+# individual swarm_manager<->agent message is lost. Applied independently
+# per publish/callback (each topic is its own DDS packet with no delivery
+# atomicity across topics in real ROS2/ground-station comms, so a hop's
+# yaw and distance commands can realistically be split -- one arrives, the
+# other doesn't -- rather than always failing together). Covers both
+# directions: outgoing tasking (jump/yaw/drill commands TO an agent) and
+# incoming telemetry (odometry/landed status FROM an agent) -- see
+# _comms_drop() call sites. Default 0 = current behavior, unchanged.
+COMMS_LOSS_PCT = float(os.environ.get("SWARM_COMMS_LOSS_PCT", "0"))
+
+
 class MetricsLogger:
-    def __init__(self):
+    def __init__(self, agents):
         self.data = {
             "scenario": "SpaceHopper Swarm: Cooperative Scientific Mission",
+            "dispatch_policy": DISPATCH_POLICY,
+            "comms_loss_pct": COMMS_LOSS_PCT,
+            "comms_dropped_uplink": 0,    # commands (jump/yaw/drill) lost in transit
+            "comms_dropped_downlink": 0,  # telemetry (odom/landed) lost in transit
             "anomalies_found": 0,
             "samples_extracted": 0,
             "data_transmitted": 0,
-            "role_switches": 0
+            "role_switches": 0,
+            # Phase 21 additions -- per-agent distance traveled (m, real
+            # odometry-integrated path length, not commanded leg length),
+            # energy consumed (%-drain units, chemistry-agnostic like the
+            # rest of this sim's battery model -- a relative comparison
+            # metric across policies, not an absolute Joule figure), and
+            # hop count (every jump command actually published, search +
+            # sampler + corrective re-hops alike).
+            "distance_by_agent": {a: 0.0 for a in agents},
+            "energy_by_agent": {a: 0.0 for a in agents},
+            "hop_count_by_agent": {a: 0 for a in agents},
+            # Target latency: wall-clock seconds from an anomaly first
+            # entering the queue to its core sample being successfully
+            # extracted. Recorded per completed target, not averaged here,
+            # so a harness can compute mean/median/percentiles itself.
+            "target_latencies_s": [],
         }
-        
+        # queued-tick bookkeeping for target-latency measurement, keyed by
+        # rounded (x,y) -- not part of self.data (not JSON-dumped directly,
+        # just working state for computing target_latencies_s entries).
+        self._queued_tick = {}
+
     def log_switch(self):
         self.data["role_switches"] += 1
+
+    def note_queued(self, x, y, tick):
+        key = (round(x, 3), round(y, 3))
+        if key not in self._queued_tick:
+            self._queued_tick[key] = tick
+
+    def note_extracted(self, x, y, tick, seconds_per_tick):
+        key = (round(x, 3), round(y, 3))
+        queued_tick = self._queued_tick.pop(key, None)
+        if queued_tick is not None:
+            self.data["target_latencies_s"].append((tick - queued_tick) * seconds_per_tick)
 
 class SwarmManager(Node):
     def __init__(self):
         super().__init__('swarm_manager')
         self.get_logger().info("🧠 Ryugu Homogeneous Swarm Manager: ONLINE")
-        self.metrics = MetricsLogger()
-        
+        self.get_logger().info(f"📋 Dispatch policy: {DISPATCH_POLICY}")
+
         # Full 3-bot swarm (2026-07-16). All downstream state/publishers/
         # subscriptions are already per-agent-keyed; the auction, liveness
         # watchdog, and task-requeue logic were built for N agents.
         self.agents = ["scout_1", "scout_2", "scout_3"]
+        self.metrics = MetricsLogger(self.agents)
         self.state = {
             agent: {
                 "role": "Unassigned",
@@ -172,7 +233,16 @@ class SwarmManager(Node):
             agent: self.create_publisher(Float64, f'/{agent}/status_power_rate', 10)
             for agent in self.agents
         }
-        
+
+        # Phase 21: swarm-wide metrics snapshot, published every tick as a
+        # JSON blob so a comparison harness can `ros2 topic echo` this to a
+        # log file and read the last line at the end of a fixed-duration
+        # run -- same scrape-a-published-topic pattern already used for
+        # status_role/status_activity/status_battery above, chosen because
+        # missions here are torn down with a hard kill (no clean shutdown
+        # hook to rely on for a one-shot final dump).
+        self.metrics_pub = self.create_publisher(String, '/swarm_manager/metrics_json', 10)
+
         self.jump_pubs = {
             agent: self.create_publisher(Float64, f'/{agent}/jump_target_distance', 10)
             for agent in self.agents
@@ -202,11 +272,29 @@ class SwarmManager(Node):
         self.get_logger().info("Initiating Cooperative Mission Bidding Protocol...")
 
     def odom_callback(self, agent, msg):
-        self.state[agent]["pos_x"] = msg.pose.pose.position.x
-        self.state[agent]["pos_y"] = msg.pose.pose.position.y
+        if self._comms_drop("downlink"):
+            return  # Phase 22: telemetry lost in transit -- state simply not updated this sample
+        new_x = msg.pose.pose.position.x
+        new_y = msg.pose.pose.position.y
+        # Phase 21: accumulate REAL traveled distance (odometry-integrated
+        # path length) rather than commanded leg length -- captures actual
+        # in-flight/bounce/corrective-rehop path, which is what a dispatch
+        # policy comparison should be measuring. Skipped on the very first
+        # sample per agent (pos_x/pos_y default to 0.0 at construction,
+        # which is not a real prior position and would inject a spurious
+        # jump into the total).
+        if self.state[agent].get("_odom_seen"):
+            self.metrics.data["distance_by_agent"][agent] += math.hypot(
+                new_x - self.state[agent]["pos_x"], new_y - self.state[agent]["pos_y"])
+        else:
+            self.state[agent]["_odom_seen"] = True
+        self.state[agent]["pos_x"] = new_x
+        self.state[agent]["pos_y"] = new_y
         self.state[agent]["last_odom_time"] = time.time()
 
     def landed_callback(self, agent, msg):
+        if self._comms_drop("downlink"):
+            return  # Phase 22: telemetry lost in transit
         st = self.state[agent]
         # HEADING-CALIBRATION MEASUREMENT (2026-07-18): sample the hop
         # endpoint on the LANDED rising edge, not at the next dispatch --
@@ -267,6 +355,68 @@ class SwarmManager(Node):
         battery_penalty = (100.0 - self.state[agent]["battery"]) * BID_BATTERY_WEIGHT
         carousel_penalty = self.state[agent]["sample_count"] * BID_CAROUSEL_WEIGHT
         return dist + battery_penalty + carousel_penalty
+
+    def _dist_to(self, agent, target):
+        return math.hypot(target[0] - self.state[agent]["pos_x"],
+                           target[1] - self.state[agent]["pos_y"])
+
+    def _comms_drop(self, direction):
+        """Phase 22: returns True if this message should be treated as lost
+        in transit, at COMMS_LOSS_PCT probability (0 when unset -- current
+        behavior, unchanged). `direction` is "uplink" (swarm_manager -> agent
+        command) or "downlink" (agent -> swarm_manager telemetry), purely
+        for the dropped-message counters in MetricsLogger."""
+        if COMMS_LOSS_PCT <= 0.0:
+            return False
+        dropped = random.random() < (COMMS_LOSS_PCT / 100.0)
+        if dropped:
+            key = "comms_dropped_uplink" if direction == "uplink" else "comms_dropped_downlink"
+            self.metrics.data[key] += 1
+        return dropped
+
+    def _select_winner(self, bidders):
+        """Phase 21 dispatch-policy ablation. Returns (bid_or_None, winning
+        agent, anomaly_queue index) for the current DISPATCH_POLICY, or None
+        if nothing should be dispatched this tick. `bidders` is already
+        filtered to eligible SCOUTs (see the call site) -- this only decides
+        WHICH bidder gets WHICH target.
+
+        - "auction" (default, current shipped behavior): full-queue search,
+          cost = _bid (distance + battery + carousel penalties). Unchanged
+          from before this ablation existed.
+        - "distance_only": same full-queue combinatorial search as auction,
+          but cost = pure euclidean distance -- isolates how much the
+          battery/carousel penalty terms matter on their own, holding the
+          whole-queue route-planning mechanism fixed.
+        - "nearest": only the OLDEST queued target is considered (no
+          whole-queue search), assigned to whichever eligible bidder is
+          physically nearest to it. Isolates the value of whole-queue
+          search itself, on top of nearest already being ambiguous vs.
+          distance_only.
+        - "fifo": only the OLDEST queued target is considered, assigned to
+          the first eligible bidder in agent list order -- no distance
+          comparison at all. The floor baseline: task order only, no
+          spatial or state awareness whatsoever.
+        """
+        if DISPATCH_POLICY == "fifo":
+            return (None, bidders[0], 0)
+
+        if DISPATCH_POLICY == "nearest":
+            best = None  # (dist, agent)
+            for a in bidders:
+                d = self._dist_to(a, self.anomaly_queue[0])
+                if best is None or d < best[0]:
+                    best = (d, a)
+            return (best[0], best[1], 0)
+
+        cost_fn = self._dist_to if DISPATCH_POLICY == "distance_only" else self._bid
+        best = None  # (cost, agent, queue_index)
+        for a in bidders:
+            for i, tgt in enumerate(self.anomaly_queue):
+                c = cost_fn(a, tgt)
+                if best is None or c < best[0]:
+                    best = (c, a, i)
+        return best
 
     # ── Search algorithm helpers ──────────────────────────────────
     def _cell_index(self, x, y):
@@ -348,8 +498,17 @@ class SwarmManager(Node):
         st["hop_cmd_az"] = yaw_cmd
 
         leg = min(dist, HOP_RANGE)
-        self.yaw_pubs[agent].publish(Float64(data=yaw_cmd))
-        self.jump_pubs[agent].publish(Float64(data=leg))
+        # Phase 22: each topic is dropped independently -- a real ROS2/ground-
+        # link comms-loss scenario has no cross-topic delivery atomicity, so
+        # yaw and distance can split (e.g. distance arrives but yaw doesn't,
+        # and the robot hops using whatever heading it last successfully
+        # received). hop_count only counts as delivered if the jump command
+        # itself got through, since that's the actual movement trigger.
+        if not self._comms_drop("uplink"):
+            self.yaw_pubs[agent].publish(Float64(data=yaw_cmd))
+        if not self._comms_drop("uplink"):
+            self.jump_pubs[agent].publish(Float64(data=leg))
+            self.metrics.data["hop_count_by_agent"][agent] += 1
         self.get_logger().info(
             f"🔭 {agent} search hop toward [{target[0]:.1f}, {target[1]:.1f}] "
             f"({dist:.1f}m, {leg:.1f}m leg)")
@@ -389,6 +548,12 @@ class SwarmManager(Node):
                 self.state[agent]["battery"] = max(0.0, self.state[agent]["battery"] - drain)
                 # Negative = discharging.
                 self.state[agent]["power_rate"] = -drain
+                # Phase 21: energy consumed, in %-drain units (this sim's
+                # battery model is chemistry-agnostic 0-100%, no Wh/J curve
+                # -- see the Li-ion relabel note above -- so this is a
+                # relative comparison metric across dispatch policies, not
+                # an absolute energy figure).
+                self.metrics.data["energy_by_agent"][agent] += drain
 
             if self.state[agent]["battery"] < 15.0 and role != "RECHARGE":
                 self.get_logger().warn(f"🔋 {agent} BMS Alert! Li-ion cells critical ({self.state[agent]['battery']:.1f}%). Fleeing to sunlight.")
@@ -482,18 +647,21 @@ class SwarmManager(Node):
                 # target) pair -- a simplified combinatorial auction that
                 # folds route planning directly into task allocation instead
                 # of treating them as separate steps.
-                best = None  # (bid, agent, queue_index)
-                for a in bidders:
-                    for i, tgt in enumerate(self.anomaly_queue):
-                        b = self._bid(a, tgt)
-                        if best is None or b < best[0]:
-                            best = (b, a, i)
+                # Phase 21: winner/target selection is now pluggable (see
+                # DISPATCH_POLICY at module scope) so a comparison harness
+                # can swap in a simplified baseline without touching this
+                # tick loop. _select_winner encapsulates exactly the "best =
+                # None" combinatorial search this replaced when
+                # DISPATCH_POLICY == "auction" (the default) -- behavior is
+                # unchanged from before this edit in that case.
+                best = self._select_winner(bidders)
                 if best is not None:
                     bid_val, winner, idx = best
                     target = self.anomaly_queue.pop(idx)
                     self.get_logger().info(
-                        "🏷️ Auction for [%.1f, %.1f]: %s wins at cost %.1f (%d target(s), %d bidder(s) considered)"
-                        % (target[0], target[1], winner, bid_val,
+                        "🏷️ [%s] Dispatch for [%.1f, %.1f]: %s wins at cost %s (%d target(s), %d bidder(s) considered)"
+                        % (DISPATCH_POLICY, target[0], target[1], winner,
+                           ("%.1f" % bid_val) if bid_val is not None else "n/a",
                            len(self.anomaly_queue) + 1, len(bidders)))
                     self.state[winner]["role"] = "SAMPLER"
                     self._dispatch_sampler(winner, target)
@@ -524,6 +692,7 @@ class SwarmManager(Node):
                         self.state[agent]["pos_y"] + r * math.sin(ang)))
                     self.get_logger().info(f"📍 {agent} detected high-value spectral anomaly at [{x:.1f}, {y:.1f}]!")
                     self.anomaly_queue.append((x, y))
+                    self.metrics.note_queued(x, y, self.tick_count)
                     self.metrics.data["anomalies_found"] += 1
 
                 # SEARCH ALGORITHM (2026-07-22): a Scout that has landed and
@@ -558,17 +727,27 @@ class SwarmManager(Node):
                         if self.state[agent]["drill_ticks"] >= DRILL_DWELL_TICKS:
                             self.state[agent]["has_sample"] = True
                             self.metrics.data["samples_extracted"] += 1
+                            self.metrics.note_extracted(
+                                self.state[agent]["target_x"], self.state[agent]["target_y"],
+                                self.tick_count, seconds_per_tick=2.0)
                             self.get_logger().info(f"🧪 {agent} core extraction complete.")
                     # Only drill once the robot has actually landed AND its real
                     # (odometry-reported) position is near the anomaly -- previously
                     # this fired 2s after dispatch regardless of whether the jump
                     # had even completed, let alone arrived at the right spot.
                     elif self.state[agent]["landed"] and dist_to_target <= ARRIVAL_RADIUS:
-                        self.get_logger().info(f"⛏️ {agent} arrived (within {dist_to_target:.1f}m) — deploying Core Sampler Drill...")
-                        self.drill_pubs[agent].publish(Float64(data=-0.1)) # Extend drill down
-                        self.state[agent]["drill_deployed"] = True
-                        self.state[agent]["drill_ticks"] = 0
-                        self.state[agent]["activity"] = "Deploying core sampler drill..."
+                        # Phase 22: only advance swarm_manager's own belief
+                        # that the drill deployed if the command actually
+                        # got through -- if dropped, this same `elif` branch
+                        # naturally re-fires next tick (drill_deployed still
+                        # False, agent still landed+in-range), a clean,
+                        # reentrant retry with no separate bookkeeping needed.
+                        if not self._comms_drop("uplink"):
+                            self.get_logger().info(f"⛏️ {agent} arrived (within {dist_to_target:.1f}m) — deploying Core Sampler Drill...")
+                            self.drill_pubs[agent].publish(Float64(data=-0.1)) # Extend drill down
+                            self.state[agent]["drill_deployed"] = True
+                            self.state[agent]["drill_ticks"] = 0
+                            self.state[agent]["activity"] = "Deploying core sampler drill..."
                     elif (self.state[agent]["landed"]
                           and self.tick_count - self.state[agent]["dispatch_tick"] >= REHOP_COOLDOWN_TICKS):
                         # Landed, settled, but outside the arrival radius: the
@@ -601,9 +780,14 @@ class SwarmManager(Node):
                         self.state[agent]["activity"] = f"En route to anomaly ({dist_to_target:.0f}m remaining)"
                 else:
                     if self.state[agent]["drill_deployed"]:
-                        self.get_logger().info(f"⛏️ {agent} retracting Core Sampler Drill...")
-                        self.drill_pubs[agent].publish(Float64(data=0.0)) # Retract
-                        self.state[agent]["drill_deployed"] = False
+                        # Phase 22: same reentrant-retry pattern as the
+                        # extend command above -- drill_deployed only
+                        # flips False on a successful publish, so a dropped
+                        # retract naturally retries next tick.
+                        if not self._comms_drop("uplink"):
+                            self.get_logger().info(f"⛏️ {agent} retracting Core Sampler Drill...")
+                            self.drill_pubs[agent].publish(Float64(data=0.0)) # Retract
+                            self.state[agent]["drill_deployed"] = False
                     self.state[agent]["sample_count"] += 1
                     self.state[agent]["has_sample"] = False
                     self.get_logger().info(
@@ -668,6 +852,14 @@ class SwarmManager(Node):
             self.battery_pubs[agent].publish(Float64(data=self.state[agent]["battery"]))
             self.power_rate_pubs[agent].publish(Float64(data=self.state[agent]["power_rate"]))
 
+        # Phase 21: swarm-wide metrics snapshot (see MetricsLogger/metrics_pub
+        # above) -- includes elapsed_s so a harness reading only the last
+        # echoed line can report the mission-window length precisely.
+        snapshot = dict(self.metrics.data)
+        snapshot["tick_count"] = self.tick_count
+        snapshot["elapsed_s"] = self.tick_count * 2.0
+        self.metrics_pub.publish(String(data=json.dumps(snapshot)))
+
     def _dispatch_sampler(self, agent, target, corrective=False):
         """Send an agent already in the SAMPLER role toward a target anomaly.
         Shared by the auction dispatch, carousel-chaining (visiting the next
@@ -724,8 +916,13 @@ class SwarmManager(Node):
         # _dispatch_scout_search) as of 2026-07-22.
         leg = min(dist, HOP_RANGE)
 
-        self.yaw_pubs[agent].publish(Float64(data=yaw))
-        self.jump_pubs[agent].publish(Float64(data=leg))
+        # Phase 22: independent per-topic drop, see _dispatch_scout_search's
+        # comment for the same pattern and rationale.
+        if not self._comms_drop("uplink"):
+            self.yaw_pubs[agent].publish(Float64(data=yaw))
+        if not self._comms_drop("uplink"):
+            self.jump_pubs[agent].publish(Float64(data=leg))
+            self.metrics.data["hop_count_by_agent"][agent] += 1
 
         if not corrective:
             self.get_logger().info(f"🚀 {agent} accepting bid for SAMPLER. Navigating to [{target[0]:.1f}, {target[1]:.1f}] via {dist:.1f}m jump.")
